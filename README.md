@@ -16,8 +16,7 @@ scripts/       Analysis pipeline (run in numerical order) + config files
                  config_ds006018.py   cross-validation dataset settings
 results/       Output CSVs (the canonical numbers)
 results/logs/  Per-analysis detailed outputs
-manuscript/    The manuscript (Markdown)
-docs/          Number provenance: every manuscript value -> source file
+
 ```
 
 The config files live alongside the scripts so that `from config import ...` resolves with no `PYTHONPATH` setup — run each script from within `scripts/`.
