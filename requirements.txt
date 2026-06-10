@@ -1,0 +1,17 @@
+# Core scientific stack
+numpy
+scipy
+pandas
+matplotlib
+
+# EEG processing
+mne
+
+# Mixed-effects models
+statsmodels
+
+# Entropy / complexity measures
+antropy
+
+# Cross-validation dataset access (OpenNeuro ds006018)
+eegdash
