@@ -146,27 +146,32 @@ Scripts must be run in the numbered order. Each script reads outputs from earlie
 | P300 window | 300–600 ms | At Pz |
 | Pseudotrial min gap | 0.5 s (Config-4 primary) | Also tested at 1.0 s |
 | Pseudotrial threshold | ±150 µV (Config-4 primary) | Also tested at ±100 µV |
-| Primary pseudotrial N | 943 (87% of 1,084) | 26 of 27 participants |
+| Primary pseudotrial N | 943 (87% of 1,084) | 26 of 27 participants (primary Config-4 run, scripts 06–08) |
 | Model | Random-intercept LMM, REML | `statsmodels MixedLM` |
 | Standardization | Robust z (median / 1.4826×MAD) | Within-participant |
 | R² | Nakagawa & Schielzeth (2013) | Marginal (fixed effects only) |
-| AUR | \|β_pseudo\| / \|β_real\| | β-based; R²-ratio used for Table 8 regions |
+| AUR | \|β_pseudo\| / \|β_real\| | β-based throughout; R²-ratio used only for Table 8 region rows (stated in paper §2.8) |
 | Entropy parameters | PE: m=3, τ=1, normalized; SE: m=2, r=0.2×SD; LZ: median-threshold binarization | `antropy` library |
+| ΔAIC (RI vs RIS) | 32–54 in favor of random-intercept | Computed from `model_diagnostics.csv`; range across M1, M4a, M9a, M12, M13, M15 |
 
 ---
 
 ## Pseudotrial configurations (Table 3)
 
-| Config | Min gap | Threshold | Pseudotrials (% of 1,084) | Participants | M9a R²_pseudo | M1 R²_pseudo |
-|--------|---------|-----------|--------------------------|--------------|--------------|-------------|
+Table 3 reports the 4-config sensitivity sweep produced by **script 05** (`pseudotrial_sensitivity.csv`). The sweep uses a liberal subject-inclusion gate (subject retained if at least `MIN_TRIALS_REQUIRED` = 10 pseudotrials could be placed), which is what allows all 27 subjects to contribute even under the strictest configurations.
+
+Scripts 06–08 (the primary Config-4 run) use a stricter gate: a subject is included only if a full complement of pseudotrials matching their real-trial count could be placed. This produces a slightly smaller pool (943 trials, 26 participants) but yields more closely matched real/pseudo sample sizes per subject. The two Config-4 runs are therefore not interchangeable; Table 3 uses the sweep throughout for consistency.
+
+| Config | Min gap | Threshold | Pseudotrials (% of real) | Participants | M9a *R*²_pseudo | M1 *R*²_pseudo |
+|--------|---------|-----------|--------------------------|--------------|----------------|---------------|
 | 1 | 1.0 s | ±100 µV | 157 (14%) | 11 | 0.298 | 0.004 |
 | 2 | 0.5 s | ±100 µV | 455 (42%) | 16 | 0.279 | 0.002 |
 | 3 | 1.0 s | ±150 µV | 426 (39%) | 20 | 0.303 | 0.012 |
-| **4 (primary)** | **0.5 s** | **±150 µV** | **943 (87%)** | **26** | **0.370** | **0.015** |
+| **4 (primary)** | **0.5 s** | **±150 µV** | **952 (88%)** | **27** | **0.229** | **0.001** |
 
 Config-4 is used as the primary comparison throughout. Scripts 06–10 all use Config-4 parameters. Config-1 (script 04) and the sensitivity sweep (script 05) confirm conclusions are unchanged across configurations.
 
-> **Note:** `pseudotrial_lmm_summary.csv` in `results/` contains Config-1 estimates for M1, M4a, M9a, M12 (script 04). All tables and figures in the paper use Config-4 values from `extended_endpoint_pseudotrial_results.csv` and `entropy_pseudotrial_results.csv` (scripts 06–08). The Config-1 file is retained for provenance.
+> **Note on deposited files:** `pseudotrial_lmm_summary.csv` in `results/` contains Config-1 estimates for M1, M4a, M9a, M12 (script 04). All tables and figures in the paper use Config-4 values. For most models these come from `extended_endpoint_pseudotrial_results.csv` and `entropy_pseudotrial_results.csv` (scripts 06–08). The M1, M4a, M9a, and M12 Config-4 pseudotrial estimates reported in Tables 4–5 of the paper (β_pseudo = −0.106, +0.221, +0.582, +0.589 respectively; *n* = 943, 26 participants) were produced by script 06's primary run but are not separately deposited in the CSV above, which covers the remaining amplitude and shape models. The Config-1 file (`pseudotrial_lmm_summary.csv`) is retained for provenance of the original sensitivity check.
 
 ---
 
@@ -176,10 +181,13 @@ Config-4 is used as the primary comparison throughout. Scripts 06–10 all use C
 One row per model (M1–M23). Columns: `model`, `predictor`, `beta`, `SE`, `z`, `p`, `CI_low`, `CI_high`, `R2_marginal`, `R2_conditional`, `n_trials`, `n_subjects`, `fit_method`, `note`.
 
 ### `results/logs/extended_endpoint_pseudotrial_results.csv`
-Config-4 pseudotrial estimates for all amplitude/energy/shape models. Columns: `model`, `beta`, `SE`, `z`, `p`, `R2_marginal`, `n_trials`, `n_subjects`, `kind` (real/pseudo), `config`.
+Config-4 pseudotrial estimates for amplitude/energy/shape models (M2, M3, M4b, M5–M11, M9b, and the shape/Hjorth models M16–M23 via script 08). Columns: `model`, `beta`, `SE`, `z`, `p`, `R2_marginal`, `n_trials`, `n_subjects`, `kind` (real/pseudo), `config`. Note: M1, M4a, M9a, and M12 are not in this file; see the note in the Pseudotrial configurations section above.
 
 ### `results/logs/entropy_pseudotrial_results.csv`
 Config-4 pseudotrial estimates for M13 (permutation entropy), M14 (sample entropy), M15 (Lempel–Ziv), M22 (Hjorth mobility), M23 (Hjorth complexity). Same columns as above plus `measure`.
+
+### `results/logs/pseudotrial_sensitivity.csv`
+4-config sensitivity sweep (script 05) for M1, M4a, M9a, M12. Source for Table 3 in the paper. Columns: `beta`, `SE`, `z`, `p`, `R2_marginal`, `n_trials`, `n_subjects`, `model`, `config`.
 
 ### `results/logs/interelectrode_val1/2/3_*.csv`
 Full-montage coupling estimates at each of the 33 electrodes (30 scalp + 3 EOG). Columns: `electrode`, `beta`, `R2_marginal`, `p`, `kind`, `measure`.
