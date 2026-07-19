@@ -1,12 +1,3 @@
-# Single-trial Endpoint-summary Measures and P300 Coupling: Analysis Pipeline
-
-**Paper:** *Single-trial endpoint-summary measures do not capture P300 coupling in the visual oddball paradigm: a pseudotrial-controlled, cross-validated study*  
-**Author:** Erkan Biber — Institute of Biomedical Engineering, Boğaziçi University  
-**Preprint:** https://doi.org/10.64898/2025.12.17.694588  
-**ORCID:** 0000-0003-4938-1046
-
----
-
 ## Overview
 
 This repository contains the complete analysis pipeline for a study examining whether conventional early-window endpoint-summary measures (mean amplitude, RMS, entropy, Hjorth parameters, etc.) capture genuine stimulus-locked information about P300 amplitude in the active visual oddball paradigm. Every coupling estimate is accompanied by a pseudotrial control estimate; the direction of change under pseudotrial substitution is the core diagnostic.
@@ -17,11 +8,14 @@ Three families of measures are examined:
 - **Signal complexity** (M13–M15): permutation entropy, sample entropy, Lempel–Ziv
 - **Shape/robust/Hjorth** (M16–M23): distributional statistics, slope, Hjorth parameters
 
-Three main findings emerge:
 
-1. **Cross-channel amplitude coupling reflects background autocorrelation** (AUR > 1; collapses at *N* = 90)
-2. **Same-channel coupling is general within-trial temporal continuity** (AUR ≈ 1; present at every electrode including EOG)
-3. **Complexity measures carry sign-heterogeneous individual-level coupling** (AUR < 1 at population level; cancels to zero population mean because direction is a stable person-level trait)
+Three findings emerge, each supported by the matched pseudotrial contrast and cross-validated in an independent dataset:
+
+1. **Cross-channel amplitude and energy couplings are near-zero and dataset-specific.** Their matched contrast does not indicate a stimulus-locked contribution, and a formal dataset-by-feature interaction shows they differ between datasets — consistent with dependence on the background structure of the signal rather than a stable population effect.
+2. **Same-channel coupling is general within-trial temporal continuity.** It is large (R² ≈ 0.31) but statistically unchanged under pseudotrial substitution (Δβ ≈ 0), present at every electrode including the eye channels, and quantitatively equivalent across datasets once trial composition is matched — not a P300-specific process.
+3. **Complexity measures carry at most a small, dataset-dependent population coupling, with no reliable individual-level structure.** Per-participant slopes have no demonstrable split-half reliability at the available trial counts, and their cross-measure agreement does not survive correction for shared estimation noise; the sign-heterogeneous pattern is better explained by estimation noise around a near-zero population mean than by a stable person-level trait.
+
+The autocorrelation ratio (AUR = |β_pseudo/β_real|) is retained only as a descriptive summary read against a calibrated background band, because a ratio's confidence interval becomes unbounded as its denominator approaches zero and is uninformative at the small effect sizes of the cross-channel and complexity measures.
 
 ---
 
