@@ -305,15 +305,6 @@ Contains M1–M12 including the a/b competitive and m mean-variant models (17 ro
 
 ---
 
-## Known gaps
-
-- **`15_calibration_simulation.py` does not reproduce the published calibration bands.** It implements the specification in the paper's Section 2.12, but yields [0.60, 2.67] at R² ≈ 0.01 and [0.89, 1.12] at R² ≈ 0.31, against the published [0.37, 2.94] and [0.85, 1.17]. The qualitative structure is the same — wide at small R², narrow and centred on 1 at large R² — but the numbers differ, so this script is a reimplementation from the written specification and not the original. The specification does not pin down the per-participant trial count, the surrogate-averaging depth entering the ratio, or how sampling rate enters the window statistic, and each of those moves the band.
-- **`17_overlap_audit.py` has not been run.** It needs the raw recordings, because it depends on true stimulus onsets and realised pseudotrial placements. The overlap percentages quoted in the paper (27.5%, 19.8%, ~80% retained, ~118 clean surrogates per placement) are therefore not yet reproduced from a deposited file. The evoked-clean *contrast* is deposited and does reproduce.
-- **Configs 1 and 3 were not run through the matched-contrast subsystem**, so no `phase013_*_config1/3` files exist.
-- **`13_make_figures.py` and `14_additinal_figures.py` both define Figure 3 and Figure 7** by different methods (`figure_3_pseudotrial` / `figure_3_dbeta_forest`, and `figure_7_entropy_heterogeneity` / `figure_7_persubject`). The paper uses the Δβ forest plot for Figure 3, and Figure 7 shows per-participant complexity slopes — note that `14_additinal_figures.py:figure_7_persubject` selects `model == 'M9a_mean_Pz'`, an amplitude model, and reads its second panel from hardcoded constants.
-- **`results/logs/` duplicates nine files** that are already in `results/`, byte-identically.
-
----
 
 ## Reproducibility
 
