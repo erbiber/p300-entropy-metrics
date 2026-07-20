@@ -31,7 +31,7 @@ The autocorrelation ratio (AUR = |β_pseudo/β_real|) is retained only as a desc
 ### Cross-validation: OpenNeuro ds006018 (Isbell et al., 2025)
 
 - Source: https://openneuro.org/datasets/ds006018
-- *N* = 90 retained (of 127); 3,130 target trials for real-trial models; *N* = 83 for pseudotrial fits (2,270 pseudotrials)
+- *N* = 90 retained (of 127); 3,130 target trials for real-trial models; *N* = 84 for pseudotrial fits at the primary ±150 µV configuration (73 at ±100 µV)
 - Brain Products actiCHamp Plus, 500 Hz, 26 scalp channels, ±150 µV rejection
 - Access via EEGDash: `pip install eegdash`
 - Same active visual oddball (letters A–E) as ERP CORE
@@ -204,7 +204,7 @@ Each numerical result in the paper is traceable to a specific output CSV through
 
 ## Citation
 
-Biber, E. (2025). *Single-trial endpoint-summary measures do not capture P300 coupling in the visual oddball paradigm: a pseudotrial-controlled, cross-validated study.* bioRxiv. https://doi.org/10.64898/2025.12.17.694588
+Biber, E. (2025). *Matched pseudotrial controls for early-window scalar associations with P300 amplitude: evidence from two visual oddball EEG datasets.* bioRxiv. https://doi.org/10.64898/2025.12.17.694588
 
 ---
 
