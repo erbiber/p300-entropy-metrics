@@ -5,14 +5,14 @@ This repository contains the complete analysis pipeline for a study examining wh
 Three families of measures are examined:
 
 - **Amplitude/energy** (M1–M12): cross-channel and same-channel models
-- **Signal complexity** (M13–M15): permutation entropy, sample entropy, Lempel–Ziv
+- **Signal complexity** (M13–M15, M22–M23): permutation entropy, sample entropy, Lempel–Ziv, Hjorth mobility and complexity
 - **Shape/robust/Hjorth** (M16–M23): distributional statistics, slope, Hjorth parameters
 
-Three findings emerge, each supported by the matched pseudotrial contrast and tested in an independent dataset:
+Three findings emerge, each supported by the matched pseudotrial contrast and tested in a cross-validation dataset:
 
 1. **Cross-channel amplitude and energy couplings are near-zero and dataset-specific.** Their matched contrast does not indicate a stimulus-locked contribution, and a formal dataset-by-feature interaction shows they differ between datasets — consistent with dependence on the background structure of the signal rather than a stable population effect.
-2. **Same-channel coupling is general within-trial temporal continuity.** It is large (R² ≈ 0.31) but statistically unchanged under pseudotrial substitution (Δβ ≈ 0), present at every electrode including the eye channels, and quantitatively equivalent across datasets once trial composition is matched — not a P300-specific process.
-3. **Complexity measures carry at most a small, dataset-dependent population coupling, with no reliable individual-level structure.** Per-participant slopes have no demonstrable split-half reliability at the available trial counts, and their cross-measure agreement does not survive correction for shared estimation noise.
+2. **Same-channel coupling is general within-trial temporal continuity.** It is large (R² = 0.299 primary, 0.243 cross-validation) but statistically unchanged under pseudotrial substitution (Δβ ≈ 0), present at every electrode including the eye channels, and quantitatively equivalent across datasets once trial composition is matched — not a P300-specific process.
+3. **No complexity measure shows a matched contrast distinguishable from its pseudotrial counterpart.** All five (permutation entropy, sample entropy, Lempel–Ziv, Hjorth mobility, Hjorth complexity) have Δβ confidence intervals that include zero in both datasets. Nor is there reliable individual-level structure: per-participant slopes have no demonstrable split-half reliability at the available trial counts, and their cross-measure agreement does not survive correction for shared estimation noise. One caveat is specific to permutation entropy — decimating the primary dataset to 500 Hz moves its contrast from Δβ = +0.057 [−0.023, +0.116] to +0.098 [+0.034, +0.141], because the ordinal-pattern embedding (order 3, delay 1) spans 2.0 ms at 1024 Hz and 4.0 ms at 500 Hz. The other four measures are unchanged under the same decimation.
 
 The autocorrelation ratio (AUR = |β_pseudo/β_real|) is retained only as a descriptive summary read against a calibrated background band, because a ratio's confidence interval becomes unbounded as its denominator approaches zero and is uninformative at the small effect sizes of the cross-channel and complexity measures.
 
@@ -23,14 +23,17 @@ The autocorrelation ratio (AUR = |β_pseudo/β_real|) is retained only as a desc
 ### Primary: ERP CORE Visual P3 (Kappenman et al., 2021)
 
 - Source: https://github.com/lucklab/ERP_CORE/tree/master/P3
-- *N* = 27 retained (of 40); 1,084 epochs (213 target + 871 standard; both conditions retained, condition as covariate)
-- BioSemi ActiveTwo, 1024 Hz, 30 scalp + 3 EOG channels, ±100 µV rejection
+- Primary analysis (±150 µV): *N* = 33 retained (of 40); 1,625 epochs; *N* = 28 contribute to the matched contrast
+- Robustness check (±100 µV): *N* = 27; 1,084 epochs (213 target + 871 standard); *N* = 17 contribute to the matched contrast
+- Both conditions retained, condition as covariate
+- BioSemi ActiveTwo, 1024 Hz, 30 scalp + 3 EOG channels
 - Event coding: two-digit XY where X = block target letter (1–5), Y = shown letter; diagonal {11,22,33,44,55} = target, off-diagonal = standard
 
-### Independent dataset: OpenNeuro ds006018 (Isbell et al., 2025)
+### Cross-validation dataset: OpenNeuro ds006018 (Isbell et al., 2025)
 
 - Source: https://openneuro.org/datasets/ds006018
-- *N* = 90 retained (of 127); 3,130 target trials for real-trial models; *N* = 84 for pseudotrial fits at the primary ±150 µV configuration (73 at ±100 µV)
+- Primary analysis (±150 µV): *N* = 90 retained (of 127); 3,130 target trials; *N* = 84 contribute to the matched contrast
+- Robustness check (±100 µV): *N* = 84; 2,782 trials; *N* = 73 contribute to the matched contrast
 - Brain Products actiCHamp Plus, 500 Hz, 26 scalp channels, ±150 µV rejection
 - Access via EEGDash: `pip install eegdash`
 - Same active visual oddball (letters A–E) as ERP CORE
@@ -52,7 +55,7 @@ The autocorrelation ratio (AUR = |β_pseudo/β_real|) is retained only as a desc
 │   ├── config.py                            # Primary-dataset parameters (paths, filters,
 │   │                                        #   windows, REJECT_THRESHOLD = 100e-6,
 │   │                                        #   PSEUDOTRIAL_MIN_GAP_FROM_REAL = 1.0)
-│   ├── config_ds006018.py                   # Independent-dataset parameters; also carries
+│   ├── config_ds006018.py                   # Cross-validation-dataset parameters; also carries
 │   │                                        #   PSEUDOTRIAL_CONFIGS (all four) and both
 │   │                                        #   rejection thresholds
 │   │
@@ -92,6 +95,12 @@ The autocorrelation ratio (AUR = |β_pseudo/β_real|) is retained only as a desc
 │   ├── 15_calibration_simulation.py         # AUR null bands + power (see Known gaps)
 │   ├── 16_slope_reliability.py              # Split-half / Spearman-Brown; cross-measure
 │   ├── 17_overlap_audit.py                  # Pseudotrial overlap diagnostics
+│   ├── phase013_complexity_patch.py         # Registers M13-M15, M22, M23 and computes
+│   │                                        #   their per-epoch features. Import in
+│   │                                        #   run_phase013.py to extend MODELS to nine.
+│   ├── phase013_nan_safe_zscore.py          # NaN-safe robust-z and slope: a subject with
+│   │                                        #   a few non-finite trials keeps its clean
+│   │                                        #   trials instead of being dropped entirely.
 │   └── 18_figure_S2_calibration.py          # Supplementary Figure S2
 │
 └── results/
@@ -107,17 +116,21 @@ The autocorrelation ratio (AUR = |β_pseudo/β_real|) is retained only as a desc
     ├── extended_endpoint_pseudotrial_results.csv    (  42 rows) Script 08; real + pseudo
     │
     │   -- matched-contrast (Delta-beta) outputs --
-    ├── phase013_dbeta_config4.csv                   (   8 rows) PRIMARY. Both datasets
+    ├── phase013_dbeta_config4_K1000.csv             (  18 rows) PRIMARY. 9 models, both datasets
+    ├── phase013_dbeta_config4.csv                   (   8 rows) 4-model predecessor
     ├── phase013_dbeta_config2.csv                   (   8 rows) +/-100 uV robustness
     ├── phase013_dbeta_config4_K1000_clean.csv       (   4 rows) Evoked-clean, erp_core only
-    ├── phase013_dbeta_config4_K1000_rs500.csv       (   8 rows) 500 Hz decimation
-    ├── phase013_interaction_config4.csv             (   4 rows) Dataset x feature interaction
+    ├── phase013_dbeta_config4_K1000_rs500.csv       (  18 rows) 500 Hz decimation, 9 models
+    ├── phase013_interaction_config4_K1000.csv       (   9 rows) Dataset x feature interaction, 9 models
+    ├── phase013_interaction_config4.csv             (   4 rows) 4-model predecessor
     ├── phase013_interaction_config2.csv             (   4 rows)
     ├── phase013_interaction_config4_K1000_targets.csv (  4 rows) Condition-matched
-    ├── phase013_interaction_config4_K1000_rs500.csv (   4 rows) 500 Hz
-    ├── phase013_marginal_r2_config4_K1000.csv       (   8 rows) Marginal R2 robustness
+    ├── phase013_interaction_config4_K1000_rs500.csv (   9 rows) 500 Hz, 9 models
+    ├── phase013_marginal_r2_config4_K1000.csv       (  18 rows) Marginal R2, 9 models
+    ├── phase013_marginal_r2_config4_K1000_rs500.csv (  18 rows) Marginal R2 at 500 Hz
     ├── phase013_marginal_r2_config2_K1000.csv       (   8 rows)
-    ├── phase013_persubject_config4_K1000.csv        ( 492 rows) Per-subject real/pseudo slopes
+    ├── phase013_persubject_config4_K1000.csv        (1107 rows) Per-subject real/pseudo slopes, 9 models
+    ├── phase013_persubject_config4_K1000_rs500.csv  (1107 rows) Same at 500 Hz
     ├── phase013_persubject_config2_K1000.csv        ( 444 rows)
     │
     │   -- topography --
@@ -126,9 +139,9 @@ The autocorrelation ratio (AUR = |β_pseudo/β_real|) is retained only as a desc
     ├── interelectrode_val3_shape_to_Pz.csv          ( 132 rows) Complexity
     ├── interelectrode_all.csv                       ( 264 rows) All three combined
     │
-    │   -- trial-level and independent dataset --
+    │   -- trial-level and cross-validation dataset --
     ├── heterogeneity_primary_trials.csv             (1084 rows) Trial-level complexity + P300
-    ├── heterogeneity_ds006018_checkpoint.csv        (3130 rows) Same, independent dataset
+    ├── heterogeneity_ds006018_checkpoint.csv        (3130 rows) Same, cross-validation dataset
     ├── crossval_ds006018_results.csv                (  14 rows) Independent-dataset LMMs
     │
     │   -- validity checks --
@@ -159,7 +172,7 @@ export ERP_CORE_P3_DATA=/path/to/erp_core_P3
 export DOF_SCRIPT_DIR=/path/to/this/repo/scripts
 export DOF_RESULTS_DIR=/path/to/output/results
 
-# Independent dataset
+# Cross-validation dataset
 export DS006018_DATA=/path/to/ds006018
 export DS006018_RESULTS=/path/to/output/results_ds006018
 ```
@@ -201,9 +214,10 @@ The numbered scripts run in order; each reads outputs from earlier steps. The `p
 | 13 | `target_standard_validity.py` | raw ERP CORE | `target_standard_validity.csv` |
 | 14 | `distributional_comparability.py` | raw EEG | `distributional_comparability.csv` |
 | 15 | `16_slope_reliability.py` | heterogeneity files | `slope_reliability.csv`, `cross_measure_concordance.csv` |
-| 16 | `17_overlap_audit.py` | raw EEG | `overlap_audit_<dataset>_<config>.csv` |
-| 17 | `12_model_diagnostics.py` | LMM fits | `model_diagnostics.csv` + Supplementary Figure S1 |
-| 18 | `13_make_figures.py`, `14_additinal_figures.py`, `18_figure_S2_calibration.py` | all results | Figures 1–7, Supplementary Figure S2 |
+| 16 | `17_overlap_audit.py` | raw EEG | `overlap_audit_<dataset>_<config>.csv` — **not yet run**; the manuscript's 27.5% / 19.8% / ~80% / ~118 diagnostics have no deposited audit file |
+| 17 | `12_model_diagnostics.py` | LMM fits | `model_diagnostics.csv` + Supplementary Figure S2 |
+| 18 | `13_make_figures.py`, `14_additinal_figures.py` | all results | Figures 1–7 |
+| 19 | `18_figure_S2_calibration.py` (**not deposited**) | calibration outputs | Supplementary Figure S3 |
 
 `15_calibration_simulation.py` is self-contained and can be run at any point; it needs no EEG data.
 
@@ -268,9 +282,9 @@ Contains M1–M12 including the a/b competitive and m mean-variant models (17 ro
 
 **`phase013_interaction_*.csv`** — Columns: `config`, `model`, `datasets`, `interaction_beta`, `interaction_p`, `n_trials`.
 
-**`phase013_marginal_r2_*.csv`** — Columns: `dataset`, `config`, `model`, `marginal_r2`, `lmm_beta`, `n_subjects`, `n_trials`. A robustness check under robust-z preprocessing at two thresholds; the ±150 µV run retains N = 33 / 1,625 and the ±100 µV run N = 27 / 1,084, because they are different rejection cutoffs. **These are not the canonical R² values** — those are in `lmm_summary_canonical.csv`.
+**`phase013_marginal_r2_*.csv`** — Columns: `dataset`, `config`, `model`, `marginal_r2`, `lmm_beta`, `n_subjects`, `n_trials`. The ±150 µV run retains N = 33 / 1,625 and the ±100 µV run N = 27 / 1,084, because they are different rejection cutoffs. The `_K1000` files carry all nine models and are the source for the descriptive β and marginal R² reported in the manuscript's Results; `lmm_summary_canonical.csv` is the ±100 µV predecessor covering all 23 models.
 
-**`phase013_persubject_*.csv`** — Columns: `dataset`, `config`, `model`, `subject`, `real_slope`, `pseudo_mean`, `d`, `n_pseudo_draws`, `used`. Contains only the four headline amplitude/energy models (M1, M4a, M8, M9a) — no complexity measure.
+**`phase013_persubject_*.csv`** — Columns: `dataset`, `config`, `model`, `subject`, `real_slope`, `pseudo_mean`, `d`, `n_pseudo_draws`, `used`. The `_K1000` files contain all nine models (M1, M4a, M8, M9a, M13–M15, M22, M23); the older `config2` file contains only the four amplitude/energy models. Aggregating `d` over rows with `used == True` reproduces the published Δβ exactly.
 
 ### Single-draw pseudotrial runs
 
@@ -285,7 +299,7 @@ Contains M1–M12 including the a/b competitive and m mean-variant models (17 ro
 
 **`interelectrode_val1/2/3_*.csv`** and **`interelectrode_all.csv`** — coupling at each of 33 electrodes (30 scalp + 3 EOG), real and pseudo. Columns: `beta`, `SE`, `z`, `p`, `R2_marginal`, `n_trials`, `n_subjects`, `electrode`, `kind`, `measure`.
 
-### Trial-level and independent dataset
+### Trial-level and cross-validation dataset
 
 **`heterogeneity_primary_trials.csv`** / **`heterogeneity_ds006018_checkpoint.csv`** — trial-level complexity features and P300 amplitude for per-subject slope estimation. Columns: `subject`, `pe`, `se`, `lz`, `hjorth_mob`, `hjorth_cplx`, `p300` (the primary file additionally carries a condition column).
 
