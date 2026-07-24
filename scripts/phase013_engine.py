@@ -1,6 +1,24 @@
+"""
+phase013_engine.py  -  dataset-agnostic engine for Phases 0/1/3.
+
+Contains ONLY estimator + statistics + a shared per-subject slope builder. The raw
+loading lives in phase013_erpcore.py and phase013_ds006018.py, which import your
+config.py / config_ds006018.py so preprocessing is byte-identical to the manuscript.
+
+Estimator (matches manuscript): robust-z within subject; beta = mean of per-subject
+OLS slopes of z(P300) on z(predictor). The matched real-vs-pseudo contrast reduces to
+a per-subject statistic d_i = real_slope_i - mean_k pseudo_slope_i^(k), so:
+    Delta-beta = mean(d_i)                         (point estimate)
+    subject-cluster BCa CI on d_i                  (uncertainty from subject sampling)
+    surrogate p: beta_real vs the K background betas (placement null)
+
+Helpers window_mask / robust_z_within_subject / feature_block / generate_pseudotrial_samples
+are copied verbatim from your scripts/04 and scripts/10 so behaviour is identical.
+"""
 import numpy as np
 from scipy import stats
 
+# ---- copied verbatim from scripts/04_pseudotrial_correction.py / config.py ----
 def window_mask(times, win):
     return (times >= win[0]) & (times <= win[1])
 
@@ -19,6 +37,8 @@ def feature_block(trace):
 def generate_pseudotrial_samples(n_pseudo, sfreq, n_continuous_samples,
                                  real_event_samples, min_gap_seconds,
                                  tmin, tmax, rng, attempt_factor=20, attempt_floor=5000):
+    """Verbatim logic from the repo; attempt budget parameterised (repo uses (10,1000)
+    for ERP CORE and (20,5000) for ds006018 - both give matched-N placement)."""
     min_gap_samples = int(min_gap_seconds * sfreq)
     epoch_samples = int((tmax - tmin) * sfreq)
     pre_buffer = int(abs(tmin) * sfreq) + 1
@@ -47,6 +67,7 @@ def generate_pseudotrial_samples(n_pseudo, sfreq, n_continuous_samples,
     placed.sort()
     return np.array(placed, dtype=int)
 
+# ---- estimator ----
 def _ols_slope(x, y):
     x = np.asarray(x, float); y = np.asarray(y, float)
     if len(x) < 3: return np.nan
@@ -55,6 +76,7 @@ def _ols_slope(x, y):
     return (zx @ zy) / (zx @ zx) if (zx @ zx) > 1e-12 else np.nan
 
 def features_from_epochs(data, times, fz_idx, pz_idx, early_win, p300_win):
+    """data: (n_epochs, n_ch, n_times). Returns per-trial dict for the models we contrast."""
     me = window_mask(times, early_win); mp = window_mask(times, p300_win)
     fz = data[:, fz_idx, :]; pz = data[:, pz_idx, :]
     return dict(
@@ -65,7 +87,7 @@ def features_from_epochs(data, times, fz_idx, pz_idx, early_win, p300_win):
         p300_pz=pz[:, mp].mean(1),
     )
 
-MODELS = {
+MODELS = {  # model name -> (predictor feature, outcome feature)
     'M1_RMS_Fz_0_150':  ('rms_early_fz',  'p300_pz'),
     'M4a_mean_Fz':      ('mean_early_fz', 'p300_pz'),
     'M8_RMS_Pz_0_150':  ('rms_early_pz',  'p300_pz'),
@@ -73,6 +95,8 @@ MODELS = {
 }
 
 def subject_slopes_real_and_pseudo(real_feats, pseudo_feats_list):
+    """real_feats: per-trial dict. pseudo_feats_list: list over K draws of per-trial dicts.
+    Returns real_slope{model} and pseudo_slopes{model: array over usable draws}."""
     real_slope = {}; pseudo_slopes = {m: [] for m in MODELS}
     for m, (fx, fy) in MODELS.items():
         real_slope[m] = _ols_slope(real_feats[fx], real_feats[fy])
@@ -82,12 +106,15 @@ def subject_slopes_real_and_pseudo(real_feats, pseudo_feats_list):
     pseudo_slopes = {m: np.array(v, float) for m, v in pseudo_slopes.items()}
     return real_slope, pseudo_slopes
 
+# ---- contrast + inference (operate on stacked per-subject slopes) ----
 def contrast_from_matrix(real_slopes, pseudo_matrix):
+    """real_slopes: (N,) real per-subject slopes. pseudo_matrix: (K,N) pseudo slopes.
+    Returns beta_real, K background betas, per-subject d_i, Delta-beta, surrogate p."""
     real_slopes = np.asarray(real_slopes, float)
-    P = np.asarray(pseudo_matrix, float)
-    beta_pseudo_k = np.nanmean(P, axis=1)
-    pbar = np.nanmean(P, axis=0)
-    d = real_slopes - pbar
+    P = np.asarray(pseudo_matrix, float)                 # (K,N)
+    beta_pseudo_k = np.nanmean(P, axis=1)                # (K,)
+    pbar = np.nanmean(P, axis=0)                         # (N,)
+    d = real_slopes - pbar                               # (N,)
     beta_real = float(np.nanmean(real_slopes))
     dbeta = float(np.nanmean(d))
     bpk = beta_pseudo_k[~np.isnan(beta_pseudo_k)]
@@ -111,6 +138,7 @@ def bca_ci(d, B=4000, alpha=0.05, seed=12345):
     return float(theta), float(np.percentile(boot, 100 * adj(zl))), float(np.percentile(boot, 100 * adj(zu)))
 
 def dataset_feature_interaction(feat, p300, subject, dataset):
+    """LMM z_p300 ~ z_feat * C(dataset), random intercept. Returns interaction beta,p."""
     import pandas as pd, statsmodels.formula.api as smf, warnings
     warnings.filterwarnings("ignore")
     df = pd.DataFrame(dict(feat=feat, p300=p300, subject=subject, dataset=dataset))
@@ -122,6 +150,9 @@ def dataset_feature_interaction(feat, p300, subject, dataset):
     return float(m.params[term[0]]), float(m.pvalues[term[0]])
 
 def marginal_r2(feat, p300, subject):
+    """A5: canonical Nakagawa-Schielzeth marginal R^2 for the random-intercept model
+    zp ~ zf + (1|subject), with robust-z-within-subject standardization matching the
+    coupling models (Section 2.7). Returns (marginal_r2, beta, n_subjects)."""
     import pandas as pd, statsmodels.formula.api as smf, warnings
     warnings.filterwarnings("ignore")
     df = pd.DataFrame(dict(feat=feat, p300=p300, subject=subject))
@@ -132,15 +163,20 @@ def marginal_r2(feat, p300, subject):
         return np.nan, np.nan, int(df["subject"].nunique())
     m = smf.mixedlm("zp ~ zf", df, groups=df["subject"]).fit(method="lbfgs")
     beta = float(m.params.get("zf", np.nan))
-    var_f = beta ** 2 * float(np.var(df["zf"].values, ddof=0))
-    var_a = float(m.cov_re.iloc[0, 0]) if m.cov_re.shape[0] > 0 else 0.0
-    var_e = float(m.scale)
+    var_f = beta ** 2 * float(np.var(df["zf"].values, ddof=0))          # variance of fixed-effect predictions
+    var_a = float(m.cov_re.iloc[0, 0]) if m.cov_re.shape[0] > 0 else 0.0  # random-intercept variance
+    var_e = float(m.scale)                                              # residual variance
     denom = var_f + var_a + var_e
     r2m = var_f / denom if denom > 0 else np.nan
     return float(r2m), beta, int(df["subject"].nunique())
 
+
 def clean_pseudo_mask(pseudo_samples, stim_samples, fs, early=(0.0,0.150), p300=(0.300,0.600),
                       evoked_end=0.8):
+    """Return a boolean mask over pseudo_samples that is True for pseudotrials whose EARLY and
+    P300 analysis windows do NOT overlap any real stimulus's evoked period [onset, onset+evoked_end].
+    Used by --clean-pseudo to remove pseudotrials that capture neighbouring evoked activity
+    (a consequence of the 0.5 s onset gap being shorter than the 1.0 s epoch)."""
     P = np.asarray(pseudo_samples, float)[:, None]
     S = np.asarray(stim_samples, float)[None, :]
     e_lo, e_hi = P + early[0]*fs, P + early[1]*fs
@@ -150,7 +186,17 @@ def clean_pseudo_mask(pseudo_samples, stim_samples, fs, early=(0.0,0.150), p300=
     p300_hit  = ((p_lo < ev_hi) & (p_hi > ev_lo)).any(axis=1)
     return ~(early_hit | p300_hit)
 
+
 def contrast_ragged(real_slopes, pseudo_arrays, min_draws=1, n_surrogate=2000, seed=12345):
+    """real_slopes: (N,). pseudo_arrays: list of N arrays (per-subject pseudo slopes,
+    possibly unequal length; empty allowed). Subjects with fewer than `min_draws` usable
+    pseudo slopes (or a NaN real slope) are DROPPED from the contrast.
+
+    d_i = real_slope_i - mean(subject i's pseudo slopes)   -> Delta-beta = mean(d_i), BCa on d_i.
+    Surrogate null: robust to ragged counts. Each of `n_surrogate` iterations draws ONE pseudo
+    slope per retained subject uniformly from that subject's own pool, then takes the mean; the
+    resulting distribution of background betas is the placement null for beta_real. This uses all
+    of every subject's draws and never collapses to the minimum count."""
     real_slopes = np.asarray(real_slopes, float)
     pools = []; reals = []
     for r, a in zip(real_slopes, pseudo_arrays):
