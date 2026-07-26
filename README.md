@@ -330,7 +330,7 @@ Each numerical result in the paper is traceable to a specific output CSV through
 
 ## Citation
 
-Biber, E. (2025). *Matched pseudotrial controls for early-window scalar associations with P300 amplitude: evidence from two visual oddball EEG datasets.* bioRxiv. https://doi.org/10.64898/2025.12.17.694588
+github/erbiber/p300-entropy-metrics
 
 ---
 
