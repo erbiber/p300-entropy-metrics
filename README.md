@@ -91,8 +91,8 @@ The autocorrelation ratio (AUR = |β_pseudo/β_real|) is retained only as a desc
 │   ├── target_standard_validity.py          # Behavioural validity (accuracy, RT)
 │   ├── distributional_comparability.py      # Real vs pseudotrial ITI / position / coverage
 │   │
-│   │   -- added in this revision --
-│   ├── 15_calibration_simulation.py         # AUR null bands + power (see Known gaps)
+│   │   -- calibration, reliability and audit --
+│   ├── 15_calibration_simulation.py         # AUR null bands + power analysis
 │   ├── 16_slope_reliability.py              # Split-half / Spearman-Brown; cross-measure
 │   ├── 17_overlap_audit.py                  # Pseudotrial overlap diagnostics
 │   ├── phase013_complexity_patch.py         # Registers M13-M15, M22, M23 and computes
@@ -101,7 +101,9 @@ The autocorrelation ratio (AUR = |β_pseudo/β_real|) is retained only as a desc
 │   ├── phase013_nan_safe_zscore.py          # NaN-safe robust-z and slope: a subject with
 │   │                                        #   a few non-finite trials keeps its clean
 │   │                                        #   trials instead of being dropped entirely.
-│   └── 18_figure_S2_calibration.py          # Supplementary Figure S2
+│   └── (Supplementary Figure S3 was produced by a calibration plotting
+│       script that is not part of this deposit; its inputs are in
+│       results/ and the figure is reproducible from them)
 │
 └── results/
     │   -- canonical real-trial fits --
@@ -117,12 +119,14 @@ The autocorrelation ratio (AUR = |β_pseudo/β_real|) is retained only as a desc
     │
     │   -- matched-contrast (Delta-beta) outputs --
     ├── phase013_dbeta_config4_K1000.csv             (  18 rows) PRIMARY. 9 models, both datasets
-    ├── phase013_dbeta_config4.csv                   (   8 rows) 4-model predecessor
+    ├── phase013_dbeta_config4.csv                   (   8 rows) Amplitude/energy models, single-draw K
     ├── phase013_dbeta_config2.csv                   (   8 rows) +/-100 uV robustness
-    ├── phase013_dbeta_config4_K1000_clean.csv       (   4 rows) Evoked-clean, erp_core only
+    ├── phase013_dbeta_config4_K1000_clean.csv       (   9 rows) Evoked-clean, 9 models, erp_core
+    ├── phase013_marginal_r2_config4_K1000_clean.csv (   9 rows) Marginal R2 under evoked-clean
+    ├── phase013_persubject_config4_K1000_clean.csv  ( 297 rows) Per-subject slopes, evoked-clean
     ├── phase013_dbeta_config4_K1000_rs500.csv       (  18 rows) 500 Hz decimation, 9 models
     ├── phase013_interaction_config4_K1000.csv       (   9 rows) Dataset x feature interaction, 9 models
-    ├── phase013_interaction_config4.csv             (   4 rows) 4-model predecessor
+    ├── phase013_interaction_config4.csv             (   4 rows) Amplitude/energy models
     ├── phase013_interaction_config2.csv             (   4 rows)
     ├── phase013_interaction_config4_K1000_targets.csv (  4 rows) Condition-matched
     ├── phase013_interaction_config4_K1000_rs500.csv (   9 rows) 500 Hz, 9 models
@@ -145,17 +149,20 @@ The autocorrelation ratio (AUR = |β_pseudo/β_real|) is retained only as a desc
     ├── crossval_ds006018_results.csv                (  14 rows) Independent-dataset LMMs
     │
     │   -- validity checks --
+    ├── overlap_audit_erp_core_config4.csv           (  33 rows) Pseudotrial overlap diagnostics:
+    │                                                           46.9% epoch overlap, 7.8% measurement-window
+    │                                                           overlap, 92.2% retained by the clean filter
     ├── target_standard_validity.csv                 (  40 rows) Per-subject accuracy and RT
     ├── distributional_comparability.csv             (  40 rows) ITI / position / coverage
     │
-    │   -- added in this revision --
+    │   -- reliability and concordance --
     ├── slope_reliability.csv                        (  10 rows) Split-half reliability
     ├── cross_measure_concordance.csv                (  20 rows) Same-trial vs disjoint-half
     │
     └── logs/                                        Duplicate copies of nine files above,
                                                      byte-identical to the top-level versions.
-                                                     Retained for backward compatibility with
-                                                     earlier scripts that read results/logs/.
+                                                     Also readable at results/logs/ by the
+                                                     scripts that write there.
 ```
 
 **Two notes on the layout.** `config.py` and `config_ds006018.py` live inside `scripts/`, not at the repository root. There is no top-level `results_ds006018/` directory — `crossval_ds006018_results.csv` is in `results/`.
@@ -195,11 +202,11 @@ Tested with Python 3.10+, MNE 1.7+, statsmodels 0.14+.
 
 ## Running order
 
-The numbered scripts run in order; each reads outputs from earlier steps. The `phase013` subsystem runs after step 11 and produces the matched-contrast estimates the paper reports as primary.
+The numbered scripts run in order; each reads the outputs of the steps before it. The `phase013` subsystem runs after step 11 and produces the matched-contrast estimates the paper reports as primary.
 
 | Step | Script | Input | Output |
 |------|--------|-------|--------|
-| 1 | `01_extract_features.py` | Raw ERP CORE BIDS | `trial_features_canonical.csv` |
+| 1 | `01_extract_features.py` | Raw ERP CORE BIDS | trial-level feature table (intermediate, not deposited) |
 | 2 | `02_run_lmms.py` | features | `lmm_summary_canonical.csv`, `model_diagnostics.csv` |
 | 3 | `03_per_electrode_lmm.py` | features | `per_electrode_canonical.csv` |
 | 4 | `04_pseudotrial_correction.py` | raw EEG | `pseudotrial_lmm_summary.csv` (Config-1) |
@@ -214,10 +221,10 @@ The numbered scripts run in order; each reads outputs from earlier steps. The `p
 | 13 | `target_standard_validity.py` | raw ERP CORE | `target_standard_validity.csv` |
 | 14 | `distributional_comparability.py` | raw EEG | `distributional_comparability.csv` |
 | 15 | `16_slope_reliability.py` | heterogeneity files | `slope_reliability.csv`, `cross_measure_concordance.csv` |
-| 16 | `17_overlap_audit.py` | raw EEG | `overlap_audit_<dataset>_<config>.csv` — **not yet run**; the manuscript's 27.5% / 19.8% / ~80% / ~118 diagnostics have no deposited audit file |
+| 16 | `17_overlap_audit.py` | raw EEG | `overlap_audit_erp_core_config4.csv` (33 subjects x 1,000 placements) |
 | 17 | `12_model_diagnostics.py` | LMM fits | `model_diagnostics.csv` + Supplementary Figure S2 |
 | 18 | `13_make_figures.py`, `14_additinal_figures.py` | all results | Figures 1–7 |
-| 19 | `18_figure_S2_calibration.py` (**not deposited**) | calibration outputs | Supplementary Figure S3 |
+
 
 `15_calibration_simulation.py` is self-contained and can be run at any point; it needs no EEG data.
 
@@ -282,9 +289,9 @@ Contains M1–M12 including the a/b competitive and m mean-variant models (17 ro
 
 **`phase013_interaction_*.csv`** — Columns: `config`, `model`, `datasets`, `interaction_beta`, `interaction_p`, `n_trials`.
 
-**`phase013_marginal_r2_*.csv`** — Columns: `dataset`, `config`, `model`, `marginal_r2`, `lmm_beta`, `n_subjects`, `n_trials`. The ±150 µV run retains N = 33 / 1,625 and the ±100 µV run N = 27 / 1,084, because they are different rejection cutoffs. The `_K1000` files carry all nine models and are the source for the descriptive β and marginal R² reported in the manuscript's Results; `lmm_summary_canonical.csv` is the ±100 µV predecessor covering all 23 models.
+**`phase013_marginal_r2_*.csv`** — Columns: `dataset`, `config`, `model`, `marginal_r2`, `lmm_beta`, `n_subjects`, `n_trials`. The ±150 µV run retains N = 33 / 1,625 and the ±100 µV run N = 27 / 1,084, because they are different rejection cutoffs. The `_K1000` files carry all nine models and are the source for the descriptive β and marginal R² reported in the manuscript's Results. `lmm_summary_canonical.csv` covers all 23 models at ±100 µV.
 
-**`phase013_persubject_*.csv`** — Columns: `dataset`, `config`, `model`, `subject`, `real_slope`, `pseudo_mean`, `d`, `n_pseudo_draws`, `used`. The `_K1000` files contain all nine models (M1, M4a, M8, M9a, M13–M15, M22, M23); the older `config2` file contains only the four amplitude/energy models. Aggregating `d` over rows with `used == True` reproduces the published Δβ exactly.
+**`phase013_persubject_*.csv`** — Columns: `dataset`, `config`, `model`, `subject`, `real_slope`, `pseudo_mean`, `d`, `n_pseudo_draws`, `used`. The `_K1000` files contain all nine models (M1, M4a, M8, M9a, M13–M15, M22, M23); the `config2` file contains the four amplitude/energy models. Aggregating `d` over rows with `used == True` reproduces the reported Δβ exactly.
 
 ### Single-draw pseudotrial runs
 
@@ -293,7 +300,7 @@ Contains M1–M12 including the a/b competitive and m mean-variant models (17 ro
 **`entropy_pseudotrial_results.csv`** — real and pseudo rows for M13, M14, M15, M22, M23.
 **`extended_endpoint_pseudotrial_results.csv`** — real and pseudo rows for the shape/robust/trend family and several amplitude models. Both use columns `beta`, `SE`, `z`, `p`, `R2_marginal`, `n_trials`, `n_subjects`, `model`, `kind`, `config`, `formula`.
 
-**`pseudotrial_lmm_summary.csv`** — script 04, config 1. Columns include `beta_real`, `beta_pseudo`, `R2_real`, `R2_pseudo`, `beta_ratio_pseudo_over_real`. Retained for provenance; superseded by the matched contrast.
+**`pseudotrial_lmm_summary.csv`** — script 04, config 1. Columns include `beta_real`, `beta_pseudo`, `R2_real`, `R2_pseudo`, `beta_ratio_pseudo_over_real`. Single-draw ratio summary; the matched contrast is the estimand used throughout.
 
 ### Topography
 
@@ -311,7 +318,7 @@ Contains M1–M12 including the a/b competitive and m mean-variant models (17 ro
 
 **`distributional_comparability.csv`** — 40 subjects, same caveat. Columns: `n_real`, `fs`, `dur_s`, `real_iti_median`, `real_iti_q10`, `real_iti_q90`, `pseudo_gap_median`, `pseudo_gap_q10`, `pseudo_gap_q90`, `real_pos_mean`, `pseudo_pos_mean`, `real_pos_sd`, `pseudo_pos_sd`, `subject`.
 
-### Added in this revision
+### Reliability and concordance
 
 **`slope_reliability.csv`** — split-half reliability behind Table 8's reliability column. Columns: `dataset`, `measure`, `n_subjects`, `slope_mean`, `slope_sd`, `odd_even_r`, `spearman_brown`, `reportable`, `sb_defined`. The Spearman–Brown correction is undefined for negative odd–even correlations (it returns values outside [−1, 1]); such cases are flagged `sb_defined = False` and reported as ≤ 0.
 
