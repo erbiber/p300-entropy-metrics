@@ -1,25 +1,4 @@
-"""
-run_phase013.py  -  driver for Phases 0/1/3 on ERP CORE and ds006018.
 
-Phase 0 : matched-N pseudotrials on the same participants (PSEUDOTRIAL_MATCH_REAL_N=True).
-Phase 1 : Delta-beta = beta_real - beta_pseudo with K>=1000 matched surrogate draws
-          (per-subject-resampled placement null -> surrogate p) and a subject-cluster BCa CI.
-Phase 3 : dataset x feature interaction across the two datasets.
-
-Subjects that cannot produce at least --min-pseudo usable matched pseudo draws are EXCLUDED
-from the contrast (matches the manuscript's insufficient-pseudotrial exclusion). Per-subject
-slopes are cached, so re-running (e.g. with a different --min-pseudo) is near-instant.
-
-USAGE (run in your scripts/ dir, same env as the repo):
-    python run_phase013.py --config config4 --k 1000 --datasets erpcore,ds006018
-    python run_phase013.py --config config1 --k 1000        # +/-100 uV matched, for the 2.8 disclosure
-    python run_phase013.py --config all --k 1000
-    python run_phase013.py --config config4 --k 100 --subset 3   # quick smoke test
-
-Outputs (to ./ , or --out DIR):
-    phase013_dbeta_<config>.csv         one row per dataset x model
-    phase013_interaction_<config>.csv   one row per model
-"""
 import argparse
 import os
 import numpy as np

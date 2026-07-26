@@ -1,11 +1,4 @@
-"""
-phase013_ds006018.py  -  OpenNeuro ds006018 (visual oddball) loader for Phases 0/1/3.
-Imports your scripts/config_ds006018.py; preprocessing identical to the manuscript
-(eegdash -> rec.raw -> load_data -> set EOG/mastoid types -> 0.1-30 Hz -> ICA -> epochs;
-targets-only; pseudotrials matched to real N). Per-subject slopes cached.
 
-Yields per subject: (subject_id, real_slope{model}, pseudo_slopes{model:array}, real_feats{feat:array}).
-"""
 import zlib, warnings
 import numpy as np
 import mne

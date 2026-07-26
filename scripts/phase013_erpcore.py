@@ -1,12 +1,4 @@
-"""
-phase013_erpcore.py  -  ERP CORE Visual P3 loader for Phases 0/1/3.
-Imports your scripts/config.py so preprocessing is identical to the manuscript
-(EEGLAB .set -> 0.1-30 Hz -> ICA(0.99,fastica,seed42,EOG) -> epochs -0.2..0.8,
-baseline, reject; real codes = STANDARD+TARGET; pseudotrials matched to real N).
-Per-subject slopes are cached (cache_dir) so ICA runs once and re-runs are instant.
 
-Yields per subject: (subject_id, real_slope{model}, pseudo_slopes{model:array}, real_feats{feat:array}).
-"""
 import os, zlib, warnings
 import numpy as np
 import mne

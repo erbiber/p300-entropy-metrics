@@ -1,28 +1,4 @@
-"""
-16_slope_reliability.py
 
-Deposits the split-half / Spearman-Brown reliability and cross-measure
-concordance computations behind Table 8's reliability column and Figure 7,
-which had no deposited provenance (audit item 8.2).
-
-Method follows 11_entropy_heterogeneity.py exactly: robust within-participant
-standardization (median / 1.4826*MAD), then per-participant OLS slope of
-standardized P300 on the standardized early-window measure.
-
-  - split-half reliability: slope from odd trials vs slope from even trials,
-    correlated across participants, Spearman-Brown stepped up. Reported as
-    <= 0 where the underlying odd-even correlation is negative, for which the
-    Spearman-Brown correction is not defined (it returns out-of-range values).
-  - cross-measure concordance: correlation of two measures' per-participant
-    slopes, computed from the same trials and from disjoint trial halves. Both
-    split directions are reported because the assignment of which measure gets
-    the odd half is arbitrary.
-
-Inputs : results/heterogeneity_primary_trials.csv
-         results/heterogeneity_ds006018_checkpoint.csv
-Output : results/slope_reliability.csv
-         results/cross_measure_concordance.csv
-"""
 import os
 import numpy as np
 import pandas as pd

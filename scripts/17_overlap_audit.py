@@ -1,26 +1,4 @@
-"""
-17_overlap_audit.py
 
-Emits the pseudotrial overlap diagnostics quoted in Manuscript Sections 2.8 and
-3.2 -- the proportion of surrogate epochs overlapping a real stimulus epoch, the
-proportion whose early or P300 measurement window falls inside a real stimulus's
-0-800 ms evoked interval, the proportion retained by the evoked-clean filter, and
-the mean number of clean surrogates per placement.
-
-Audit item 8.6: the evoked-clean CONTRAST is deposited
-(phase013_dbeta_config4_K1000_clean.csv) and reproduces, but the diagnostic
-percentages themselves had no corresponding audit file. The filter mechanism
-already exists as clean_pseudo_mask() in phase013_engine.py; it applies the mask
-but never reports the counts. This script reuses that exact function so the
-audit and the analysis cannot drift apart.
-
-REQUIREMENT: this needs the raw recordings, because it depends on true stimulus
-onsets and on the realised pseudotrial placements. It cannot be run from the
-deposited results CSVs alone. Run it in the same environment as run_phase013.py.
-
-Usage:  python 17_overlap_audit.py --dataset erp_core --config config4
-Output: results/overlap_audit_<dataset>_<config>.csv
-"""
 import os
 import argparse
 import numpy as np

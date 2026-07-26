@@ -1,20 +1,4 @@
-"""
-phase013_engine.py  -  dataset-agnostic engine for Phases 0/1/3.
 
-Contains ONLY estimator + statistics + a shared per-subject slope builder. The raw
-loading lives in phase013_erpcore.py and phase013_ds006018.py, which import your
-config.py / config_ds006018.py so preprocessing is byte-identical to the manuscript.
-
-Estimator (matches manuscript): robust-z within subject; beta = mean of per-subject
-OLS slopes of z(P300) on z(predictor). The matched real-vs-pseudo contrast reduces to
-a per-subject statistic d_i = real_slope_i - mean_k pseudo_slope_i^(k), so:
-    Delta-beta = mean(d_i)                         (point estimate)
-    subject-cluster BCa CI on d_i                  (uncertainty from subject sampling)
-    surrogate p: beta_real vs the K background betas (placement null)
-
-Helpers window_mask / robust_z_within_subject / feature_block / generate_pseudotrial_samples
-are copied verbatim from your scripts/04 and scripts/10 so behaviour is identical.
-"""
 import numpy as np
 from scipy import stats
 

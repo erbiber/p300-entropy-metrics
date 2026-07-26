@@ -1,23 +1,4 @@
-"""
-phase013_complexity_patch.py
-----------------------------
-Adds the five complexity models (M13-M15, M22, M23) to the phase013 matched-contrast
-pipeline, so they receive the same Delta-beta + BCa CI + surrogate p treatment as the
-four headline models.
 
-Feature functions are copied VERBATIM from scripts/07_entropy_pseudotrial.py so the
-real-trial coefficients reproduce the published values.
-
-USAGE — put this file in the same folder as phase013_engine.py, then:
-
-    python -c "import phase013_complexity_patch"     # sanity check only
-
-and in run_phase013.py add ONE line immediately after `import phase013_engine as E`:
-
-    import phase013_complexity_patch                 # noqa: F401  (extends E.MODELS)
-
-That is the only edit to the existing pipeline. Everything else is monkey-patched here.
-"""
 import numpy as np
 import antropy as ant
 import phase013_engine as E

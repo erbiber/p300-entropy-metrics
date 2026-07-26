@@ -1,40 +1,4 @@
-"""
-15_calibration_simulation.py
 
-Implements the calibration/power simulation described in Manuscript Section 2.12,
-which is referenced by Sections 2.8, 3.2, 3.4.3 and 3.5 and by Supplementary
-Figure S2, but for which no script was deposited in the repository.
-
-Section 2.12 specifies:
-  - a generative simulation at the level of the window statistics,
-  - matching the study estimator exactly: robust within-participant
-    standardization (median / 1.4826*MAD), per-participant OLS slopes, and the
-    Delta-beta and AUR summaries,
-  - three mechanisms with the coupling known by construction:
-      * pure background   - early and late windows share only preserved continuity
-                            (identical coupling in real and surrogate windows),
-      * stimulus-locked   - the shared component is present only in real trials,
-      * dilution          - real coupling is reduced relative to the background,
-  - loadings set so real-trial coupling matches the study operating points
-    (marginal R^2 ~ 0.31 same-channel; ~0.01 complexity / cross-channel),
-  - sampling distributions of Delta-beta and AUR at N = 27 and N = 90,
-  - a power analysis superimposing a genuine stimulus-locked effect on the
-    background mechanism.
-
-The AUR null band is the central-95% interval of AUR under the pure-background
-mechanism, which is what the manuscript reads observed AUR values against.
-
-NOTE ON SAMPLING RATE: Section 2.12 also reports the distributions at 1024 Hz
-and 500 Hz. Sampling rate enters this window-statistic-level simulation only
-through the per-trial measurement noise of the window summary; it does not
-change the trial-level generative model. It is therefore represented here by a
-measurement-noise term whose variance scales as 1/n_samples, and both rates are
-reported.
-
-Usage:  python 15_calibration_simulation.py
-Writes: results/calibration_bands.csv
-        results/calibration_power.csv
-"""
 import numpy as np
 import pandas as pd
 import os
