@@ -1,20 +1,3 @@
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-   
 import os
 import sys
 import numpy as np
@@ -37,9 +20,7 @@ from config import (
 
 mne.set_log_level('WARNING')
 
-                                                                             
 def feature_block(trace):
-                                                                     
     mean_amp = float(np.mean(trace))
     sd_amp = float(np.std(trace - mean_amp, ddof=0))
     rms_amp = float(np.sqrt(np.mean(trace ** 2)))
@@ -48,12 +29,7 @@ def feature_block(trace):
 def window_mask(times, win):
     return (times >= win[0]) & (times <= win[1])
 
-                                                                             
 def process_subject(sub_id, log_rows):
-\
-\
-\
-       
     set_path = os.path.join(
         DATA_ROOT, f"sub-{sub_id}", "ses-P3", "eeg",
         f"sub-{sub_id}_ses-P3_task-P3_eeg.set",
@@ -61,14 +37,12 @@ def process_subject(sub_id, log_rows):
     if not os.path.exists(set_path):
         return None, None, None, "file_not_found"
 
-                                 
     raw = mne.io.read_raw_eeglab(set_path, preload=True, verbose=False)
     raw.filter(FILTER_LOW, FILTER_HIGH, fir_design=FILTER_DESIGN, verbose=False)
 
     sfreq = raw.info['sfreq']
     n_samples_continuous = raw.n_times
 
-                     
     n_ica_components = 0
     n_ica_excluded = 0
     if DO_ICA:
@@ -94,10 +68,8 @@ def process_subject(sub_id, log_rows):
         except Exception as e:
             print(f"  [sub-{sub_id}] ICA failed, continuing without: {e}")
 
-                        
     events, _ = mne.events_from_annotations(raw, verbose=False)
 
-                                      
     epochs = mne.Epochs(
         raw, events, event_id=None,
         tmin=TMIN_EPOCH, tmax=TMAX_EPOCH,
@@ -114,7 +86,7 @@ def process_subject(sub_id, log_rows):
     if len(epochs) < MIN_TRIALS_REQUIRED:
         return None, None, None, f"insufficient_valid_trials_{len(epochs)}"
 
-    data = epochs.get_data()                                     
+    data = epochs.get_data()
     times = epochs.times
     ch_names = epochs.ch_names
 
@@ -123,7 +95,6 @@ def process_subject(sub_id, log_rows):
     if fz_name is None or pz_name is None:
         return None, None, None, f"missing_channels_fz={fz_name}_pz={pz_name}"
 
-                            
     m_early = window_mask(times, EARLY_WINDOW)
     m_early200 = window_mask(times, EARLY_WINDOW_200)
     m_early250 = window_mask(times, EARLY_WINDOW_250)
@@ -132,7 +103,6 @@ def process_subject(sub_id, log_rows):
 
     n_trials, n_chan, _ = data.shape
 
-                                     
     rows = []
     for i in range(n_trials):
         code = epochs.events[i, 2]
@@ -149,42 +119,41 @@ def process_subject(sub_id, log_rows):
         p300_amp = float(np.mean(pz_trace[m_p300]))
 
         rows.append({
-                     : f'sub-{sub_id}',
-                       : int(i),
-                       : cond,
-                       : int(cond == "Target"),
-                                 
-                           : m_fz,
-                         : sd_fz,
-                          : rms_fz,
-                                    
-                               : m_fz200,
-                             : sd_fz200,
-                              : rms_fz200,
-                               : m_fz250,
-                             : sd_fz250,
-                              : rms_fz250,
-                                 
-                          : m_basef,
-                        : sd_basef,
-                         : rms_basef,
-                                 
-                           : m_pz_e,
-                         : sd_pz_e,
-                          : rms_pz_e,
-                                 
-                          : m_pz_b,
-                        : sd_pz_b,
-                         : rms_pz_b,
-                          
-                      : p300_amp,
-                        : fz_name,
-                        : pz_name,
-                        : n_chan,
+            'subject': f'sub-{sub_id}',
+            'trial_idx': int(i),
+            'condition': cond,
+            'is_target': int(cond == "Target"),
+
+            'mean_early_fz': m_fz,
+            'sd_early_fz': sd_fz,
+            'rms_early_fz': rms_fz,
+
+            'mean_early_fz_200': m_fz200,
+            'sd_early_fz_200': sd_fz200,
+            'rms_early_fz_200': rms_fz200,
+            'mean_early_fz_250': m_fz250,
+            'sd_early_fz_250': sd_fz250,
+            'rms_early_fz_250': rms_fz250,
+
+            'mean_base_fz': m_basef,
+            'sd_base_fz': sd_basef,
+            'rms_base_fz': rms_basef,
+
+            'mean_early_pz': m_pz_e,
+            'sd_early_pz': sd_pz_e,
+            'rms_early_pz': rms_pz_e,
+
+            'mean_base_pz': m_pz_b,
+            'sd_base_pz': sd_pz_b,
+            'rms_base_pz': rms_pz_b,
+
+            'p300_amp': p300_amp,
+            'fz_channel': fz_name,
+            'pz_channel': pz_name,
+            'n_channels': n_chan,
         })
     df_trial = pd.DataFrame(rows)
 
-                                                         
     early_rms_all = np.sqrt(np.mean(data[:, :, m_early] ** 2, axis=2))
     df_elec = pd.DataFrame(
         early_rms_all, columns=[f'rms_{c}' for c in ch_names])
@@ -195,38 +164,35 @@ def process_subject(sub_id, log_rows):
                     for c in epochs.events[:, 2]])
     df_elec['p300_amp'] = df_trial['p300_amp'].values
 
-                                                      
     is_t = df_trial['is_target'].values.astype(bool)
     ga = {
-               : times,
-                  : np.array(ch_names),
-                       : data[is_t, pz_idx, :].mean(axis=0),
-                         : data[~is_t, pz_idx, :].mean(axis=0),
-                       : data[is_t, fz_idx, :].mean(axis=0),
-                         : data[~is_t, fz_idx, :].mean(axis=0),
-                          : data[is_t][:, :, m_p300].mean(axis=(0, 2)),
-                            : data[~is_t][:, :, m_p300].mean(axis=(0, 2)),
-                           : data[is_t][:, :, m_early].mean(axis=(0, 2)),
-                             : data[~is_t][:, :, m_early].mean(axis=(0, 2)),
+        'times': times,
+        'ch_names': np.array(ch_names),
+        'erp_target_pz': data[is_t, pz_idx, :].mean(axis=0),
+        'erp_standard_pz': data[~is_t, pz_idx, :].mean(axis=0),
+        'erp_target_fz': data[is_t, fz_idx, :].mean(axis=0),
+        'erp_standard_fz': data[~is_t, fz_idx, :].mean(axis=0),
+        'topo_target_p300': data[is_t][:, :, m_p300].mean(axis=(0, 2)),
+        'topo_standard_p300': data[~is_t][:, :, m_p300].mean(axis=(0, 2)),
+        'topo_target_early': data[is_t][:, :, m_early].mean(axis=(0, 2)),
+        'topo_standard_early': data[~is_t][:, :, m_early].mean(axis=(0, 2)),
     }
 
-                                 
     log_rows.append({
-                 : f'sub-{sub_id}',
-                  : sfreq,
-                            : n_samples_continuous,
-                           : len(df_trial),
-                  : int(df_trial['is_target'].sum()),
-                    : int((1 - df_trial['is_target']).sum()),
-                         : fz_name,
-                         : pz_name,
-                    : n_chan,
-                          : n_ica_components,
-                        : n_ica_excluded,
+        'subject': f'sub-{sub_id}',
+        'sfreq_hz': sfreq,
+        'continuous_samples': n_samples_continuous,
+        'n_trials_retained': len(df_trial),
+        'n_target': int(df_trial['is_target'].sum()),
+        'n_standard': int((1 - df_trial['is_target']).sum()),
+        'fz_channel_used': fz_name,
+        'pz_channel_used': pz_name,
+        'n_channels': n_chan,
+        'ica_n_components': n_ica_components,
+        'ica_n_excluded': n_ica_excluded,
     })
     return df_trial, df_elec, ga, None
 
-                                                                             
 if __name__ == "__main__":
     banner("01_extract_features.py — feature extraction from real epochs")
     print(f"Data:     {DATA_ROOT}")
@@ -279,7 +245,6 @@ if __name__ == "__main__":
         gas=np.array([gas[k] for k in gas], dtype=object),
     )
 
-          
     if exclusions:
         pd.DataFrame(
             [{'subject': s, 'reason': r} for s, r in exclusions.items()]

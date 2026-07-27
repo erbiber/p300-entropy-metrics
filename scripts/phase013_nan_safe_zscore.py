@@ -1,7 +1,5 @@
-
 import numpy as np
 import phase013_engine as E
-
 
 def robust_z_within_subject(s):
     s = np.asarray(s, float)
@@ -9,7 +7,6 @@ def robust_z_within_subject(s):
     med = np.nanmedian(s)
     mad = 1.4826 * np.nanmedian(np.abs(s - med))
     return (s - med) / mad if (np.isfinite(mad) and mad > 0) else (s - med)
-
 
 def _ols_slope(x, y):
     x = np.asarray(x, float)
@@ -24,11 +21,6 @@ def _ols_slope(x, y):
     den = zxm @ zxm
     return float((zxm @ zym) / den) if den > 1e-12 else np.nan
 
-
-# marginal_r2 / dataset_feature_interaction call robust_z_within_subject through a
-# pandas .transform and drop NaN rows themselves, so rebinding the engine name is
-# enough for them; _ols_slope must be rebound explicitly because it is referenced
-# directly inside subject_slopes_real_and_pseudo.
 E.robust_z_within_subject = robust_z_within_subject
 E._ols_slope = _ols_slope
 

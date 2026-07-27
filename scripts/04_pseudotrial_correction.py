@@ -1,27 +1,3 @@
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-   
 import os
 import sys
 import warnings
@@ -50,9 +26,6 @@ from config import (
 warnings.filterwarnings('ignore', category=Warning)
 mne.set_log_level('WARNING')
 
-                                                                            
-                                                             
-                                                                            
 def feature_block(trace):
     mean_amp = float(np.mean(trace))
     sd_amp = float(np.std(trace - mean_amp, ddof=0))
@@ -67,43 +40,20 @@ def robust_z_within_subject(s):
     mad = 1.4826 * np.median(np.abs(s - med))
     return (s - med) / mad if mad > 0 else s - med
 
-                                                                            
-                       
-                                                                            
 def generate_pseudotrial_samples(
         n_pseudo, sfreq, n_continuous_samples,
         real_event_samples, min_gap_seconds,
         tmin, tmax, rng):
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-       
     min_gap_samples = int(min_gap_seconds * sfreq)
     epoch_samples = int((tmax - tmin) * sfreq)
     pre_buffer = int(abs(tmin) * sfreq) + 1
     post_buffer = int(tmax * sfreq) + 1
 
-                        
     valid_low = pre_buffer
     valid_high = n_continuous_samples - post_buffer
     if valid_high <= valid_low:
         return np.array([], dtype=int)
 
-                                               
     forbidden = np.zeros(n_continuous_samples, dtype=bool)
     for ev in real_event_samples:
         lo = max(0, int(ev) - min_gap_samples)
@@ -111,7 +61,7 @@ def generate_pseudotrial_samples(
         forbidden[lo:hi] = True
 
     placed_samples = []
-                                                                               
+
     n_attempts = max(n_pseudo * 10, 1000)
     placed_set_for_gap = np.zeros(n_continuous_samples, dtype=bool)
     for _ in range(n_attempts):
@@ -123,7 +73,7 @@ def generate_pseudotrial_samples(
         if placed_set_for_gap[cand]:
             continue
         placed_samples.append(cand)
-                                                           
+
         lo = max(0, cand - epoch_samples)
         hi = min(n_continuous_samples, cand + epoch_samples)
         placed_set_for_gap[lo:hi] = True
@@ -131,18 +81,7 @@ def generate_pseudotrial_samples(
     placed_samples.sort()
     return np.array(placed_samples, dtype=int)
 
-                                                                            
-                          
-                                                                            
 def process_subject_pseudotrials(sub_id, rng):
-\
-\
-\
-\
-\
-\
-\
-       
     set_path = os.path.join(
         DATA_ROOT, f"sub-{sub_id}", "ses-P3", "eeg",
         f"sub-{sub_id}_ses-P3_task-P3_eeg.set",
@@ -153,7 +92,6 @@ def process_subject_pseudotrials(sub_id, rng):
     raw = mne.io.read_raw_eeglab(set_path, preload=True, verbose=False)
     raw.filter(FILTER_LOW, FILTER_HIGH, fir_design=FILTER_DESIGN, verbose=False)
 
-                       
     if DO_ICA:
         try:
             raw_for_ica = raw.copy().filter(
@@ -181,7 +119,6 @@ def process_subject_pseudotrials(sub_id, rng):
     real_sample_indices = events[:, 0]
     real_codes = events[:, 2]
 
-                                                                
     epochs_real = mne.Epochs(
         raw, events, event_id=None,
         tmin=TMIN_EPOCH, tmax=TMAX_EPOCH,
@@ -198,8 +135,6 @@ def process_subject_pseudotrials(sub_id, rng):
         return None, None, f"insufficient_valid_real_{len(epochs_real)}"
     n_real_retained = len(epochs_real)
 
-                                                
-                                                          
     n_pseudo_target = n_real_retained
     pseudo_samples = generate_pseudotrial_samples(
         n_pseudo=n_pseudo_target,
@@ -213,15 +148,12 @@ def process_subject_pseudotrials(sub_id, rng):
     if len(pseudo_samples) < MIN_TRIALS_REQUIRED:
         return None, None, f"insufficient_pseudotrials_{len(pseudo_samples)}"
 
-                                                    
-                                                                          
     pseudo_events = np.column_stack([
         pseudo_samples,
         np.zeros(len(pseudo_samples), dtype=int),
         np.full(len(pseudo_samples), 99, dtype=int),
     ])
 
-                                      
     epochs_pseudo = mne.Epochs(
         raw, pseudo_events, event_id={'pseudo': 99},
         tmin=TMIN_EPOCH, tmax=TMAX_EPOCH,
@@ -232,7 +164,6 @@ def process_subject_pseudotrials(sub_id, rng):
     if len(epochs_pseudo) < MIN_TRIALS_REQUIRED:
         return None, None, f"insufficient_pseudo_after_reject_{len(epochs_pseudo)}"
 
-                                                   
     data_p = epochs_pseudo.get_data()
     times = epochs_pseudo.times
     ch_names = epochs_pseudo.ch_names
@@ -247,8 +178,7 @@ def process_subject_pseudotrials(sub_id, rng):
     m_basectrl = window_mask(times, BASELINE_CONTROL_WINDOW)
 
     rows_p = []
-                                                                        
-                                                                            
+
     for i in range(len(epochs_pseudo)):
         fz_tr = data_p[i, fz_idx, :]
         pz_tr = data_p[i, pz_idx, :]
@@ -258,22 +188,19 @@ def process_subject_pseudotrials(sub_id, rng):
         m_basep, _, rms_basep = feature_block(pz_tr[m_basectrl])
         p300_amp = float(np.mean(pz_tr[m_p300]))
         rows_p.append({
-                     : f'sub-{sub_id}',
-                        : int(i),
-                       : 'Pseudo',
-                           : m_fz, 'sd_early_fz': sd_fz, 'rms_early_fz': rms_fz,
-                           : m_pz_e, 'sd_early_pz': sd_pz_e, 'rms_early_pz': rms_pz_e,
-                          : m_basef, 'rms_base_fz': rms_basef,
-                          : m_basep, 'rms_base_pz': rms_basep,
-                      : p300_amp,
+            'subject': f'sub-{sub_id}',
+            'pseudo_idx': int(i),
+            'condition': 'Pseudo',
+            'mean_early_fz': m_fz, 'sd_early_fz': sd_fz, 'rms_early_fz': rms_fz,
+            'mean_early_pz': m_pz_e, 'sd_early_pz': sd_pz_e, 'rms_early_pz': rms_pz_e,
+            'mean_base_fz': m_basef, 'rms_base_fz': rms_basef,
+            'mean_base_pz': m_basep, 'rms_base_pz': rms_basep,
+            'p300_amp': p300_amp,
         })
 
     df_pseudo = pd.DataFrame(rows_p)
-    return None, df_pseudo, None                                  
+    return None, df_pseudo, None
 
-                                                                            
-                                           
-                                                                            
 def fit_RI(df, formula, predictor):
     for kwargs in [
         dict(method='lbfgs', reml=True),
@@ -305,16 +232,12 @@ def fit_RI(df, formula, predictor):
             continue
     return dict(beta=np.nan, SE=np.nan, z=np.nan, p=np.nan, R2_marginal=np.nan)
 
-                                                                            
-      
-                                                                            
 def main():
     banner("04_pseudotrial_correction.py — autocorrelation control")
     print("Steinfath et al. (2025) procedure: random triggers in the")
     print("continuous data, matched to real trial count, with minimum gap")
     print(f"from real events ({PSEUDOTRIAL_MIN_GAP_FROM_REAL} s).\n")
 
-                                                                            
     real_path = os.path.join(RESULTS_DIR, FILES['lmm_summary'])
     if not os.path.exists(real_path):
         print(f"ERROR: canonical LMM summary not found: {real_path}")
@@ -322,16 +245,15 @@ def main():
         return
 
     real_summary = pd.read_csv(real_path)
-                                                    
+
     target_models = ['M1_RMS_Fz_0_150', 'M4a_competitive_Fz_mean',
-                                              , 'M12_Pz_mean_with_baseline_cov']
+                     'M9a_competitive_Pz_mean', 'M12_Pz_mean_with_baseline_cov']
     real_compare = real_summary[real_summary['model'].isin(target_models)][
         ['model', 'beta', 'SE', 'z', 'p', 'R2_marginal']]
     print("Real-trial reference (from canonical LMM summary):")
     print(real_compare.to_string(index=False))
     print()
 
-                                                    
     if not os.path.isdir(DATA_ROOT):
         print(f"ERROR: data root not found: {DATA_ROOT}")
         return
@@ -361,43 +283,41 @@ def main():
     print(f"\nTotal pseudotrials: {len(df_p_all)} "
           f"from {df_p_all['subject'].nunique()} subjects.\n")
 
-                      
     feat = ['mean_early_fz', 'sd_early_fz', 'rms_early_fz',
-                           , 'sd_early_pz', 'rms_early_pz',
-                          , 'rms_base_fz',
-                          , 'rms_base_pz',
-                      ]
+            'mean_early_pz', 'sd_early_pz', 'rms_early_pz',
+            'mean_base_fz', 'rms_base_fz',
+            'mean_base_pz', 'rms_base_pz',
+            'p300_amp']
     for c in feat:
         if c in df_p_all.columns:
             df_p_all[c + '_z'] = df_p_all.groupby('subject')[c].transform(
                 robust_z_within_subject)
 
-                                                              
     pseudo_rows = []
 
     r = fit_RI(df_p_all,
-                                     , 'rms_early_fz_z')
+        'p300_amp_z ~ rms_early_fz_z', 'rms_early_fz_z')
     r['model'] = 'M1_RMS_Fz_0_150'; r['predictor'] = 'rms_early_fz_z'
     r['n_trials'] = len(df_p_all)
     pseudo_rows.append(r)
 
     r = fit_RI(df_p_all,
-                                                      ,
-                         )
+        'p300_amp_z ~ mean_early_fz_z + sd_early_fz_z',
+        'mean_early_fz_z')
     r['model'] = 'M4a_competitive_Fz_mean'; r['predictor'] = 'mean_early_fz_z'
     r['n_trials'] = len(df_p_all)
     pseudo_rows.append(r)
 
     r = fit_RI(df_p_all,
-                                                      ,
-                         )
+        'p300_amp_z ~ mean_early_pz_z + sd_early_pz_z',
+        'mean_early_pz_z')
     r['model'] = 'M9a_competitive_Pz_mean'; r['predictor'] = 'mean_early_pz_z'
     r['n_trials'] = len(df_p_all)
     pseudo_rows.append(r)
 
     r = fit_RI(df_p_all,
-                                                       ,
-                         )
+        'p300_amp_z ~ mean_early_pz_z + mean_base_pz_z',
+        'mean_early_pz_z')
     r['model'] = 'M12_Pz_mean_with_baseline_cov'; r['predictor'] = 'mean_early_pz_z'
     r['n_trials'] = len(df_p_all)
     pseudo_rows.append(r)
@@ -406,16 +326,15 @@ def main():
         ['model', 'predictor', 'beta', 'SE', 'z', 'p', 'R2_marginal', 'n_trials']
     ]
 
-                                                                
     real_compare = real_compare.rename(columns={
-              : 'beta_real', 'SE': 'SE_real',
-           : 'z_real', 'p': 'p_real', 'R2_marginal': 'R2_real',
+        'beta': 'beta_real', 'SE': 'SE_real',
+        'z': 'z_real', 'p': 'p_real', 'R2_marginal': 'R2_real',
     })
     pseudo_compare = pseudo_summary.rename(columns={
-              : 'beta_pseudo', 'SE': 'SE_pseudo',
-           : 'z_pseudo', 'p': 'p_pseudo', 'R2_marginal': 'R2_pseudo',
+        'beta': 'beta_pseudo', 'SE': 'SE_pseudo',
+        'z': 'z_pseudo', 'p': 'p_pseudo', 'R2_marginal': 'R2_pseudo',
     })[['model', 'beta_pseudo', 'SE_pseudo', 'z_pseudo', 'p_pseudo',
-                   , 'n_trials']]
+        'R2_pseudo', 'n_trials']]
     comparison = real_compare.merge(pseudo_compare, on='model', how='inner')
     comparison['R2_real_minus_pseudo'] = (
         comparison['R2_real'] - comparison['R2_pseudo'])
@@ -431,7 +350,7 @@ def main():
     print("Comparison: real-trial vs pseudotrial LMM fits")
     print("-" * 72)
     cols_show = ['model', 'beta_real', 'beta_pseudo', 'R2_real', 'R2_pseudo',
-                                       ]
+                 'R2_real_minus_pseudo']
     print(comparison[cols_show].to_string(index=False))
     print()
 

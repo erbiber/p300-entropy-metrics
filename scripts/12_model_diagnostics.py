@@ -1,38 +1,3 @@
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-   
 import os
 import warnings
 import numpy as np
@@ -54,7 +19,6 @@ try:
 except ImportError:
     pass
 
-                                                                              
 def robust_z(s):
     med = np.median(s)
     mad = 1.4826 * np.median(np.abs(s - med))
@@ -98,7 +62,6 @@ def aic_bic(fit, n_obs):
         return np.nan, np.nan, np.nan
 
 def diagnostic_panel(fit, ax_qq, ax_rvf, title):
-                                             
     try:
         resid = np.asarray(fit.resid)
         fitted = np.asarray(fit.fittedvalues)
@@ -141,70 +104,48 @@ def diagnostic_panel(fit, ax_qq, ax_rvf, title):
                 excess_kurt=float(stats.kurtosis(rs)),
                 shapiro_W=sw_w, shapiro_p=sw_p)
 
-                                                                              
 def load_amplitude_features():
-                                                                             
     path = os.path.join(RESULTS_DIR, FILES['trial_features'])
     df = pd.read_csv(path)
     cols = ['mean_early_fz', 'sd_early_fz', 'rms_early_fz',
-                           , 'sd_early_pz', 'rms_early_pz',
-                          , 'rms_base_pz', 'p300_amp']
+            'mean_early_pz', 'sd_early_pz', 'rms_early_pz',
+            'mean_base_pz', 'rms_base_pz', 'p300_amp']
     return add_z(df, cols)
 
 def load_entropy_features():
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-       
     het = os.path.join(LOG_DIR, 'heterogeneity_primary_trials.csv')
     if not os.path.exists(het):
         print(f"  [warn] heterogeneity trial log not found: {het} (run script 11 first)")
         return None
     df = pd.read_csv(het)
-                                                                                   
+
     if 'dataset' in df.columns:
-                                                                         
+
         prim = df[df['dataset'].astype(str).str.contains('erpcore|primary|erp_core',
                                                           case=False, na=False)]
         if len(prim) > 0:
             df = prim
-                                                                       
-                                                                              
+
     df = df.rename(columns={'p300': 'p300_amp'})
-                             
+
     for c in ['pe', 'se', 'lz', 'hjorth_mob', 'hjorth_cplx', 'p300_amp']:
         if c in df.columns:
             df[c + '_z'] = df.groupby('subject')[c].transform(robust_z)
     return df
 
 def load_shape_features():
-                                                                    
     path = os.path.join(LOG_DIR, 'extended_endpoint_pseudotrial_results.csv')
     if not os.path.exists(path):
         print(f"  [warn] shape log not found: {path} (run script 08 first)")
         return None
-                                                         
-                                                                    
-                                       
+
     return None
 
-                                                                              
 def main():
     banner("12_model_diagnostics.py — all-family model diagnostics")
 
     os.makedirs(LOG_DIR, exist_ok=True)
 
-                                                                      
-                                                       
-                                                                      
     print("Loading amplitude features...")
     try:
         df_amp = load_amplitude_features()
@@ -216,47 +157,31 @@ def main():
 
     amp_headlines = [
         ('M1',  'rms_early_fz_z + condition',
-                                 ,   'cross-channel energy'),
+                 'rms_early_fz_z',   'cross-channel energy'),
         ('M4a', 'mean_early_fz_z + sd_early_fz_z + condition',
-                                  ,  'cross-channel mean (competitive)'),
+                 'mean_early_fz_z',  'cross-channel mean (competitive)'),
         ('M9a', 'mean_early_pz_z + sd_early_pz_z + condition',
-                                  ,  'same-channel mean (largest effect)'),
+                 'mean_early_pz_z',  'same-channel mean (largest effect)'),
         ('M12', 'mean_early_pz_z + mean_base_pz_z + condition',
-                                  ,  'same-channel + baseline covariate'),
+                 'mean_early_pz_z',  'same-channel + baseline covariate'),
     ]
 
-                                                                      
-                                     
-                                                                      
     print("Loading entropy features...")
     df_ent = load_entropy_features()
     ent_ok = df_ent is not None
     if ent_ok:
         print(f"  {len(df_ent)} trials, {df_ent['subject'].nunique()} subjects")
 
-                                                                           
-                                                                 
     ent_headlines = [
         ('M13', 'pe_z', 'pe_z',
-                                      ),
+         'permutation entropy -> P300'),
         ('M15', 'lz_z', 'lz_z',
-                                        ),
+         'Lempel-Ziv complexity -> P300'),
     ]
 
-                                                                      
-                       
-                                                                      
-                                                                       
-                                                                       
-                                                                       
-                                                                       
-                         
     print("  [info] Hjorth/shape trial features not stored separately;")
     print("         residual behaviour documented from amplitude-family diagnostics.")
 
-                                                                      
-                                                
-                                                                      
     all_models = []
     if amp_ok:
         for lbl, rhs, focal, desc in amp_headlines:
@@ -274,8 +199,8 @@ def main():
                              figsize=(12, 3.2 * n_models),
                              squeeze=False)
 
-    rows = []                     
-    diag_rows = []                      
+    rows = []
+    diag_rows = []
 
     for i, (lbl, rhs, focal, desc, df) in enumerate(all_models):
         n_obs = len(df)
@@ -298,7 +223,6 @@ def main():
                              structure=tag, ll=ll, aic=aic, bic=bic))
             print(f"  {tag:5s}  ll={ll:10.2f}  AIC={aic:10.2f}  BIC={bic:10.2f}")
 
-                                   
         chosen, chosen_tag = None, None
         for fit, t in [(f_ri, 'RI'), (f_ris, 'RIS'), (f_null, 'null')]:
             if fit is not None:
@@ -310,9 +234,6 @@ def main():
             d.update(dict(model=lbl, structure_used=chosen_tag, description=desc))
             diag_rows.append(d)
 
-                                                                      
-                  
-                                                                      
     out1 = os.path.join(RESULTS_DIR, FILES['diagnostics'])
     pd.DataFrame(rows).to_csv(out1, index=False)
     out2 = os.path.join(LOG_DIR, 'lmm_residual_diagnostics.csv')
@@ -321,7 +242,7 @@ def main():
     print(f"Residual diagnostics -> {out2}")
 
     fig.suptitle(
-                                                                             ,
+        'Supplementary Figure S1.  Residual diagnostics — all model families',
         fontsize=12)
     fig.tight_layout(rect=[0, 0, 1, 0.97])
     out_png = os.path.join(FIG_DIR, 'figS1_diagnostics.png')
@@ -330,9 +251,6 @@ def main():
     plt.close(fig)
     print(f"Diagnostic figure    -> {out_png}\n")
 
-                                                                      
-                            
-                                                                      
     banner("AIC preference summary")
     df_rows = pd.DataFrame(rows)
     all_ri_preferred = True

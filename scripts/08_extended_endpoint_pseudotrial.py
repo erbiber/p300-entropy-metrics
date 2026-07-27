@@ -1,83 +1,3 @@
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-   
 import os
 import warnings
 import numpy as np
@@ -105,43 +25,32 @@ from config import (
 warnings.filterwarnings('ignore', category=Warning)
 mne.set_log_level('WARNING')
 
-                                                                            
 def endpoint_block(trace):
-\
-\
-\
-\
-\
-       
     n = len(trace)
     out = {}
 
-                                                        
     out['median_amp'] = float(np.median(trace))
     out['mad_amp'] = float(1.4826 * np.median(np.abs(trace - np.median(trace))))
     out['p2p_amp'] = float(np.max(trace) - np.min(trace))
 
-                          
     try:
         out['skew_amp'] = float(stats.skew(trace, bias=False))
     except Exception:
         out['skew_amp'] = np.nan
     try:
-                                                       
+
         out['kurt_amp'] = float(stats.kurtosis(trace, fisher=True, bias=False))
     except Exception:
         out['kurt_amp'] = np.nan
 
-                                
     try:
         x = np.arange(n, dtype=float)
-                                                            
+
         slope, _ = np.polyfit(x, trace, 1)
         out['slope_amp'] = float(slope)
     except Exception:
         out['slope_amp'] = np.nan
 
-                                     
     try:
         var_x = float(np.var(trace, ddof=0))
         if var_x > 0 and n > 2:
@@ -170,26 +79,12 @@ def window_mask(times, win):
     return (times >= win[0]) & (times <= win[1])
 
 def feature_block(trace):
-\
-\
-\
-\
-\
-       
     mean_amp = float(np.mean(trace))
     sd_amp = float(np.std(trace - mean_amp, ddof=0))
     rms_amp = float(np.sqrt(np.mean(trace ** 2)))
     return mean_amp, sd_amp, rms_amp
 
 def basic_amplitude_block(fz_tr, pz_tr, times):
-\
-\
-\
-\
-\
-\
-\
-       
     m_early_150 = window_mask(times, EARLY_WINDOW)
     m_early_200 = window_mask(times, EARLY_WINDOW_200)
     m_early_250 = window_mask(times, EARLY_WINDOW_250)
@@ -203,17 +98,17 @@ def basic_amplitude_block(fz_tr, pz_tr, times):
     m_basep, _, rms_basep = feature_block(pz_tr[m_basectrl])
 
     return {
-                          
-                       : m_fz_150, 'sd_early_fz': sd_fz_150,
-                      : rms_fz_150,
-                           : m_fz_200, 'rms_early_fz_200': rms_fz_200,
-                           : m_fz_250, 'rms_early_fz_250': rms_fz_250,
-                                        
-                       : m_pz_150, 'sd_early_pz': sd_pz_150,
-                      : rms_pz_150,
-                                    
-                      : m_basef, 'rms_base_fz': rms_basef,
-                      : m_basep, 'rms_base_pz': rms_basep,
+
+        'mean_early_fz': m_fz_150, 'sd_early_fz': sd_fz_150,
+        'rms_early_fz': rms_fz_150,
+        'mean_early_fz_200': m_fz_200, 'rms_early_fz_200': rms_fz_200,
+        'mean_early_fz_250': m_fz_250, 'rms_early_fz_250': rms_fz_250,
+
+        'mean_early_pz': m_pz_150, 'sd_early_pz': sd_pz_150,
+        'rms_early_pz': rms_pz_150,
+
+        'mean_base_fz': m_basef, 'rms_base_fz': rms_basef,
+        'mean_base_pz': m_basep, 'rms_base_pz': rms_basep,
     }
 
 def robust_z_within_subject(s):
@@ -224,7 +119,6 @@ def robust_z_within_subject(s):
 def generate_pseudotrial_samples(n_pseudo, sfreq, n_continuous_samples,
                                   real_event_samples, min_gap_seconds,
                                   tmin, tmax, rng):
-                                                  
     min_gap_samples = int(min_gap_seconds * sfreq)
     epoch_samples = int((tmax - tmin) * sfreq)
     pre_buffer = int(abs(tmin) * sfreq) + 1
@@ -253,9 +147,7 @@ def generate_pseudotrial_samples(n_pseudo, sfreq, n_continuous_samples,
     placed.sort()
     return np.array(placed, dtype=int)
 
-                                                                            
 def preprocess_subject(sub_id, reject_thresh):
-                                                                       
     set_path = os.path.join(
         DATA_ROOT, f"sub-{sub_id}", "ses-P3", "eeg",
         f"sub-{sub_id}_ses-P3_task-P3_eeg.set",
@@ -291,7 +183,6 @@ def preprocess_subject(sub_id, reject_thresh):
     return raw, events, raw.info['sfreq']
 
 def extract_real_trial_features(sub_id, reject_thresh, rows):
-                                                                   
     raw, events, sfreq = preprocess_subject(sub_id, reject_thresh)
     if raw is None:
         return
@@ -330,17 +221,16 @@ def extract_real_trial_features(sub_id, reject_thresh, rows):
         feats.update(basic_amplitude_block(fz_full, pz_full, times))
         p300 = float(np.mean(data[i, pz_idx, m_p300]))
         row = {
-                     : f'sub-{sub_id}', 'kind': 'real',
-                    : 'real',
-                       : i,
-                      : p300,
+            'subject': f'sub-{sub_id}', 'kind': 'real',
+            'config': 'real',
+            'trial_idx': i,
+            'p300_amp': p300,
         }
         row.update(feats)
         rows.append(row)
 
 def extract_pseudo_features(sub_id, config_label, min_gap_s, reject_thresh,
                              rng, rows):
-                                                                    
     raw, events, sfreq = preprocess_subject(sub_id, reject_thresh)
     if raw is None:
         return
@@ -409,17 +299,15 @@ def extract_pseudo_features(sub_id, config_label, min_gap_s, reject_thresh,
         feats.update(basic_amplitude_block(fz_full, pz_full, times))
         p300 = float(np.mean(data_p[i, pz_idx, m_p300]))
         row = {
-                     : f'sub-{sub_id}', 'kind': 'pseudo',
-                    : config_label,
-                       : i,
-                      : p300,
+            'subject': f'sub-{sub_id}', 'kind': 'pseudo',
+            'config': config_label,
+            'trial_idx': i,
+            'p300_amp': p300,
         }
         row.update(feats)
         rows.append(row)
 
-                                                                            
 def fit_RI(df, formula, predictor):
-                                                                   
     for kwargs in [dict(method='lbfgs', reml=True),
                    dict(method='nm', maxiter=2000, reml=True)]:
         try:
@@ -451,7 +339,6 @@ def fit_RI(df, formula, predictor):
                 R2_marginal=np.nan, n_trials=len(df),
                 n_subjects=df['subject'].nunique())
 
-                                                                            
 def main():
     banner("08_extended_endpoint_pseudotrial.py — extended endpoint family")
     print("Eight new endpoint summaries at Fz, 0-150 ms, pseudotrial-tested")
@@ -463,13 +350,11 @@ def main():
     sub_dirs = sorted(d for d in os.listdir(DATA_ROOT) if d.startswith('sub-'))
     sub_ids = [d.split('-')[1] for d in sub_dirs]
 
-                                                                      
     configs = [
         ('config4', 0.5, 150e-6),
     ]
     all_rows = []
 
-                                                                         
     banner("Extracting REAL trials (threshold ±100 µV, manuscript default)")
     for sid in sub_ids:
         extract_real_trial_features(sid, 100e-6, all_rows)
@@ -477,7 +362,6 @@ def main():
     n_real_subj = len(set(r['subject'] for r in all_rows if r['kind'] == 'real'))
     print(f"  -> {n_real} real trials from {n_real_subj} subjects\n")
 
-                                                      
     for cfg_label, min_gap, thresh in configs:
         banner(f"Configuration: {cfg_label}  min_gap={min_gap} s  "
                f"threshold=±{thresh*1e6:.0f} µV")
@@ -496,20 +380,18 @@ def main():
 
     df_all = pd.DataFrame(all_rows)
 
-                                                        
     feat_cols = ['median_amp', 'mad_amp', 'p2p_amp',
-                           , 'kurt_amp', 'slope_amp',
-                             , 'hjorth_cplx',
-                                                                    
-                                                         
-                                , 'sd_early_fz', 'rms_early_fz',
-                                    , 'rms_early_fz_200',
-                                    , 'rms_early_fz_250',
-                                                                     
-                                , 'sd_early_pz', 'rms_early_pz',
-                               , 'rms_base_fz',
-                               , 'rms_base_pz',
-                           ]
+                 'skew_amp', 'kurt_amp', 'slope_amp',
+                 'hjorth_mob', 'hjorth_cplx',
+
+                 'mean_early_fz', 'sd_early_fz', 'rms_early_fz',
+                 'mean_early_fz_200', 'rms_early_fz_200',
+                 'mean_early_fz_250', 'rms_early_fz_250',
+
+                 'mean_early_pz', 'sd_early_pz', 'rms_early_pz',
+                 'mean_base_fz', 'rms_base_fz',
+                 'mean_base_pz', 'rms_base_pz',
+                 'p300_amp']
     for c in feat_cols:
         df_all[c + '_z'] = (
             df_all
@@ -517,25 +399,20 @@ def main():
             .transform(robust_z_within_subject)
         )
 
-                                                             
     models = [
-                              
+
         ('M_MED_Fz_0_150',       'p300_amp_z ~ median_amp_z',  'median_amp_z'),
         ('M_MAD_Fz_0_150',       'p300_amp_z ~ mad_amp_z',     'mad_amp_z'),
         ('M_P2P_Fz_0_150',       'p300_amp_z ~ p2p_amp_z',     'p2p_amp_z'),
-                              
+
         ('M_SKEW_Fz_0_150',      'p300_amp_z ~ skew_amp_z',    'skew_amp_z'),
         ('M_KURT_Fz_0_150',      'p300_amp_z ~ kurt_amp_z',    'kurt_amp_z'),
-                                    
+
         ('M_SLOPE_Fz_0_150',     'p300_amp_z ~ slope_amp_z',   'slope_amp_z'),
-                               
+
         ('M_HJORTHMOB_Fz_0_150', 'p300_amp_z ~ hjorth_mob_z',  'hjorth_mob_z'),
         ('M_HJORTHCPLX_Fz_0_150','p300_amp_z ~ hjorth_cplx_z', 'hjorth_cplx_z'),
 
-                                                                    
-                                                                      
-                                            
-                                          
         ('M2_Fz_mean_0_150',     'p300_amp_z ~ mean_early_fz_z',  'mean_early_fz_z'),
         ('M3_Fz_sd_0_150',       'p300_amp_z ~ sd_early_fz_z',    'sd_early_fz_z'),
         ('M4b_Fz_sd_competitive','p300_amp_z ~ mean_early_fz_z + sd_early_fz_z', 'sd_early_fz_z'),
@@ -545,7 +422,7 @@ def main():
         ('M6m_Fz_mean_0_250',    'p300_amp_z ~ mean_early_fz_250_z', 'mean_early_fz_250_z'),
         ('M7_Fz_baseline_RMS',   'p300_amp_z ~ rms_base_fz_z',    'rms_base_fz_z'),
         ('M7m_Fz_baseline_mean', 'p300_amp_z ~ mean_base_fz_z',   'mean_base_fz_z'),
-                                          
+
         ('M8_Pz_RMS_0_150',      'p300_amp_z ~ rms_early_pz_z',   'rms_early_pz_z'),
         ('M9b_Pz_sd_competitive','p300_amp_z ~ mean_early_pz_z + sd_early_pz_z', 'sd_early_pz_z'),
         ('M10_Pz_baseline_RMS',  'p300_amp_z ~ rms_base_pz_z',    'rms_base_pz_z'),
@@ -553,7 +430,7 @@ def main():
     ]
 
     results = []
-                                                           
+
     df_real = df_all[df_all['kind'] == 'real'].copy()
     for name, formula, pred in models:
         sub = df_real.dropna(subset=[pred, 'p300_amp_z']).copy()
@@ -564,7 +441,6 @@ def main():
                       formula=formula))
         results.append(r)
 
-                                 
     for cfg, _, _ in configs:
         sub_cfg = df_all[(df_all['kind'] == 'pseudo')
                          & (df_all['config'] == cfg)].copy()
@@ -581,12 +457,11 @@ def main():
 
     df_res = pd.DataFrame(results)
     out_path = os.path.join(RESULTS_DIR, 'logs',
-                                                                        )
+                             'extended_endpoint_pseudotrial_results.csv')
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     df_res.to_csv(out_path, index=False)
     print(f"\nExtended endpoint results saved -> {out_path}\n")
 
-                                    
     banner("MODEL-BY-MODEL: real vs pseudotrial across configs")
     print(f"  {'model':<28} {'kind/config':<12} {'n':>6} {'beta':>10} {'R²':>10}")
     print("  " + "-" * 70)
@@ -602,7 +477,6 @@ def main():
                       f"{r['beta']:>+10.3f} {r['R2_marginal']:>10.3f}")
         print()
 
-                                
     banner("CONFIG 4 SUMMARY: REAL vs PSEUDO (cleanest test)")
     print(f"\n  {'model':<28} {'β_real':>10} {'β_pseudo':>10} "
           f"{'R²_real':>10} {'R²_pseudo':>10} {'ΔR² (real-pseudo)':>20}")

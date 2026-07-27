@@ -1,10 +1,6 @@
-
 import numpy as np
 import antropy as ant
 import phase013_engine as E
-
-# ---------------------------------------------------------------- feature blocks
-# verbatim from 07_entropy_pseudotrial.py (lines 61-116)
 
 def hjorth_block(trace):
     try:
@@ -26,11 +22,8 @@ def hjorth_block(trace):
     except Exception:
         return np.nan, np.nan
 
-
 def entropy_block(trace):
-    # antropy's numba sample-entropy kernel requires a C-contiguous float64 array;
-    # epoch rows sliced out of the data cube are non-contiguous, which the kernel
-    # rejects with TypeError. Make it contiguous once, up front, for every measure.
+
     trace = np.ascontiguousarray(trace, dtype=np.float64)
     try:
         pe = ant.perm_entropy(trace, order=3, delay=1, normalize=True)
@@ -53,13 +46,9 @@ def entropy_block(trace):
     hjorth_mob, hjorth_cplx = hjorth_block(trace)
     return pe, se, lz, hjorth_mob, hjorth_cplx
 
-
-# ---------------------------------------------------------------- extend features
 _orig_features_from_epochs = E.features_from_epochs
 
-
 def features_from_epochs(data, times, fz_idx, pz_idx, early_win, p300_win):
-    """Original five features, plus per-epoch complexity of the Fz early window."""
     out = _orig_features_from_epochs(data, times, fz_idx, pz_idx, early_win, p300_win)
     me = E.window_mask(times, early_win)
     fz_early = data[:, fz_idx, :][:, me]
@@ -72,18 +61,14 @@ def features_from_epochs(data, times, fz_idx, pz_idx, early_win, p300_win):
                hjmob_early_fz=mob, hjcplx_early_fz=cpx)
     return out
 
-
 E.features_from_epochs = features_from_epochs
 
-# phase013_erpcore / phase013_ds006018 do `from phase013_engine import features_from_epochs`
-# at import time, so rebind their module-level names too if they are already imported.
 for _modname in ('phase013_erpcore', 'phase013_ds006018'):
     import sys
     _m = sys.modules.get(_modname)
     if _m is not None and hasattr(_m, 'features_from_epochs'):
         _m.features_from_epochs = features_from_epochs
 
-# ---------------------------------------------------------------- extend MODELS
 COMPLEXITY_MODELS = {
     'M13_PE_Fz_0_150':       ('pe_early_fz',     'p300_pz'),
     'M14_SE_Fz_0_150':       ('se_early_fz',     'p300_pz'),

@@ -1,4 +1,3 @@
-
 import os
 import argparse
 import numpy as np
@@ -16,19 +15,12 @@ EARLY = (0.0, 0.150)
 P300 = (0.300, 0.600)
 EVOKED_END = 0.8
 
-
 def epoch_overlap_mask(pseudo_samples, stim_samples, fs, tmin=-0.2, tmax=0.8):
-    """Whole-epoch overlap: does the pseudotrial epoch intersect a real epoch?
-
-    This is the broader of the two diagnostics. clean_pseudo_mask() tests only
-    the two MEASUREMENT windows; this tests the full -200..800 ms epoch span.
-    """
     P = np.asarray(pseudo_samples, float)[:, None]
     S = np.asarray(stim_samples, float)[None, :]
     p_lo, p_hi = P + tmin * fs, P + tmax * fs
     s_lo, s_hi = S + tmin * fs, S + tmax * fs
     return ((p_lo < s_hi) & (p_hi > s_lo)).any(axis=1)
-
 
 def audit_subject(pseudo_samples, stim_samples, fs):
     n = len(pseudo_samples)
@@ -44,7 +36,6 @@ def audit_subject(pseudo_samples, stim_samples, fs):
                 pct_epoch_overlap=100.0 * epoch_hit.mean(),
                 pct_window_inside_evoked=100.0 * window_hit.mean(),
                 pct_retained_clean=100.0 * keep.mean())
-
 
 def main():
     ap = argparse.ArgumentParser()
@@ -83,7 +74,6 @@ def main():
           f"{100.0 * df['n_retained_clean'].sum() / tot_p:.1f}%   (manuscript: ~80%)")
     print(f"  mean clean surrogates per placement  : "
           f"{df['n_retained_clean'].mean():.1f}   (manuscript: ~118)")
-
 
 if __name__ == '__main__':
     main()

@@ -1,4 +1,3 @@
-
 import argparse
 import os
 import numpy as np
@@ -9,7 +8,6 @@ import phase013_nan_safe_zscore
 
 CONFIGS = {'config1': ('config1', 1.0, 100e-6), 'config2': ('config2', 0.5, 100e-6),
            'config3': ('config3', 1.0, 150e-6), 'config4': ('config4', 0.5, 150e-6)}
-
 
 def collect(iterator):
     subs = []
@@ -26,7 +24,6 @@ def collect(iterator):
             inter[m]['p300'].extend(list(real_feats[fy]))
             inter[m]['subject'].extend([sid] * len(real_feats[fx]))
     return subs, real_by, pseudo_by, inter
-
 
 def run_config(cfg, K, datasets, subset, cache_dir, min_pseudo, targets_only=False, clean_pseudo=False,
                resample_hz=None):
@@ -64,12 +61,12 @@ def run_config(cfg, K, datasets, subset, cache_dir, min_pseudo, targets_only=Fal
                                    beta_real=res['beta_real'], beta_pseudo_mean=res['beta_pseudo_mean'],
                                    beta_pseudo_sd=res['beta_pseudo_sd'], dbeta=theta, bca_lo=lo, bca_hi=hi,
                                    surrogate_p=res['surrogate_p']))
-            # A5: canonical marginal R^2 from the pooled per-trial data for this dataset+model
+
             r2m, r2beta, r2n = E.marginal_r2(
                 inter[m]['feat'], inter[m]['p300'], inter[m]['subject'])
             r2_rows.append(dict(dataset=tag, config=cname, model=m, marginal_r2=r2m,
                                 lmm_beta=r2beta, n_subjects=r2n, n_trials=len(inter[m]['feat'])))
-            # A2: per-subject vectors for participant-level figures
+
             for i, sid in enumerate(subs):
                 pj = np.asarray(pseudo_by[m][i], float)
                 pmean = float(np.mean(pj)) if pj.size else float('nan')
@@ -104,7 +101,6 @@ def run_config(cfg, K, datasets, subset, cache_dir, min_pseudo, targets_only=Fal
             print(f"  [interaction] {m:16s} beta={ib:+.4f} p={ip:.4g}")
     return df, pd.DataFrame(inter_out)
 
-
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--config', default='config4')
@@ -127,7 +123,7 @@ def main():
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     rs_suf = f"_rs{int(a.resample_hz)}" if a.resample_hz else ""
-    # --- diagnostic banner: proves which files are loaded and whether flags registered ---
+
     import phase013_erpcore as _ec
     import phase013_engine as _en
     print("="*70)
@@ -184,7 +180,6 @@ def main():
         r2.to_csv(p, index=False)
         print(f"\nWrote {p} (canonical marginal R^2 for headline models)\n")
         print(r2.to_string(index=False))
-
 
 if __name__ == '__main__':
     main()

@@ -1,4 +1,3 @@
-
 import zlib, warnings
 import numpy as np
 import mne
@@ -72,8 +71,6 @@ def _preprocess(rec):
     return raw
 
 def iter_subjects(config, K=1000, subjects=None, subset_n=None, cache_dir=None, clean_pseudo=False, resample_hz=None):
-    """config = (name, min_gap_seconds, reject_threshold).
-    clean_pseudo=True drops pseudotrials whose early/P300 window overlaps a real evoked period."""
     cname, min_gap, reject = config
     if clean_pseudo:
         cname = cname + "_clean"

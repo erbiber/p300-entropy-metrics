@@ -1,4 +1,3 @@
-
 import os, zlib, warnings
 import numpy as np
 import mne
@@ -45,14 +44,9 @@ def _preprocess(set_path):
 
 def iter_subjects(config, K=1000, subjects=None, subset_n=None, cache_dir=None, targets_only=False,
                   clean_pseudo=False, resample_hz=None):
-    """config = (name, min_gap_seconds, reject_threshold).
-    targets_only=True keeps only TARGET_CODES (condition-matched to ds006018).
-    clean_pseudo=True drops pseudotrials whose early/P300 window overlaps a real evoked period.
-    resample_hz sets a target rate: epochs are formed at the native rate (trigger timing intact)
-    then resampled, to test sampling-rate sensitivity of the window measures (e.g. RMS/complexity)."""
     cname, min_gap, reject = config
     if targets_only:
-        cname = cname + "_targets"   # separate cache namespace so it can't collide with the full run
+        cname = cname + "_targets"
     if clean_pseudo:
         cname = cname + "_clean"
     if resample_hz:

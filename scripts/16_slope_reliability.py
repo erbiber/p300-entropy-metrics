@@ -1,4 +1,3 @@
-
 import os
 import numpy as np
 import pandas as pd
@@ -14,19 +13,16 @@ DATASETS = [('heterogeneity_primary_trials.csv', 'primary'),
             ('heterogeneity_ds006018_checkpoint.csv', 'independent')]
 MIN_TRIALS = 5
 
-
 def robust_z(s):
     s = np.asarray(s, float)
     med = np.median(s)
     mad = 1.4826 * np.median(np.abs(s - med))
     return (s - med) / mad if mad > 0 else s - med
 
-
 def ols_slope(x, y):
     if len(x) < 3 or np.std(x) < 1e-10:
         return np.nan
     return np.cov(x, y, ddof=1)[0, 1] / np.var(x, ddof=1)
-
 
 def corr(x, y):
     ok = np.isfinite(x) & np.isfinite(y)
@@ -34,14 +30,12 @@ def corr(x, y):
         return np.nan
     return float(np.corrcoef(x[ok], y[ok])[0, 1])
 
-
 def prep(path):
     df = pd.read_csv(path)
     for c, _ in MEASURES:
         df[c + '_z'] = df.groupby('subject')[c].transform(robust_z)
     df['p300_z'] = df.groupby('subject')['p300'].transform(robust_z)
     return df
-
 
 def slopes(df, m, parity=None):
     out = []
@@ -52,7 +46,6 @@ def slopes(df, m, parity=None):
         out.append(ols_slope(x, y) if parity is None
                    else ols_slope(x[parity::2], y[parity::2]))
     return np.array(out)
-
 
 def main():
     rel_rows, con_rows = [], []
@@ -91,7 +84,6 @@ def main():
         print(f"  {r['dataset']:12s} same={r['r_same_trials']:+.3f}  "
               f"disjoint dir1={r['r_disjoint_a_odd']:+.3f} dir2={r['r_disjoint_b_odd']:+.3f} "
               f"mean={r['r_disjoint_mean']:+.3f}")
-
 
 if __name__ == '__main__':
     main()

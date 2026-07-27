@@ -1,37 +1,3 @@
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-   
 import os
 import warnings
 import numpy as np
@@ -61,17 +27,11 @@ from config_ds006018 import (
 warnings.filterwarnings('ignore', category=Warning)
 mne.set_log_level('WARNING')
 
-                                                                            
-             
-                                                                            
-SUBSET_N = None                                                     
-                                                          
+SUBSET_N = None
+
 CFG_MIN_GAP = 0.5
 CFG_THRESH = 150e-6
 
-                                                                            
-                                                         
-                                                                            
 def window_mask(times, win):
     return (times >= win[0]) & (times <= win[1])
 
@@ -131,11 +91,7 @@ def generate_pseudotrial_samples(n_pseudo, sfreq, n_continuous_samples,
     placed.sort()
     return np.array(placed, dtype=int)
 
-                                                                            
-                                 
-                                                                            
 def load_visualoddball_recordings():
-                                                                             
     from eegdash.dataset import DS006018
     print(f"Loading {DATASET_ID} via eegdash (cache: {CACHE_DIR}) ...")
     dataset = DS006018(cache_dir=CACHE_DIR)
@@ -156,18 +112,15 @@ def load_visualoddball_recordings():
     return recs
 
 def preprocess_recording(rec):
-                                                                    
     raw = rec.raw
     if raw is None:
         return None
 
-                                                                                   
     try:
         raw.load_data()
     except Exception:
         pass
 
-                                                                        
     type_map = {}
     for ch in EOG_CHANNELS:
         if ch in raw.ch_names:
@@ -204,14 +157,8 @@ def preprocess_recording(rec):
     return raw
 
 def get_trial_epochs(raw, reject_thresh):
-\
-\
-\
-\
-\
-       
     events, event_id = mne.events_from_annotations(raw, verbose=False)
-                                                                             
+
     trial_event_id = {k: v for k, v in event_id.items()
                       if v in TRIAL_CODES and v in events[:, 2]}
     if not trial_event_id:
@@ -223,7 +170,6 @@ def get_trial_epochs(raw, reject_thresh):
         preload=True, verbose=False)
     return (epochs if len(epochs) > 0 else None), events
 
-                                                                            
 def fit_RI(df, formula, predictor):
     for kwargs in [dict(method='lbfgs', reml=True),
                    dict(method='nm', maxiter=2000, reml=True)]:
@@ -252,9 +198,7 @@ def fit_RI(df, formula, predictor):
     return dict(beta=np.nan, SE=np.nan, z=np.nan, p=np.nan, R2_marginal=np.nan,
                 n_trials=len(df), n_subjects=df['subject'].nunique())
 
-                                                                            
 def extract_trial_rows(epochs, subject, kind, config, rows, trial_codes_set):
-                                                            
     times = epochs.times
     m_early = window_mask(times, EARLY_WINDOW)
     m_p300 = window_mask(times, P300_WINDOW)
@@ -273,17 +217,16 @@ def extract_trial_rows(epochs, subject, kind, config, rows, trial_codes_set):
         pe, se, lz = entropy_block(fz_seg)
         is_target = (codes is not None and int(codes[i]) in TARGET_CODES)
         rows.append({
-                     : subject, 'kind': kind, 'config': config,
-                          : float(np.sqrt(np.mean(fz_seg ** 2))),
-                           : float(np.mean(fz_seg)),
-                           : float(np.mean(pz_seg)),
-                          : float(np.sqrt(np.mean(pz_seg ** 2))),
-                   : pe, 'fz_se': se, 'fz_lz': lz,
-                     : float(np.mean(data[i, pz_idx, m_p300])),
-                       : int(is_target) if codes is not None else -1,
+            'subject': subject, 'kind': kind, 'config': config,
+            'fz_early_rms': float(np.sqrt(np.mean(fz_seg ** 2))),
+            'fz_early_mean': float(np.mean(fz_seg)),
+            'pz_early_mean': float(np.mean(pz_seg)),
+            'pz_early_rms': float(np.sqrt(np.mean(pz_seg ** 2))),
+            'fz_pe': pe, 'fz_se': se, 'fz_lz': lz,
+            'p300_pz': float(np.mean(data[i, pz_idx, m_p300])),
+            'is_target': int(is_target) if codes is not None else -1,
         })
 
-                                                                            
 def main():
     banner("10_crossval_ds006018.py — cross-validation of Paper 1 signatures")
     trial_kind = ("TARGETS ONLY" if set(TRIAL_CODES) == set(TARGET_CODES)
@@ -327,7 +270,6 @@ def main():
         extract_trial_rows(epochs_real, f'sub-{subj}', 'real', 'real',
                            all_rows, trial_codes_set)
 
-                                
         n_pseudo_kept = 0
         pseudo_samples = generate_pseudotrial_samples(
             n_pseudo=max(n_real, 1), sfreq=raw.info['sfreq'],
@@ -346,12 +288,11 @@ def main():
             if len(epochs_pseudo) >= MIN_TRIALS_REQUIRED:
                 n_pseudo_kept = len(epochs_pseudo)
                 extract_trial_rows(epochs_pseudo, f'sub-{subj}', 'pseudo',
-                                            , all_rows, trial_codes_set)
+                                   'config4', all_rows, trial_codes_set)
 
         print(f"  sub-{subj}: real={n_real} (targets={n_targ})  "
               f"pseudo={n_pseudo_kept}")
 
-                                                                                 
         try:
             del raw, epochs_real
         except NameError:
@@ -367,7 +308,6 @@ def main():
 
     df = pd.DataFrame(all_rows)
 
-                                                                       
     banner("PER-SUBJECT TRIAL COUNTS (reconciliation diagnostic)")
     counts = np.array([c[1] for c in per_subject_counts])
     targs = np.array([c[2] for c in per_subject_counts])
@@ -379,22 +319,20 @@ def main():
     print(f"  -> If this run's mean ≈ 40 and matches target count, primary likely TARGETS-ONLY.")
     print(f"  -> If this run's mean ≈ 140-160, primary likely used ALL stimuli.\n")
 
-                                                         
     feats = ['fz_early_rms', 'fz_early_mean', 'pz_early_mean', 'pz_early_rms',
-                    , 'fz_se', 'fz_lz', 'p300_pz']
+             'fz_pe', 'fz_se', 'fz_lz', 'p300_pz']
     for c in feats:
         df[c + '_z'] = (df.groupby(['kind', 'config', 'subject'])[c]
                           .transform(robust_z_within_subject))
 
-                                                    
     models = [
-                                                                       
+
         ('M1_RMS_Fz_to_Pz',   'p300_pz_z ~ fz_early_rms_z',  'fz_early_rms_z'),
         ('M4a_mean_Fz_to_Pz', 'p300_pz_z ~ fz_early_mean_z', 'fz_early_mean_z'),
-                                                               
+
         ('M9a_mean_Pz_to_Pz', 'p300_pz_z ~ pz_early_mean_z', 'pz_early_mean_z'),
         ('M8_RMS_Pz_to_Pz',   'p300_pz_z ~ pz_early_rms_z',  'pz_early_rms_z'),
-                                                                     
+
         ('M_PE_Fz_to_Pz',     'p300_pz_z ~ fz_pe_z',         'fz_pe_z'),
         ('M_SE_Fz_to_Pz',     'p300_pz_z ~ fz_se_z',         'fz_se_z'),
         ('M_LZ_Fz_to_Pz',     'p300_pz_z ~ fz_lz_z',         'fz_lz_z'),
@@ -417,7 +355,6 @@ def main():
     df_res.to_csv(out, index=False)
     print(f"Cross-validation results saved -> {out}\n")
 
-                                                 
     banner("CROSS-VALIDATION SUMMARY: real vs pseudo (config4)")
     print(f"\n  {'model':<22} {'β_real':>9} {'β_pseudo':>10} {'|β|ratio':>9} "
           f"{'R²_real':>9} {'R²_pseudo':>10} {'signature':<22}")

@@ -14,13 +14,11 @@ OPERATING_POINTS = [('same_channel', 0.31), ('small_effect', 0.01)]
 SAMPLE_SIZES = [27, 28, 84, 90]
 RATES = [('1024Hz', 154), ('500Hz', 75)]
 
-
 def robust_z(v):
     med = np.median(v, axis=-1, keepdims=True)
     mad = 1.4826 * np.median(np.abs(v - med), axis=-1, keepdims=True)
     mad = np.where(mad > 0, mad, 1.0)
     return (v - med) / mad
-
 
 def ols_slope(x, y):
     xm = x - x.mean(axis=-1, keepdims=True)
@@ -28,7 +26,6 @@ def ols_slope(x, y):
     denom = (xm ** 2).sum(axis=-1)
     denom = np.where(denom > 0, denom, np.nan)
     return (xm * ym).sum(axis=-1) / denom
-
 
 def draw_slopes(rng, n_sub, n_trials, beta, meas_noise_sd):
     x = rng.standard_normal((n_sub, n_trials))
@@ -39,14 +36,12 @@ def draw_slopes(rng, n_sub, n_trials, beta, meas_noise_sd):
         y = y + meas_noise_sd * rng.standard_normal((n_sub, n_trials))
     return ols_slope(robust_z(x), robust_z(y))
 
-
 def one_replicate(rng, n_sub, beta_real, beta_pseudo, meas_noise_sd, k_eff):
     real = draw_slopes(rng, n_sub, N_TRIALS, beta_real, meas_noise_sd)
     single = draw_slopes(rng, n_sub, N_TRIALS, beta_pseudo, meas_noise_sd)
     shrink = 1.0 / np.sqrt(k_eff)
     pseudo = beta_pseudo + (single - beta_pseudo) * shrink
     return np.nanmean(real), np.nanmean(pseudo)
-
 
 def run():
     rng = np.random.default_rng(SEED)
@@ -132,7 +127,6 @@ def run():
               f"N={r['n_subjects']:3d}  {r['rate']:7s}  "
               f"[{r['aur_lo']:.2f}, {r['aur_hi']:.2f}]  median {r['aur_median']:.2f}")
     return bands, power
-
 
 if __name__ == '__main__':
     run()

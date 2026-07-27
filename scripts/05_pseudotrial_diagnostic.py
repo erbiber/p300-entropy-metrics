@@ -1,22 +1,3 @@
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-   
 import os
 import sys
 import warnings
@@ -44,7 +25,6 @@ from config import (
 warnings.filterwarnings('ignore', category=Warning)
 mne.set_log_level('WARNING')
 
-                                                                            
 def feature_block(trace):
     mean_amp = float(np.mean(trace))
     sd_amp = float(np.std(trace - mean_amp, ddof=0))
@@ -59,11 +39,9 @@ def robust_z_within_subject(s):
     mad = 1.4826 * np.median(np.abs(s - med))
     return (s - med) / mad if mad > 0 else s - med
 
-                                                                            
 def generate_pseudotrial_samples(n_pseudo, sfreq, n_continuous_samples,
                                   real_event_samples, min_gap_seconds,
                                   tmin, tmax, rng):
-                                                                                
     min_gap_samples = int(min_gap_seconds * sfreq)
     epoch_samples = int((tmax - tmin) * sfreq)
     pre_buffer = int(abs(tmin) * sfreq) + 1
@@ -101,18 +79,15 @@ def generate_pseudotrial_samples(n_pseudo, sfreq, n_continuous_samples,
     return (np.array(placed_samples, dtype=int),
             n_continuous_free, valid_high - valid_low)
 
-                                                                            
 def process_subject(sub_id, config_label, min_gap_s, reject_thresh, rng,
                     log_rows, extracted_rows):
-\
-                                              
     set_path = os.path.join(
         DATA_ROOT, f"sub-{sub_id}", "ses-P3", "eeg",
         f"sub-{sub_id}_ses-P3_task-P3_eeg.set",
     )
     if not os.path.exists(set_path):
         log_rows.append({'subject': f'sub-{sub_id}', 'config': config_label,
-                                 : 'file_not_found'})
+                         'status': 'file_not_found'})
         return
 
     raw = mne.io.read_raw_eeglab(set_path, preload=True, verbose=False)
@@ -144,7 +119,6 @@ def process_subject(sub_id, config_label, min_gap_s, reject_thresh, rng,
     events, _ = mne.events_from_annotations(raw, verbose=False)
     real_sample_indices = events[:, 0]
 
-                                                     
     epochs_real = mne.Epochs(
         raw, events, event_id=None,
         tmin=TMIN_EPOCH, tmax=TMAX_EPOCH,
@@ -157,7 +131,6 @@ def process_subject(sub_id, config_label, min_gap_s, reject_thresh, rng,
                               STANDARD_CODES + TARGET_CODES)
     n_real_retained = int(valid_real_mask.sum())
 
-                                        
     n_pseudo_target = max(n_real_retained, 1)
     pseudo_samples, n_free, n_valid_range = generate_pseudotrial_samples(
         n_pseudo=n_pseudo_target,
@@ -172,14 +145,14 @@ def process_subject(sub_id, config_label, min_gap_s, reject_thresh, rng,
 
     if n_pseudo_placed < MIN_TRIALS_REQUIRED:
         log_rows.append({
-                     : f'sub-{sub_id}', 'config': config_label,
-                    : f'insufficient_placement_{n_pseudo_placed}',
-                                  : n_samples_total,
-                                      : n_free,
-                                   : n_valid_range,
-                             : n_pseudo_placed,
-                               : 0,
-                             : n_real_retained,
+            'subject': f'sub-{sub_id}', 'config': config_label,
+            'status': f'insufficient_placement_{n_pseudo_placed}',
+            'n_continuous_samples': n_samples_total,
+            'n_free_samples_after_gap': n_free,
+            'n_valid_range_samples': n_valid_range,
+            'n_pseudo_placed': n_pseudo_placed,
+            'n_pseudo_retained': 0,
+            'n_real_retained': n_real_retained,
         })
         return
 
@@ -189,9 +162,6 @@ def process_subject(sub_id, config_label, min_gap_s, reject_thresh, rng,
         np.full(len(pseudo_samples), 99, dtype=int),
     ])
 
-                                                                           
-                                                                     
-                                    
     epochs_pseudo_all = mne.Epochs(
         raw, pseudo_events, event_id={'pseudo': 99},
         tmin=TMIN_EPOCH, tmax=TMAX_EPOCH,
@@ -208,10 +178,9 @@ def process_subject(sub_id, config_label, min_gap_s, reject_thresh, rng,
     )
     n_pseudo_retained = len(epochs_pseudo)
 
-                                                                       
     if len(epochs_pseudo_all) > 0:
         data_all = epochs_pseudo_all.get_data()
-                                                                      
+
         ptp_per_epoch = (data_all.max(axis=2) - data_all.min(axis=2)).max(axis=1)
         ptp_median = float(np.median(ptp_per_epoch))
         ptp_95 = float(np.percentile(ptp_per_epoch, 95))
@@ -220,22 +189,21 @@ def process_subject(sub_id, config_label, min_gap_s, reject_thresh, rng,
         ptp_median = ptp_95 = ptp_max = np.nan
 
     log_rows.append({
-                 : f'sub-{sub_id}', 'config': config_label,
-                : 'ok' if n_pseudo_retained >= MIN_TRIALS_REQUIRED else f'too_few_retained_{n_pseudo_retained}',
-                              : n_samples_total,
-                                  : n_free,
-                               : n_valid_range,
-                         : n_pseudo_placed,
-                           : n_pseudo_retained,
-                         : n_real_retained,
-                       : ptp_median * 1e6,
-                     : ptp_95 * 1e6,
-                    : ptp_max * 1e6,
-                               : n_pseudo_retained / max(n_pseudo_placed, 1),
-                             : n_real_retained / max(len(real_sample_indices), 1),
+        'subject': f'sub-{sub_id}', 'config': config_label,
+        'status': 'ok' if n_pseudo_retained >= MIN_TRIALS_REQUIRED else f'too_few_retained_{n_pseudo_retained}',
+        'n_continuous_samples': n_samples_total,
+        'n_free_samples_after_gap': n_free,
+        'n_valid_range_samples': n_valid_range,
+        'n_pseudo_placed': n_pseudo_placed,
+        'n_pseudo_retained': n_pseudo_retained,
+        'n_real_retained': n_real_retained,
+        'ptp_median_uV': ptp_median * 1e6,
+        'ptp_95th_uV': ptp_95 * 1e6,
+        'ptp_max_uV': ptp_max * 1e6,
+        'pseudo_retention_rate': n_pseudo_retained / max(n_pseudo_placed, 1),
+        'real_retention_rate': n_real_retained / max(len(real_sample_indices), 1),
     })
 
-                                                                         
     if n_pseudo_retained < MIN_TRIALS_REQUIRED:
         return
     data_p = epochs_pseudo.get_data()
@@ -259,16 +227,15 @@ def process_subject(sub_id, config_label, min_gap_s, reject_thresh, rng,
         m_basep, _, rms_basep = feature_block(pz_tr[m_basectrl])
         p300_amp = float(np.mean(pz_tr[m_p300]))
         extracted_rows.append({
-                     : f'sub-{sub_id}', 'config': config_label,
-                        : i,
-                           : m_fz, 'sd_early_fz': sd_fz, 'rms_early_fz': rms_fz,
-                           : m_pz_e, 'sd_early_pz': sd_pz_e, 'rms_early_pz': rms_pz_e,
-                          : m_basef, 'rms_base_fz': rms_basef,
-                          : m_basep, 'rms_base_pz': rms_basep,
-                      : p300_amp,
+            'subject': f'sub-{sub_id}', 'config': config_label,
+            'pseudo_idx': i,
+            'mean_early_fz': m_fz, 'sd_early_fz': sd_fz, 'rms_early_fz': rms_fz,
+            'mean_early_pz': m_pz_e, 'sd_early_pz': sd_pz_e, 'rms_early_pz': rms_pz_e,
+            'mean_base_fz': m_basef, 'rms_base_fz': rms_basef,
+            'mean_base_pz': m_basep, 'rms_base_pz': rms_basep,
+            'p300_amp': p300_amp,
         })
 
-                                                                            
 def fit_RI(df, formula, predictor):
     for kwargs in [dict(method='lbfgs', reml=True),
                    dict(method='nm', maxiter=2000, reml=True)]:
@@ -301,7 +268,6 @@ def fit_RI(df, formula, predictor):
                 R2_marginal=np.nan, n_trials=len(df),
                 n_subjects=df['subject'].nunique())
 
-                                                                            
 def main():
     banner("05_pseudotrial_diagnostic.py — diagnostic + sensitivity")
 
@@ -330,7 +296,7 @@ def main():
             print(f"  sub-{sid} ...", end=' ')
             process_subject(sid, cfg_label, min_gap, thresh, rng,
                             log_rows, extracted_rows)
-                                                            
+
             this_log = [r for r in log_rows
                         if r['subject'] == f'sub-{sid}' and r['config'] == cfg_label]
             if this_log:
@@ -341,13 +307,11 @@ def main():
                 else:
                     print(f"{r['status']}")
 
-                         
     log_df = pd.DataFrame(log_rows)
     log_path = os.path.join(RESULTS_DIR, 'logs', 'pseudotrial_diagnostic.csv')
     log_df.to_csv(log_path, index=False)
     print(f"\nDiagnostic log -> {log_path}")
 
-                                  
     banner("RETENTION SUMMARY BY CONFIGURATION")
     for cfg, _, _ in configs:
         sub = log_df[log_df['config'] == cfg]
@@ -366,7 +330,6 @@ def main():
               f"median ptp = {mean_ptp:.0f} µV")
     print()
 
-                                                                     
     if not extracted_rows:
         print("No pseudotrial features extracted under any configuration.")
         return
@@ -382,10 +345,10 @@ def main():
             continue
 
         feat = ['mean_early_fz', 'sd_early_fz', 'rms_early_fz',
-                               , 'sd_early_pz', 'rms_early_pz',
-                              , 'rms_base_fz',
-                              , 'rms_base_pz',
-                          ]
+                'mean_early_pz', 'sd_early_pz', 'rms_early_pz',
+                'mean_base_fz', 'rms_base_fz',
+                'mean_base_pz', 'rms_base_pz',
+                'p300_amp']
         for c in feat:
             sub[c + '_z'] = sub.groupby('subject')[c].transform(
                 robust_z_within_subject)
@@ -410,7 +373,6 @@ def main():
         res_df.to_csv(res_path, index=False)
         print(f"\nSensitivity results -> {res_path}")
 
-                                    
     banner("M9a R² STABILITY ACROSS CONFIGURATIONS")
     print("The real-trial M9a R² is 0.312. Original (config1) pseudotrial R² was 0.348.")
     print()

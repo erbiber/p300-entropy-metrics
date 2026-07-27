@@ -1,23 +1,3 @@
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-   
 import os
 import re
 import warnings
@@ -36,8 +16,6 @@ def robust_z_within_subject(s):
     return (s - med) / mad if mad > 0 else s - med
 
 def fit_RI(df, formula, predictor):
-\
-                                 
     for kwargs in [
         dict(method='lbfgs', reml=True),
         dict(method='nm', maxiter=2000, reml=True),
@@ -83,15 +61,14 @@ def main():
 
     rms_cols = [c for c in df.columns if c.startswith('rms_')
                 and c not in ('rms_early', 'rms_base')]
-                           
+
     channels = [(c, c[len('rms_'):]) for c in rms_cols]
-                                                                       
+
     channels = [(col, ch) for col, ch in channels
                 if re.match(r'^[A-Za-z]+\d*[A-Za-z]?$', ch)]
 
     print(f"  Found {len(channels)} electrodes.\n")
 
-                               
     df['p300_amp_z'] = df.groupby('subject')['p300_amp'].transform(
         robust_z_within_subject)
 
@@ -105,13 +82,13 @@ def main():
         sub['x_z'] = sub.groupby('subject')[col].transform(
             robust_z_within_subject)
         beta, se, z, p, r2m = fit_RI(sub,
-                                          , 'x_z')
+            'p300_amp_z ~ x_z + condition', 'x_z')
         rows.append({
-                     : ch,
-                  : beta, 'SE': se, 'z': z, 'p': p,
-                         : r2m,
-                      : len(sub),
-                        : sub['subject'].nunique(),
+            'channel': ch,
+            'beta': beta, 'SE': se, 'z': z, 'p': p,
+            'R2_marginal': r2m,
+            'n_trials': len(sub),
+            'n_subjects': sub['subject'].nunique(),
         })
         print(f"  {ch:6s}  beta={beta:+.4f}  SE={se:.4f}  "
               f"z={z:+.2f}  p={p:.2e}  R2m={r2m:.3f}")

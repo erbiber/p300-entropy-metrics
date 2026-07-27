@@ -1,26 +1,3 @@
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-   
 import os
 import warnings
 import numpy as np
@@ -48,7 +25,6 @@ from config import (
 warnings.filterwarnings('ignore', category=Warning)
 mne.set_log_level('WARNING')
 
-                                                                            
 def feature_block(trace):
     mean_amp = float(np.mean(trace))
     sd_amp = float(np.std(trace - mean_amp, ddof=0))
@@ -94,11 +70,8 @@ def generate_pseudotrial_samples(n_pseudo, sfreq, n_continuous_samples,
     placed.sort()
     return np.array(placed, dtype=int)
 
-                                                                            
 def process_subject(sub_id, config_label, min_gap_s, reject_thresh,
                      rng, extracted_rows):
-\
-                                                               
     set_path = os.path.join(
         DATA_ROOT, f"sub-{sub_id}", "ses-P3", "eeg",
         f"sub-{sub_id}_ses-P3_task-P3_eeg.set",
@@ -135,7 +108,6 @@ def process_subject(sub_id, config_label, min_gap_s, reject_thresh,
     events, _ = mne.events_from_annotations(raw, verbose=False)
     real_sample_indices = events[:, 0]
 
-                                                      
     epochs_real = mne.Epochs(
         raw, events, event_id=None,
         tmin=TMIN_EPOCH, tmax=TMAX_EPOCH,
@@ -151,7 +123,6 @@ def process_subject(sub_id, config_label, min_gap_s, reject_thresh,
     if n_real_retained < MIN_TRIALS_REQUIRED:
         return
 
-                            
     pseudo_samples = generate_pseudotrial_samples(
         n_pseudo=max(n_real_retained, 1),
         sfreq=sfreq,
@@ -188,7 +159,6 @@ def process_subject(sub_id, config_label, min_gap_s, reject_thresh,
     if fz_name is None or pz_name is None:
         return
 
-                                   
     m_early_150 = window_mask(times, EARLY_WINDOW)
     m_early_200 = window_mask(times, EARLY_WINDOW_200)
     m_early_250 = window_mask(times, EARLY_WINDOW_250)
@@ -199,34 +169,29 @@ def process_subject(sub_id, config_label, min_gap_s, reject_thresh,
         fz_tr = data_p[i, fz_idx, :]
         pz_tr = data_p[i, pz_idx, :]
 
-                                             
         m_fz_150, sd_fz_150, rms_fz_150 = feature_block(fz_tr[m_early_150])
         m_fz_200, sd_fz_200, rms_fz_200 = feature_block(fz_tr[m_early_200])
         m_fz_250, sd_fz_250, rms_fz_250 = feature_block(fz_tr[m_early_250])
 
-                                         
         m_pz_e, sd_pz_e, rms_pz_e = feature_block(pz_tr[m_early_150])
 
-                                      
         m_basef, _, rms_basef = feature_block(fz_tr[m_basectrl])
         m_basep, _, rms_basep = feature_block(pz_tr[m_basectrl])
 
-                 
         p300_amp = float(np.mean(pz_tr[m_p300]))
 
         extracted_rows.append({
-                     : f'sub-{sub_id}', 'config': config_label,
-                        : i,
-                           : m_fz_150, 'sd_early_fz': sd_fz_150, 'rms_early_fz': rms_fz_150,
-                               : m_fz_200, 'rms_early_fz_200': rms_fz_200,
-                               : m_fz_250, 'rms_early_fz_250': rms_fz_250,
-                           : m_pz_e, 'sd_early_pz': sd_pz_e, 'rms_early_pz': rms_pz_e,
-                          : m_basef, 'rms_base_fz': rms_basef,
-                          : m_basep, 'rms_base_pz': rms_basep,
-                      : p300_amp,
+            'subject': f'sub-{sub_id}', 'config': config_label,
+            'pseudo_idx': i,
+            'mean_early_fz': m_fz_150, 'sd_early_fz': sd_fz_150, 'rms_early_fz': rms_fz_150,
+            'mean_early_fz_200': m_fz_200, 'rms_early_fz_200': rms_fz_200,
+            'mean_early_fz_250': m_fz_250, 'rms_early_fz_250': rms_fz_250,
+            'mean_early_pz': m_pz_e, 'sd_early_pz': sd_pz_e, 'rms_early_pz': rms_pz_e,
+            'mean_base_fz': m_basef, 'rms_base_fz': rms_basef,
+            'mean_base_pz': m_basep, 'rms_base_pz': rms_basep,
+            'p300_amp': p300_amp,
         })
 
-                                                                            
 def fit_RI(df, formula, predictor):
     for kwargs in [dict(method='lbfgs', reml=True),
                    dict(method='nm', maxiter=2000, reml=True)]:
@@ -259,7 +224,6 @@ def fit_RI(df, formula, predictor):
                 R2_marginal=np.nan, n_trials=len(df),
                 n_subjects=df['subject'].nunique())
 
-                                                                            
 def main():
     banner("06_pseudotrial_extended.py — pseudotrial test for M5m/M6m/M8/M11")
     print("Extending the pseudotrial control to additional models.\n")
@@ -269,8 +233,6 @@ def main():
     sub_dirs = sorted(d for d in os.listdir(DATA_ROOT) if d.startswith('sub-'))
     sub_ids = [d.split('-')[1] for d in sub_dirs]
 
-                                                                        
-                                                                    
     configs = [
         ('config4', 0.5, 150e-6),
     ]
@@ -292,26 +254,21 @@ def main():
 
     df_extr = pd.DataFrame(extracted_rows)
 
-                                 
     feat = ['mean_early_fz', 'sd_early_fz', 'rms_early_fz',
-                               , 'rms_early_fz_200',
-                               , 'rms_early_fz_250',
-                           , 'sd_early_pz', 'rms_early_pz',
-                          , 'rms_base_fz',
-                          , 'rms_base_pz',
-                      ]
+            'mean_early_fz_200', 'rms_early_fz_200',
+            'mean_early_fz_250', 'rms_early_fz_250',
+            'mean_early_pz', 'sd_early_pz', 'rms_early_pz',
+            'mean_base_fz', 'rms_base_fz',
+            'mean_base_pz', 'rms_base_pz',
+            'p300_amp']
 
-                                                                      
-                                   
-                                                                   
-                                                       
     models_to_test = [
-                                                             
+
         ('M1_RMS_Fz_0_150',         'p300_amp_z ~ rms_early_fz_z',                      'rms_early_fz_z'),
         ('M4a_Fz_mean_competitive', 'p300_amp_z ~ mean_early_fz_z + sd_early_fz_z',     'mean_early_fz_z'),
         ('M9a_Pz_mean_competitive', 'p300_amp_z ~ mean_early_pz_z + sd_early_pz_z',     'mean_early_pz_z'),
         ('M12_Pz_mean_with_basecov','p300_amp_z ~ mean_early_pz_z + mean_base_pz_z',    'mean_early_pz_z'),
-             
+
         ('M5m_Fz_mean_0_200',       'p300_amp_z ~ mean_early_fz_200_z',                 'mean_early_fz_200_z'),
         ('M6m_Fz_mean_0_250',       'p300_amp_z ~ mean_early_fz_250_z',                 'mean_early_fz_250_z'),
         ('M8_Pz_RMS_0_150',         'p300_amp_z ~ rms_early_pz_z',                      'rms_early_pz_z'),
@@ -329,8 +286,7 @@ def main():
                 robust_z_within_subject)
 
         for model_name, formula, focal in models_to_test:
-                                                                         
-                                                                          
+
             fit_df = sub.dropna(subset=[focal, 'p300_amp_z']).copy()
             if len(fit_df) < MIN_TRIALS_REQUIRED or fit_df['subject'].nunique() < 3:
                 continue
@@ -341,25 +297,22 @@ def main():
 
     res_df = pd.DataFrame(results)
 
-          
     res_path = os.path.join(RESULTS_DIR, 'logs', 'pseudotrial_extended_results.csv')
     res_df.to_csv(res_path, index=False)
     print(f"Extended results saved -> {res_path}\n")
 
-                                                                
     real_path = os.path.join(RESULTS_DIR, 'lmm_summary_canonical.csv')
     real = pd.read_csv(real_path)
 
-                                                             
     name_map = {
-                         : 'M1_RMS_Fz_0_150',
-                                 : 'M4a_competitive_Fz_mean',
-                                 : 'M9a_competitive_Pz_mean',
-                                  : 'M12_Pz_mean_with_baseline_cov',
-                           : 'M5m_mean_Fz_0_200',
-                           : 'M6m_mean_Fz_0_250',
-                         : 'M8_RMS_Pz_0_150',
-                                 : 'M11_Pz_RMS_with_baseline_cov',
+        'M1_RMS_Fz_0_150': 'M1_RMS_Fz_0_150',
+        'M4a_Fz_mean_competitive': 'M4a_competitive_Fz_mean',
+        'M9a_Pz_mean_competitive': 'M9a_competitive_Pz_mean',
+        'M12_Pz_mean_with_basecov': 'M12_Pz_mean_with_baseline_cov',
+        'M5m_Fz_mean_0_200': 'M5m_mean_Fz_0_200',
+        'M6m_Fz_mean_0_250': 'M6m_mean_Fz_0_250',
+        'M8_Pz_RMS_0_150': 'M8_RMS_Pz_0_150',
+        'M11_Pz_RMS_with_basecov': 'M11_Pz_RMS_with_baseline_cov',
     }
 
     banner("MODEL-BY-MODEL: real vs pseudotrial across configs")
@@ -367,7 +320,7 @@ def main():
     print(f"  {'model':30s}  {'config':10s}  {'n':6s}  {'beta':10s}  {'R²':8s}")
     print("  " + "-" * 70)
     for model_name, _, _ in models_to_test:
-                                   
+
         canonical = name_map.get(model_name, model_name)
         real_row = real[real['model'] == canonical]
         if not real_row.empty:

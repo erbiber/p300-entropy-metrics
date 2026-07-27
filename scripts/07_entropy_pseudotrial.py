@@ -1,35 +1,3 @@
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-   
 import os
 import warnings
 import numpy as np
@@ -57,16 +25,7 @@ from config import (
 warnings.filterwarnings('ignore', category=Warning)
 mne.set_log_level('WARNING')
 
-                                                                            
 def hjorth_block(trace):
-\
-\
-\
-\
-\
-\
-\
-       
     try:
         n = len(trace)
         var_x = float(np.var(trace, ddof=0))
@@ -87,13 +46,6 @@ def hjorth_block(trace):
         return np.nan, np.nan
 
 def entropy_block(trace):
-\
-\
-\
-\
-\
-\
-       
     try:
         pe = ant.perm_entropy(trace, order=3, delay=1, normalize=True)
     except Exception:
@@ -119,7 +71,6 @@ def window_mask(times, win):
     return (times >= win[0]) & (times <= win[1])
 
 def robust_z_within_subject(s):
-                                                        
     med = np.median(s)
     mad = 1.4826 * np.median(np.abs(s - med))
     return (s - med) / mad if mad > 0 else s - med
@@ -127,7 +78,6 @@ def robust_z_within_subject(s):
 def generate_pseudotrial_samples(n_pseudo, sfreq, n_continuous_samples,
                                   real_event_samples, min_gap_seconds,
                                   tmin, tmax, rng):
-                                               
     min_gap_samples = int(min_gap_seconds * sfreq)
     epoch_samples = int((tmax - tmin) * sfreq)
     pre_buffer = int(abs(tmin) * sfreq) + 1
@@ -156,9 +106,7 @@ def generate_pseudotrial_samples(n_pseudo, sfreq, n_continuous_samples,
     placed.sort()
     return np.array(placed, dtype=int)
 
-                                                                            
 def preprocess_subject(sub_id, reject_thresh):
-                                                                       
     set_path = os.path.join(
         DATA_ROOT, f"sub-{sub_id}", "ses-P3", "eeg",
         f"sub-{sub_id}_ses-P3_task-P3_eeg.set",
@@ -194,7 +142,6 @@ def preprocess_subject(sub_id, reject_thresh):
     return raw, events, raw.info['sfreq']
 
 def extract_real_trial_entropy(sub_id, reject_thresh, rows):
-                                                                    
     raw, events, sfreq = preprocess_subject(sub_id, reject_thresh)
     if raw is None:
         return
@@ -231,17 +178,16 @@ def extract_real_trial_entropy(sub_id, reject_thresh, rows):
         pe, se, lz, hjmob, hjcplx = entropy_block(seg)
         p300 = float(np.mean(data[i, pz_idx, m_p300]))
         rows.append({
-                     : f'sub-{sub_id}', 'kind': 'real',
-                    : 'real',
-                       : i,
-                      : pe, 'early_sampen': se, 'early_lz': lz,
-                              : hjmob, 'early_hjorth_cplx': hjcplx,
-                      : p300,
+            'subject': f'sub-{sub_id}', 'kind': 'real',
+            'config': 'real',
+            'trial_idx': i,
+            'early_pe': pe, 'early_sampen': se, 'early_lz': lz,
+            'early_hjorth_mob': hjmob, 'early_hjorth_cplx': hjcplx,
+            'p300_amp': p300,
         })
 
 def extract_pseudo_entropy(sub_id, config_label, min_gap_s, reject_thresh,
                             rng, rows):
-                                                                         
     raw, events, sfreq = preprocess_subject(sub_id, reject_thresh)
     if raw is None:
         return
@@ -249,7 +195,6 @@ def extract_pseudo_entropy(sub_id, config_label, min_gap_s, reject_thresh,
     real_sample_indices = events[:, 0]
     n_samples = raw.n_times
 
-                                                
     epochs_real = mne.Epochs(
         raw, events, event_id=None,
         tmin=TMIN_EPOCH, tmax=TMAX_EPOCH,
@@ -308,17 +253,15 @@ def extract_pseudo_entropy(sub_id, config_label, min_gap_s, reject_thresh,
         pe, se, lz, hjmob, hjcplx = entropy_block(seg)
         p300 = float(np.mean(data_p[i, pz_idx, m_p300]))
         rows.append({
-                     : f'sub-{sub_id}', 'kind': 'pseudo',
-                    : config_label,
-                       : i,
-                      : pe, 'early_sampen': se, 'early_lz': lz,
-                              : hjmob, 'early_hjorth_cplx': hjcplx,
-                      : p300,
+            'subject': f'sub-{sub_id}', 'kind': 'pseudo',
+            'config': config_label,
+            'trial_idx': i,
+            'early_pe': pe, 'early_sampen': se, 'early_lz': lz,
+            'early_hjorth_mob': hjmob, 'early_hjorth_cplx': hjcplx,
+            'p300_amp': p300,
         })
 
-                                                                            
 def fit_RI(df, formula, predictor):
-                                               
     for kwargs in [dict(method='lbfgs', reml=True),
                    dict(method='nm', maxiter=2000, reml=True)]:
         try:
@@ -350,7 +293,6 @@ def fit_RI(df, formula, predictor):
                 R2_marginal=np.nan, n_trials=len(df),
                 n_subjects=df['subject'].nunique())
 
-                                                                            
 def main():
     banner("07_entropy_pseudotrial.py — pseudotrial test for the entropy family")
     print("Three entropy measures from the rejected manuscript, tested against")
@@ -359,13 +301,11 @@ def main():
     sub_dirs = sorted(d for d in os.listdir(DATA_ROOT) if d.startswith('sub-'))
     sub_ids = [d.split('-')[1] for d in sub_dirs]
 
-                                                                      
     configs = [
         ('config4', 0.5, 150e-6),
     ]
     all_rows = []
 
-                                                                         
     banner("Extracting REAL trials (threshold ±100 µV, matches original 03)")
     for sid in sub_ids:
         extract_real_trial_entropy(sid, 100e-6, all_rows)
@@ -373,7 +313,6 @@ def main():
     n_real_subj = len(set(r['subject'] for r in all_rows if r['kind'] == 'real'))
     print(f"  -> {n_real} real trials from {n_real_subj} subjects\n")
 
-                                                      
     for cfg_label, min_gap, thresh in configs:
         banner(f"Configuration: {cfg_label}  min_gap={min_gap} s  threshold=±{thresh*1e6:.0f} µV")
         rng = np.random.default_rng(PSEUDOTRIAL_SEED)
@@ -390,10 +329,8 @@ def main():
 
     df_all = pd.DataFrame(all_rows)
 
-                                                                         
-                                                      
     feat = ['early_pe', 'early_sampen', 'early_lz',
-                              , 'early_hjorth_cplx', 'p300_amp']
+            'early_hjorth_mob', 'early_hjorth_cplx', 'p300_amp']
     for c in feat:
         df_all[c + '_z'] = (
             df_all
@@ -401,19 +338,17 @@ def main():
             .transform(robust_z_within_subject)
         )
 
-                           
-                                                                  
     models = [
         ('M_PE_Fz_0_150',         'p300_amp_z ~ early_pe_z',            'early_pe_z'),
         ('M_SE_Fz_0_150',         'p300_amp_z ~ early_sampen_z',        'early_sampen_z'),
         ('M_LZ_Fz_0_150',         'p300_amp_z ~ early_lz_z',            'early_lz_z'),
-                                                                      
+
         ('M_HJORTHMOB_Fz_0_150',  'p300_amp_z ~ early_hjorth_mob_z',    'early_hjorth_mob_z'),
         ('M_HJORTHCPLX_Fz_0_150', 'p300_amp_z ~ early_hjorth_cplx_z',   'early_hjorth_cplx_z'),
     ]
 
     results = []
-                     
+
     df_real = df_all[df_all['kind'] == 'real'].copy()
     for name, formula, pred in models:
         sub = df_real.dropna(subset=[pred, 'p300_amp_z']).copy()
@@ -424,7 +359,6 @@ def main():
                       formula=formula))
         results.append(r)
 
-                                 
     for cfg, _, _ in configs:
         sub_cfg = df_all[(df_all['kind'] == 'pseudo')
                          & (df_all['config'] == cfg)].copy()
@@ -441,18 +375,17 @@ def main():
 
     df_res = pd.DataFrame(results)
     out_path = os.path.join(RESULTS_DIR, 'logs',
-                                                              )
+                             'entropy_pseudotrial_results.csv')
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     df_res.to_csv(out_path, index=False)
     print(f"\nEntropy pseudotrial results saved -> {out_path}\n")
 
-                                    
     banner("MODEL-BY-MODEL: real vs pseudotrial across configs")
     print(f"  {'model':<24} {'kind/config':<12} {'n':>6} {'beta':>10} {'R²':>10}")
     print("  " + "-" * 66)
     for name, _, _ in models:
         rows = df_res[df_res['model'] == name].copy()
-                    
+
         for _, r in rows[rows['kind'] == 'real'].iterrows():
             print(f"  {name:<24} {'REAL':<12} {int(r['n_trials']):>6} "
                   f"{r['beta']:>+10.3f} {r['R2_marginal']:>10.3f}")
@@ -463,7 +396,6 @@ def main():
                       f"{r['beta']:>+10.3f} {r['R2_marginal']:>10.3f}")
         print()
 
-                                                                          
     banner("CONFIG 4 SUMMARY: REAL vs PSEUDO (cleanest test)")
     print(f"\n  {'model':<24} {'β_real':>10} {'β_pseudo':>10} "
           f"{'R²_real':>10} {'R²_pseudo':>10} {'ΔR² (real-pseudo)':>20}")

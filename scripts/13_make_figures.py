@@ -1,55 +1,3 @@
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-   
 import os
 import numpy as np
 import pandas as pd
@@ -67,9 +15,7 @@ TARGET_COLOR   = '#A13544'
 STANDARD_COLOR = '#20808D'
 PSEUDO_COLOR   = '#F5A623'
 
-                                                                               
 def _build_topo_info(ch_names, montage_name='standard_1020'):
-                                                                           
     montage = mne.channels.make_standard_montage(montage_name)
     pos = montage.get_positions()['ch_pos']
     pos_lc = {k.lower(): v for k, v in pos.items()}
@@ -101,26 +47,18 @@ def _load_npz():
     d = np.load(path, allow_pickle=True)
     return d['gas']
 
-                                                                       
 def figure_1_erp_and_topo():
-\
-\
-\
-\
-       
     gas = _load_npz()
     if gas is None:
         return
-    times = gas[0]['times']           
+    times = gas[0]['times']
     t_ms  = times * 1000
 
-                         
     erp_t_pz = np.nanmean([g['erp_target_pz']   for g in gas], axis=0) * 1e6
     erp_s_pz = np.nanmean([g['erp_standard_pz'] for g in gas], axis=0) * 1e6
     erp_t_fz = np.nanmean([g['erp_target_fz']   for g in gas], axis=0) * 1e6
     erp_s_fz = np.nanmean([g['erp_standard_fz'] for g in gas], axis=0) * 1e6
 
-                            
     topo_t = np.nanmean([g['topo_target_p300']   for g in gas], axis=0) * 1e6
     topo_s = np.nanmean([g['topo_standard_p300'] for g in gas], axis=0) * 1e6
     topo_d = topo_t - topo_s
@@ -134,12 +72,10 @@ def figure_1_erp_and_topo():
     n_scalp = len(kept) if info is not None else len(scalp)
 
     fig = plt.figure(figsize=(14, 10))
-                                                                            
-                                                          
+
     gs = fig.add_gridspec(2, 3, height_ratios=[1.0, 1.1], hspace=0.45,
                           wspace=0.30)
 
-                                                                           
     ax_pz = fig.add_subplot(gs[0, 0])
     ax_fz = fig.add_subplot(gs[0, 1])
 
@@ -159,16 +95,13 @@ def figure_1_erp_and_topo():
         ax.set_ylabel('Amplitude (µV)')
         ax.set_title(title, fontsize=11)
         ax.legend(loc='lower right', frameon=False, fontsize=8)
-                                
+
         ax.set_xticks(np.arange(-200, 801, 200))
         ax.set_xticklabels([f'{v/1000:.1f}' for v in np.arange(-200, 801, 200)])
-                                                            
 
-                                                       
     fig.text(0.5, 0.95, 'Figure 1A. Grand-average ERPs (target vs standard)',
              ha='center', va='bottom', fontsize=13)
 
-                                                                           
     if info is not None:
         idx = [ch_names.index(c) for c in kept]
         t_vec = topo_t[idx];  s_vec = topo_s[idx];  d_vec = topo_d[idx]
@@ -201,13 +134,7 @@ def figure_1_erp_and_topo():
     plt.close(fig)
     print(f"  fig1 -> {out}")
 
-                                                                       
 def figure_2_rectified_fz():
-\
-\
-\
-\
-       
     gas = _load_npz()
     if gas is None:
         return
@@ -244,16 +171,10 @@ def figure_2_rectified_fz():
     plt.close(fig)
     print(f"  fig2 -> {out}")
 
-                                                                       
 def figure_3_pseudotrial():
-\
-\
-\
-\
-       
-                                                       
+
     amp_path = os.path.join(RESULTS_DIR, FILES['pseudotrial_summary'])
-                                                 
+
     ent_path = os.path.join(LOG_DIR, 'entropy_pseudotrial_results.csv')
 
     rows = []
@@ -271,12 +192,12 @@ def figure_3_pseudotrial():
 
     if os.path.exists(ent_path):
         ent = pd.read_csv(ent_path)
-                                 
+
         er = ent[ent['kind']=='real']
         ep = ent[(ent['kind']=='pseudo')&(ent['config']=='config4')]
         model_map = {'M_PE_Fz_0_150':'M13',
-                                    :'M14',
-                                    :'M15'}
+                     'M_SE_Fz_0_150':'M14',
+                     'M_LZ_Fz_0_150':'M15'}
         for orig, lbl in model_map.items():
             rr = er[er['model']==orig]
             pp = ep[ep['model']==orig]
@@ -319,8 +240,8 @@ def figure_3_pseudotrial():
     axes[1].legend(frameon=False)
 
     fig.suptitle(
-                                                      
-                                                                      ,
+        'Figure 3.  Real vs pseudotrial comparison — '
+        'amplitude (M1, M4a, M9a, M12) and entropy (M13–M15) families',
         fontsize=11, y=1.02)
     fig.tight_layout()
     out = os.path.join(FIG_DIR, 'fig3_pseudotrial_comparison.png')
@@ -329,10 +250,7 @@ def figure_3_pseudotrial():
     plt.close(fig)
     print(f"  fig3 -> {out}")
 
-                                                                          
 def _aur_vec(beta_r, beta_p, cap=3.0):
-\
-                                                                   
     with np.errstate(divide='ignore', invalid='ignore'):
         aur = np.where(np.abs(beta_r) > 1e-9,
                        np.abs(beta_p) / np.abs(beta_r), np.nan)
@@ -340,15 +258,11 @@ def _aur_vec(beta_r, beta_p, cap=3.0):
 
 def _draw_topo_triplet(fig, axes, r2, beta, aur, row_label=None,
                        aur_cap=3.0):
-\
-\
-       
     from matplotlib.colors import TwoSlopeNorm
     bmax = np.nanmax(np.abs(beta))
     aur_top = min(aur_cap, max(2.0, np.nanpercentile(aur, 95)))
     aur_norm = TwoSlopeNorm(vmin=0, vcenter=1.0, vmax=aur_top)
 
-              
     im0, _ = mne.viz.plot_topomap(
         r2, _draw_topo_triplet.info, axes=axes[0], show=False,
         cmap='viridis', vlim=(0, np.nanmax(r2)),
@@ -357,7 +271,6 @@ def _draw_topo_triplet(fig, axes, r2, beta, aur, row_label=None,
     cb0.set_label('marginal $R^2$')
     axes[0].set_title(r'$R^2$', fontsize=11, fontweight='bold')
 
-                                 
     im1, _ = mne.viz.plot_topomap(
         beta, _draw_topo_triplet.info, axes=axes[1], show=False,
         cmap='RdBu_r', vlim=(-bmax, bmax),
@@ -366,7 +279,6 @@ def _draw_topo_triplet(fig, axes, r2, beta, aur, row_label=None,
     cb1.set_label(r'standardised $\beta$')
     axes[1].set_title(r'$\beta$', fontsize=11, fontweight='bold')
 
-                                
     im2, _ = mne.viz.plot_topomap(
         aur, _draw_topo_triplet.info, axes=axes[2], show=False,
         cmap='RdBu_r', cnorm=aur_norm,
@@ -381,13 +293,7 @@ def _draw_topo_triplet(fig, axes, r2, beta, aur, row_label=None,
             ha='right', va='center', fontsize=12,
             fontweight='bold', rotation=90)
 
-                                                                       
 def figure_4_cross_channel():
-\
-\
-\
-\
-       
     path = os.path.join(RESULTS_DIR, FILES['interelectrode_cross'])
     if not os.path.exists(path):
         print(f"  fig4 skipped: {path} not found (run script 09 first)")
@@ -407,11 +313,11 @@ def figure_4_cross_channel():
     fig, axes = plt.subplots(1, 3, figsize=(14, 4.6))
     _draw_topo_triplet(fig, axes, r2r, beta_r, aur)
     fig.suptitle(
-                                                        
-                                                           
-                                                          
-                                               
-                                                              ,
+        'Figure 4.  Cross-channel coupling topography  '
+        '(early activity at each electrode → P300 at Pz)\n'
+        '$R^2$ and $\\beta$ are real-trial values; AUR = '
+        '$|\\beta_{pseudo}|/|\\beta_{real}|$  '
+        '(> 1 = autocorrelation; capped at 3; diverging at 1)',
         fontsize=11, y=1.06)
     fig.tight_layout()
     out = os.path.join(FIG_DIR, 'fig4_cross_channel.png')
@@ -420,13 +326,7 @@ def figure_4_cross_channel():
     plt.close(fig)
     print(f"  fig4 -> {out}")
 
-                                                                       
 def figure_5_same_channel():
-\
-\
-\
-\
-       
     path = os.path.join(RESULTS_DIR, FILES['interelectrode_same'])
     if not os.path.exists(path):
         print(f"  fig5 skipped: {path} not found (run script 09 first)")
@@ -446,11 +346,11 @@ def figure_5_same_channel():
     fig, axes = plt.subplots(1, 3, figsize=(14, 4.6))
     _draw_topo_triplet(fig, axes, r2r, beta_r, aur)
     fig.suptitle(
-                                                       
-                                                
-                                                          
-                                               
-                                                                           ,
+        'Figure 5.  Same-channel coupling topography  '
+        '(early → late at the same electrode)\n'
+        '$R^2$ and $\\beta$ are real-trial values; AUR = '
+        '$|\\beta_{pseudo}|/|\\beta_{real}|$  '
+        '(≈ 1 = preserved under pseudotrials; capped at 3; diverging at 1)',
         fontsize=11, y=1.06)
     fig.tight_layout()
     out = os.path.join(FIG_DIR, 'fig5_same_channel.png')
@@ -459,19 +359,7 @@ def figure_5_same_channel():
     plt.close(fig)
     print(f"  fig5 -> {out}")
 
-                                                                       
 def figure_6_complexity_topo():
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-       
     path = os.path.join(RESULTS_DIR, FILES['interelectrode_shape'])
     if not os.path.exists(path):
         print(f"  fig6 skipped: {path} not found (run script 09 first)")
@@ -494,18 +382,18 @@ def figure_6_complexity_topo():
         beta_p = _topo_vec(v3, 'pseudo', kept, 'beta', m)
         aur    = _aur_vec(beta_r, beta_p)
         _draw_topo_triplet(fig, axes[row], r2r, beta_r, aur, row_label=label)
-                                                                 
+
         for col in range(3):
             base = axes[row, col].get_title()
             axes[row, col].set_title(f'{base}\n{label} \u2192 Pz',
                                      fontsize=10, fontweight='bold')
 
     fig.suptitle(
-                                                                    
-                                                          
-                                               
-                                                                  
-                                      ,
+        'Figure 6.  Complexity coupling topography to the Pz P300\n'
+        '$R^2$ and $\\beta$ are real-trial values; AUR = '
+        '$|\\beta_{pseudo}|/|\\beta_{real}|$  '
+        '(blue < 1 = stimulus-locked; red > 1 = autocorrelation; '
+        'capped at 3; diverging at 1)',
         fontsize=11, y=1.04)
     fig.tight_layout()
     out = os.path.join(FIG_DIR, 'fig6_complexity_topo.png')
@@ -514,9 +402,7 @@ def figure_6_complexity_topo():
     plt.close(fig)
     print(f"  fig6 -> {out}")
 
-                                                                       
 def _slopes(df, col, n_min=5):
-                                                                 
     def rz(s):
         med = np.median(s)
         mad = 1.4826 * np.median(np.abs(s - med))
@@ -536,11 +422,6 @@ def _slopes(df, col, n_min=5):
     return pd.Series(out)
 
 def figure_7_entropy_heterogeneity():
-\
-\
-\
-\
-       
     prim_path = os.path.join(RESULTS_DIR, FILES['heterogeneity_primary'])
     ds_path   = os.path.join(RESULTS_DIR, FILES['heterogeneity_ds006018'])
 
@@ -586,7 +467,7 @@ def figure_7_entropy_heterogeneity():
             ax.legend(loc='upper right', frameon=False, fontsize=8)
 
     fig.suptitle(
-                                                             ,
+        'Figure 7.  Per-subject entropy–P300 coupling slopes',
         fontsize=12, y=1.01)
     fig.tight_layout()
     out = os.path.join(FIG_DIR, 'fig7_entropy_heterogeneity.png')

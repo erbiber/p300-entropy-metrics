@@ -1,56 +1,16 @@
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-   
 import os
 
-                   
-                                                    
-                                                               
-                                                                
 DATA_ROOT = os.environ.get(
-                      ,
-                                                               ,
+    "ERP_CORE_P3_DATA",
+    r"C:\Users\erkan\Documents\dof_validation\data\erp_core_P3",
 )
 SCRIPT_DIR = os.environ.get(
-                    ,
-                                                                         ,
+    "DOF_SCRIPT_DIR",
+    r"C:\Users\erkan\Documents\dof_validation\scripts\Brain\Final\Update",
 )
 RESULTS_DIR = os.environ.get(
-                     ,
-                                                             ,
+    "DOF_RESULTS_DIR",
+    r"C:\Users\erkan\Documents\dof_validation\results_update",
 )
 FIG_DIR = os.path.join(RESULTS_DIR, "figures")
 LOG_DIR = os.path.join(RESULTS_DIR, "logs")
@@ -59,50 +19,35 @@ os.makedirs(RESULTS_DIR, exist_ok=True)
 os.makedirs(FIG_DIR, exist_ok=True)
 os.makedirs(LOG_DIR, exist_ok=True)
 
-                           
-FILTER_LOW = 0.1                           
-FILTER_HIGH = 30.0                        
+FILTER_LOW = 0.1
+FILTER_HIGH = 30.0
 FILTER_DESIGN = 'firwin'
 
-BASELINE = (-0.2, 0.0)               
-REJECT_THRESHOLD = 100e-6                                          
+BASELINE = (-0.2, 0.0)
+REJECT_THRESHOLD = 100e-6
 
-     
 DO_ICA = True
 ICA_N_COMPONENTS = 0.99
-ICA_HIGHPASS_FOR_FIT = 1.0                                            
+ICA_HIGHPASS_FOR_FIT = 1.0
 ICA_METHOD = 'fastica'
 ICA_RANDOM_STATE = 42
 
-                      
 TMIN_EPOCH = -0.2
 TMAX_EPOCH = 0.8
 
-                          
-EARLY_WINDOW = (0.0, 0.150)                          
-P300_WINDOW = (0.300, 0.600)                   
+EARLY_WINDOW = (0.0, 0.150)
+P300_WINDOW = (0.300, 0.600)
 
-                                            
 EARLY_WINDOW_200 = (0.0, 0.200)
 EARLY_WINDOW_250 = (0.0, 0.250)
 
-                                        
 BASELINE_CONTROL_WINDOW = (-0.150, 0.0)
 
-                      
 EARLY_CHANNEL = 'Fz'
 P300_CHANNEL = 'Pz'
 EARLY_FALLBACK = ['FCz', 'F1', 'F2', 'Cz']
 P300_FALLBACK = ['P1', 'P2', 'CPz', 'Cz']
 
-                                                     
-                                                                               
-                                                                           
-                                                                              
-                                                                              
-                                                                              
-                                                                                
-                                                                                
 TARGET_CODES = [11, 22, 33, 44, 55]
 STANDARD_CODES = [12, 13, 14, 15,
                   21, 23, 24, 25,
@@ -110,50 +55,37 @@ STANDARD_CODES = [12, 13, 14, 15,
                   41, 42, 43, 45,
                   51, 52, 53, 54]
 
-                    
 MIN_TRIALS_REQUIRED = 10
 
-                   
 ALPHA = 0.05
 RANDOM_SEED = 42
 
-                                    
-                                                                      
-                                                                 
-                        
 PSEUDOTRIAL_MATCH_REAL_N = True
 
-                                                                     
-                                                                
-                                                   
-PSEUDOTRIAL_MIN_GAP_FROM_REAL = 1.0           
+PSEUDOTRIAL_MIN_GAP_FROM_REAL = 1.0
 
-                                                
 PSEUDOTRIAL_SEED = 12345
 
-                              
-                                                            
 FILES = {
-                    :          'trial_features_canonical.csv',
-                             : 'trial_features_per_electrode.csv',
-                 :             'lmm_summary_canonical.csv',
-                           :   'per_electrode_canonical.csv',
-                         :     'pseudotrial_lmm_summary.csv',
-                 :             'model_diagnostics.csv',
-                :              os.path.join('logs', 'subject_exclusions.csv'),
-                       :       os.path.join('logs', 'preprocessing_log.csv'),
-                  :            'figure1_grand_average.npz',
-                                                                   
-                        :      os.path.join('logs', 'interelectrode_all.csv'),
-                         :     os.path.join('logs', 'interelectrode_val2_same_channel.csv'),
-                          :    os.path.join('logs', 'interelectrode_val1_cross_to_Pz.csv'),
-                          :    os.path.join('logs', 'interelectrode_val3_shape_to_Pz.csv'),
-                           :   os.path.join('logs', 'heterogeneity_primary_trials.csv'),
-                            :  os.path.join('logs', 'heterogeneity_ds006018_checkpoint.csv'),
+    'trial_features':          'trial_features_canonical.csv',
+    'trial_features_per_elec': 'trial_features_per_electrode.csv',
+    'lmm_summary':             'lmm_summary_canonical.csv',
+    'per_electrode_summary':   'per_electrode_canonical.csv',
+    'pseudotrial_summary':     'pseudotrial_lmm_summary.csv',
+    'diagnostics':             'model_diagnostics.csv',
+    'exclusions':              os.path.join('logs', 'subject_exclusions.csv'),
+    'preprocessing_log':       os.path.join('logs', 'preprocessing_log.csv'),
+    'figure1_data':            'figure1_grand_average.npz',
+
+    'interelectrode_all':      os.path.join('logs', 'interelectrode_all.csv'),
+    'interelectrode_same':     os.path.join('logs', 'interelectrode_val2_same_channel.csv'),
+    'interelectrode_cross':    os.path.join('logs', 'interelectrode_val1_cross_to_Pz.csv'),
+    'interelectrode_shape':    os.path.join('logs', 'interelectrode_val3_shape_to_Pz.csv'),
+    'heterogeneity_primary':   os.path.join('logs', 'heterogeneity_primary_trials.csv'),
+    'heterogeneity_ds006018':  os.path.join('logs', 'heterogeneity_ds006018_checkpoint.csv'),
 }
 
 def get_channel_index(ch_names, primary, fallbacks):
-                                                                                  
     if primary in ch_names:
         return primary, ch_names.index(primary)
     for fb in fallbacks:
@@ -162,7 +94,6 @@ def get_channel_index(ch_names, primary, fallbacks):
     return None, None
 
 def banner(msg):
-                                                            
     print("=" * 70)
     print(msg)
     print("=" * 70)

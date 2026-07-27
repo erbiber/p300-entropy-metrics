@@ -1,67 +1,3 @@
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-   
 import os
 import warnings
 import numpy as np
@@ -89,12 +25,10 @@ from config import (
 warnings.filterwarnings('ignore', category=Warning)
 mne.set_log_level('WARNING')
 
-                                              
 CFG_MIN_GAP = 0.5
 CFG_THRESH = 150e-6
 CFG_LABEL = 'config4'
 
-                                                                            
 def window_mask(times, win):
     return (times >= win[0]) & (times <= win[1])
 
@@ -123,7 +57,6 @@ def hjorth_mobility_safe(trace):
 def generate_pseudotrial_samples(n_pseudo, sfreq, n_continuous_samples,
                                   real_event_samples, min_gap_seconds,
                                   tmin, tmax, rng):
-                                                     
     min_gap_samples = int(min_gap_seconds * sfreq)
     epoch_samples = int((tmax - tmin) * sfreq)
     pre_buffer = int(abs(tmin) * sfreq) + 1
@@ -152,7 +85,6 @@ def generate_pseudotrial_samples(n_pseudo, sfreq, n_continuous_samples,
     placed.sort()
     return np.array(placed, dtype=int)
 
-                                                                            
 def preprocess_subject(sub_id, reject_thresh):
     set_path = os.path.join(
         DATA_ROOT, f"sub-{sub_id}", "ses-P3", "eeg",
@@ -198,24 +130,16 @@ def get_epochs(raw, events, reject_thresh, restrict_codes=True):
     return epochs
 
 def extract_features_all_electrodes(epochs):
-\
-\
-\
-\
-\
-\
-\
-       
     picks = mne.pick_types(epochs.info, eeg=True, exclude='bads')
     eeg_names = [epochs.ch_names[i] for i in picks]
     times = epochs.times
     m_early = window_mask(times, EARLY_WINDOW)
     m_p300 = window_mask(times, P300_WINDOW)
-    data = epochs.get_data(picks=picks)                        
+    data = epochs.get_data(picks=picks)
     n_tr, n_el, _ = data.shape
 
-    early_mean = data[:, :, m_early].mean(axis=2)                        
-    late_mean = data[:, :, m_p300].mean(axis=2)                          
+    early_mean = data[:, :, m_early].mean(axis=2)
+    late_mean = data[:, :, m_p300].mean(axis=2)
 
     early_pe = np.full((n_tr, n_el), np.nan)
     early_mob = np.full((n_tr, n_el), np.nan)
@@ -225,7 +149,6 @@ def extract_features_all_electrodes(epochs):
             early_pe[i, j] = perm_entropy_safe(seg)
             early_mob[i, j] = hjorth_mobility_safe(seg)
 
-                          
     pz_name, pz_local = get_channel_index(eeg_names, P300_CHANNEL, P300_FALLBACK)
     if pz_name is None:
         p300_pz = None
@@ -234,7 +157,6 @@ def extract_features_all_electrodes(epochs):
 
     return eeg_names, early_mean, early_pe, early_mob, late_mean, p300_pz
 
-                                                                            
 def fit_RI(df, formula, predictor):
     for kwargs in [dict(method='lbfgs', reml=True),
                    dict(method='nm', maxiter=2000, reml=True)]:
@@ -264,7 +186,6 @@ def fit_RI(df, formula, predictor):
     return dict(beta=np.nan, SE=np.nan, z=np.nan, p=np.nan, R2_marginal=np.nan,
                 n_trials=len(df), n_subjects=df['subject'].nunique())
 
-                                                                            
 def main():
     banner("09_interelectrode_validation.py — three signatures across the montage")
     print("Config 4 only (min_gap=0.5 s, ±150 µV) — cleanest pseudotrial test.\n")
@@ -272,15 +193,14 @@ def main():
     sub_dirs = sorted(d for d in os.listdir(DATA_ROOT) if d.startswith('sub-'))
     sub_ids = [d.split('-')[1] for d in sub_dirs]
 
-                                                              
-    rows_v1 = []                                                              
-    rows_v2 = []                                                                    
-    rows_v3 = []                                                                         
+    rows_v1 = []
+    rows_v2 = []
+    rows_v3 = []
 
     rng = np.random.default_rng(PSEUDOTRIAL_SEED)
 
     for sid in sub_ids:
-                        
+
         raw, events, sfreq = preprocess_subject(sid, CFG_THRESH)
         if raw is None:
             continue
@@ -295,17 +215,16 @@ def main():
         for j, ename in enumerate(names_r):
             for i in range(len(epochs_real)):
                 rows_v1.append({'subject': f'sub-{sid}', 'kind': 'real',
-                                           : ename,
-                                            : em_r[i, j], 'p300_pz': pz_r[i]})
+                                'electrode': ename,
+                                'early_mean': em_r[i, j], 'p300_pz': pz_r[i]})
                 rows_v2.append({'subject': f'sub-{sid}', 'kind': 'real',
-                                           : ename,
-                                            : em_r[i, j], 'late_same': lm_r[i, j]})
+                                'electrode': ename,
+                                'early_mean': em_r[i, j], 'late_same': lm_r[i, j]})
                 rows_v3.append({'subject': f'sub-{sid}', 'kind': 'real',
-                                           : ename,
-                                          : pe_r[i, j], 'early_mob': mob_r[i, j],
-                                         : pz_r[i]})
+                                'electrode': ename,
+                                'early_pe': pe_r[i, j], 'early_mob': mob_r[i, j],
+                                'p300_pz': pz_r[i]})
 
-                          
         n_real_retained = len(epochs_real)
         pseudo_samples = generate_pseudotrial_samples(
             n_pseudo=max(n_real_retained, 1), sfreq=sfreq,
@@ -332,15 +251,15 @@ def main():
         for j, ename in enumerate(names_p):
             for i in range(len(epochs_pseudo)):
                 rows_v1.append({'subject': f'sub-{sid}', 'kind': 'pseudo',
-                                           : ename,
-                                            : em_p[i, j], 'p300_pz': pz_p[i]})
+                                'electrode': ename,
+                                'early_mean': em_p[i, j], 'p300_pz': pz_p[i]})
                 rows_v2.append({'subject': f'sub-{sid}', 'kind': 'pseudo',
-                                           : ename,
-                                            : em_p[i, j], 'late_same': lm_p[i, j]})
+                                'electrode': ename,
+                                'early_mean': em_p[i, j], 'late_same': lm_p[i, j]})
                 rows_v3.append({'subject': f'sub-{sid}', 'kind': 'pseudo',
-                                           : ename,
-                                          : pe_p[i, j], 'early_mob': mob_p[i, j],
-                                         : pz_p[i]})
+                                'electrode': ename,
+                                'early_pe': pe_p[i, j], 'early_mob': mob_p[i, j],
+                                'p300_pz': pz_p[i]})
 
         print(f"  sub-{sid}: real={len(epochs_real)}  pseudo={len(epochs_pseudo)}")
 
@@ -352,7 +271,6 @@ def main():
     df2 = pd.DataFrame(rows_v2)
     df3 = pd.DataFrame(rows_v3)
 
-                                                            
     def z_by(df, cols, group_extra):
         for c in cols:
             df[c + '_z'] = (df.groupby(['kind', 'electrode', 'subject'])[c]
@@ -366,7 +284,6 @@ def main():
     out_dir = os.path.join(RESULTS_DIR, 'logs')
     os.makedirs(out_dir, exist_ok=True)
 
-                                                 
     banner("VALIDATION 1: early MEAN at each electrode -> P300 at Pz")
     electrodes = sorted(df1['electrode'].unique())
     res1 = []
@@ -384,7 +301,6 @@ def main():
                    index=False)
     _print_val(df_res1, 'mean_cross_to_Pz')
 
-                                                  
     banner("VALIDATION 2: early MEAN at each electrode -> P300 at SAME electrode")
     res2 = []
     for ename in electrodes:
@@ -401,19 +317,18 @@ def main():
                    index=False)
     _print_val(df_res2, 'mean_same_channel')
 
-                                                          
     banner("VALIDATION 3: early PERM-ENTROPY & HJORTH-MOBILITY -> P300 at Pz")
     res3 = []
     for ename in electrodes:
         for kind in ['real', 'pseudo']:
             sub = df3[(df3['electrode'] == ename) & (df3['kind'] == kind)]
-                                 
+
             s_pe = sub.dropna(subset=['early_pe_z', 'p300_pz_z'])
             if len(s_pe) >= MIN_TRIALS_REQUIRED and s_pe['subject'].nunique() >= 3:
                 r = fit_RI(s_pe, 'p300_pz_z ~ early_pe_z', 'early_pe_z')
                 r.update(dict(electrode=ename, kind=kind, measure='perm_entropy_to_Pz'))
                 res3.append(r)
-                             
+
             s_mob = sub.dropna(subset=['early_mob_z', 'p300_pz_z'])
             if len(s_mob) >= MIN_TRIALS_REQUIRED and s_mob['subject'].nunique() >= 3:
                 r = fit_RI(s_mob, 'p300_pz_z ~ early_mob_z', 'early_mob_z')
@@ -425,15 +340,12 @@ def main():
     _print_val(df_res3, 'perm_entropy_to_Pz')
     _print_val(df_res3, 'hjorth_mob_to_Pz')
 
-                                    
     combined = pd.concat([df_res1, df_res2, df_res3], ignore_index=True)
     combined.to_csv(os.path.join(out_dir, 'interelectrode_all.csv'), index=False)
     print(f"\nAll inter-electrode results saved -> {out_dir}\\interelectrode_all.csv\n")
 
-                                                                           
     _signature_summary(df_res1, df_res2, df_res3)
 
-                                                                            
 def _print_val(df_res, measure):
     sub = df_res[df_res['measure'] == measure].copy()
     if sub.empty:
@@ -494,11 +406,11 @@ def _classify_block(df_res, measure, classify, show_r2_rank=False):
             r2r, r2p = float(rr['R2_marginal'].iloc[0]), float(rp['R2_marginal'].iloc[0])
             rows.append((e, br, bp, r2r, r2p, classify(br, bp, r2r, r2p)))
     if show_r2_rank:
-        rows.sort(key=lambda x: -x[3])                         
+        rows.sort(key=lambda x: -x[3])
     counts = {}
     for e, br, bp, r2r, r2p, sig in rows:
         counts[sig] = counts.get(sig, 0) + 1
-           
+
     tally = ', '.join(f"{k}: {v}" for k, v in sorted(counts.items()))
     print(f"    tally across {len(rows)} electrodes -> {tally}")
     if show_r2_rank:

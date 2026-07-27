@@ -1,44 +1,3 @@
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-   
-
 import os
 import warnings
 import numpy as np
@@ -68,7 +27,6 @@ mne.set_log_level('WARNING')
 PERM_ORDER = 3
 PERM_DELAY = 1
 
-                                                                            
 def window_mask(times, win):
     return (times >= win[0]) & (times <= win[1])
 
@@ -78,13 +36,6 @@ def robust_z_within_subject(s):
     return (s - med) / mad if mad > 0 else s - med
 
 def hjorth_mobility(trace):
-\
-\
-\
-\
-\
-\
-       
     try:
         var_x = float(np.var(trace, ddof=0))
         if var_x <= 0 or len(trace) <= 2:
@@ -97,7 +48,6 @@ def hjorth_mobility(trace):
         return np.nan
 
 def hjorth_complexity(trace):
-                                                                      
     try:
         var_x = float(np.var(trace, ddof=0))
         if var_x <= 0 or len(trace) <= 3:
@@ -117,14 +67,6 @@ def hjorth_complexity(trace):
         return np.nan
 
 def entropy_block(trace):
-\
-\
-\
-\
-\
-\
-\
-       
     try:
         pe = ant.perm_entropy(trace, order=PERM_ORDER,
                               delay=PERM_DELAY, normalize=True)
@@ -146,9 +88,6 @@ def entropy_block(trace):
     hjcplx = hjorth_complexity(trace)
     return pe, se, lz, hjmob, hjcplx
 
-                                                                            
-                                                                  
-                                                                            
 def extract_primary(reject_thresh=100e-6):
     banner("Extracting PRIMARY dataset (ERP CORE P3)")
     rows = []
@@ -222,9 +161,6 @@ def extract_primary(reject_thresh=100e-6):
     print(f"  Total: {len(df)} trials, {df['subject'].nunique()} subjects")
     return df
 
-                                                                            
-                                                                     
-                                                                            
 def extract_ds006018(reject_thresh=150e-6):
     banner("Extracting DS006018 (Isbell et al. 2025)")
     from eegdash.dataset import DS006018
@@ -249,9 +185,8 @@ def extract_ds006018(reject_thresh=150e-6):
         if task == TASK_FILTER:
             recs.append((str(subj), rec))
 
-                                                               
     ckpt_path = os.path.join(RESULTS_DIR, 'logs',
-                                                                    )
+                             'heterogeneity_ds006018_checkpoint.csv')
     os.makedirs(os.path.dirname(ckpt_path), exist_ok=True)
     if os.path.exists(ckpt_path):
         ckpt = pd.read_csv(ckpt_path)
@@ -264,7 +199,7 @@ def extract_ds006018(reject_thresh=150e-6):
 
     for subj, rec in recs:
         if f'sub-{subj}' in done_subjs:
-            continue                                        
+            continue
         try:
             raw = rec.raw
             if raw is None:
@@ -345,7 +280,7 @@ def extract_ds006018(reject_thresh=150e-6):
                 del raw, epochs
             except Exception:
                 pass
-                                                                      
+
             pd.DataFrame(rows).to_csv(ckpt_path, index=False)
         except Exception as ex:
             print(f"  sub-{subj}: error ({ex})")
@@ -356,31 +291,13 @@ def extract_ds006018(reject_thresh=150e-6):
     print(f"  Total: {len(df)} trials, {df['subject'].nunique()} subjects")
     return df
 
-                                                                            
-                               
-                                                                            
 def fit_per_subject_OLS(df, predictor):
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-       
     from scipy.stats import t as t_dist
 
     df = df.dropna(subset=[predictor, 'p300_z', 'subject']).copy()
     if df['subject'].nunique() < 5 or len(df) < 30:
         return None
 
-                                                
     beta_pop = np.nan
     for kwargs in [dict(method='lbfgs', reml=True),
                    dict(method='nm', maxiter=3000, reml=True)]:
@@ -394,7 +311,6 @@ def fit_per_subject_OLS(df, predictor):
         except Exception:
             continue
 
-                            
     subj_slopes = []
     subj_ids = []
     subj_n = []
@@ -406,7 +322,7 @@ def fit_per_subject_OLS(df, predictor):
         y = grp['p300_z'].values
         if np.std(x) < 1e-10:
             continue
-                                      
+
         slope = float(np.cov(x, y, ddof=1)[0, 1] / np.var(x, ddof=1))
         subj_slopes.append(slope)
         subj_ids.append(subj)
@@ -419,16 +335,11 @@ def fit_per_subject_OLS(df, predictor):
     n_pos = int(np.sum(subj_slopes > 0))
     n_neg = int(np.sum(subj_slopes < 0))
 
-                                                               
     t_stat, t_p = stats.ttest_1samp(subj_slopes, 0)
 
-                                                 
-                                        
     from scipy.stats import binomtest
     binom_p = float(binomtest(n_pos, len(subj_slopes), 0.5).pvalue)
 
-                                                   
-                                                                         
     mean_s = float(np.mean(subj_slopes))
     sd_s = float(np.std(subj_slopes, ddof=1))
     hetero_ratio = sd_s / abs(mean_s) if abs(mean_s) > 1e-6 else np.inf
@@ -450,7 +361,6 @@ def fit_per_subject_OLS(df, predictor):
 def heterogeneity_report(df, dataset_name):
     banner(f"HETEROGENEITY TEST — {dataset_name}")
 
-                             
     for col in ['pe', 'se', 'lz', 'hjorth_mob', 'hjorth_cplx', 'p300']:
         if col in df.columns:
             df[col + '_z'] = (df.groupby('subject')[col]
@@ -469,9 +379,7 @@ def heterogeneity_report(df, dataset_name):
     for pred, label in measures:
         print(f"\n--- {label} ---")
         if pred not in df.columns:
-                                                                           
-                                                                       
-                                                        
+
             print(f"  [skipped — {pred} not present; "
                   f"delete the ds006018 checkpoint and re-run to include it]")
             continue
@@ -495,7 +403,6 @@ def heterogeneity_report(df, dataset_name):
               f"p={res['t_p']:.4f}")
         print(f"  Sign test (proportion +): p={res['binom_p']:.4f}")
 
-                                            
         sorted_slopes = sorted(zip(res['subj_ids'], ss), key=lambda x: x[1])
         print(f"  Individual slopes (sorted):")
         for sid, sl in sorted_slopes:
@@ -508,7 +415,6 @@ def heterogeneity_report(df, dataset_name):
                                                    if k != 'subj_slopes'
                                                    and k != 'subj_ids'}))
 
-             
     print(f"\n  KEY QUESTION for {dataset_name}:")
     print("  H_hetero: SD >> |mean|, substantial mix of + and - subjects")
     print("  H_noise:  SD ≈ |mean| or smaller, consistent direction")
@@ -520,19 +426,16 @@ def heterogeneity_report(df, dataset_name):
 
     return results_out
 
-                                                                            
 def main():
     banner("11_entropy_heterogeneity.py")
     print("Random-slope test of the heterogeneity hypothesis.")
     print("Does β → 0 at large N because the effect is absent (noise),")
     print("or because individual slopes are heterogeneous and cancel (person/state)?")
 
-                     
     df_primary = extract_primary()
     if len(df_primary) > 0:
-        heterogeneity_report(df_primary.copy(), "PRIMARY (ERP CORE P3, N=27)") 
+        heterogeneity_report(df_primary.copy(), "PRIMARY (ERP CORE P3, N=27)")
 
-              
     try:
         df_ds = extract_ds006018()
         if len(df_ds) > 0:
@@ -541,7 +444,6 @@ def main():
         print(f"\nDS006018 extraction failed: {e}")
         print("Run after eegdash cache is populated.")
 
-                                         
     out_dir = os.path.join(RESULTS_DIR, 'logs')
     os.makedirs(out_dir, exist_ok=True)
     df_primary['dataset'] = 'primary'
