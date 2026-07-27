@@ -72,7 +72,7 @@ The autocorrelation ratio (AUR = |β_pseudo/β_real|) is retained only as a desc
 │   ├── 10_crossval_ds006018.py              # Independent-dataset run
 │   ├── 11_entropy_heterogeneity.py          # Per-subject complexity slope analysis
 │   ├── 12_model_diagnostics.py              # Residual diagnostics + AIC comparison
-│   ├── 13_make_figures.py                   # Main figures 1-7
+│   ├── 13_make_figures.py                   # Main figures 2-7
 │   ├── 14_additinal_figures.py              # Delta-beta forest plot and per-subject figure
 │   │                                        #   (filename typo retained as deposited)
 │   │
@@ -101,9 +101,9 @@ The autocorrelation ratio (AUR = |β_pseudo/β_real|) is retained only as a desc
 │   ├── phase013_nan_safe_zscore.py          # NaN-safe robust-z and slope: a subject with
 │   │                                        #   a few non-finite trials keeps its clean
 │   │                                        #   trials instead of being dropped entirely.
-│   └── (Supplementary Figure S3 was produced by a calibration plotting
-│       script that is not part of this deposit; its inputs are in
-│       results/ and the figure is reproducible from them)
+│   └── (all supplementary figures are reproducible from this deposit:
+│       S1 from script 12, S2 from 15_calibration_simulation.py,
+│       S3 from 17_overlap_audit.py + distributional_comparability.py)
 │
 └── results/
     │   -- canonical real-trial fits --
@@ -154,6 +154,10 @@ The autocorrelation ratio (AUR = |β_pseudo/β_real|) is retained only as a desc
     │                                                           overlap, 92.2% retained by the clean filter
     ├── target_standard_validity.csv                 (  40 rows) Per-subject accuracy and RT
     ├── distributional_comparability.csv             (  40 rows) ITI / position / coverage
+    │
+    │   -- calibration --
+    ├── calibration_bands.csv                        (  96 rows) Null AUR bands, both estimators
+    ├── calibration_power.csv                        (  80 rows) Detection probability by increment
     │
     │   -- reliability and concordance --
     ├── slope_reliability.csv                        (  10 rows) Split-half reliability
@@ -222,11 +226,11 @@ The numbered scripts run in order; each reads the outputs of the steps before it
 | 14 | `distributional_comparability.py` | raw EEG | `distributional_comparability.csv` |
 | 15 | `16_slope_reliability.py` | heterogeneity files | `slope_reliability.csv`, `cross_measure_concordance.csv` |
 | 16 | `17_overlap_audit.py` | raw EEG | `overlap_audit_erp_core_config4.csv` (33 subjects x 1,000 placements) |
-| 17 | `12_model_diagnostics.py` | LMM fits | `model_diagnostics.csv` + Supplementary Figure S2 |
-| 18 | `13_make_figures.py`, `14_additinal_figures.py` | all results | Figures 1–7 |
+| 17 | `12_model_diagnostics.py` | LMM fits | `model_diagnostics.csv` + Supplementary Figure S1 |
+| 18 | `13_make_figures.py`, `14_additinal_figures.py` | all results | Figures 1–8, Supplementary Figures S2–S3 |
 
 
-`15_calibration_simulation.py` is self-contained and can be run at any point; it needs no EEG data.
+`15_calibration_simulation.py` is self-contained and can be run at any point; it needs no EEG data. It writes `calibration_bands.csv` and `calibration_power.csv`, and calibrates the AUR under **both** estimators — `K_SINGLE_DRAW = 1` for the single-draw ratio and `K_MATCHED = 1000` for the matched-contrast ratio — because the two have different null distributions. Both output files carry an `estimator` column; reading one ratio against the other's band will misclassify it.
 
 Useful `run_phase013.py` flags: `--config {config1..config4|all}`, `--clean-pseudo` (drop pseudotrials whose measurement windows overlap a real evoked interval), `--targets-only` (condition-matched interaction), `--resample 500` (sampling-rate control).
 
@@ -250,7 +254,7 @@ Useful `run_phase013.py` flags: `--config {config1..config4|all}`, `--clean-pseu
 | Entropy parameters | PE: m=3, τ=1, normalized; SE: m=2, r=0.2×SD; LZ: median-threshold binarization | `antropy` |
 | ΔAIC (RI vs RIS) | 32–54 in favour of random-intercept | From `model_diagnostics.csv` |
 
-**Two AUR estimators exist in this repository and they are not interchangeable.** The *single-draw* estimator divides the canonical real-trial β by the config-4 pseudo β from `pseudotrial_sensitivity.csv`; it gives M1 = 0.30 and M4a = 1.02, and it is the estimator behind Table 9 and the corresponding Results text. The *matched-contrast* estimator uses `phase013_dbeta_config4.csv` (β_pseudo_mean / β_real over ≥ 1,000 placements); it gives M1 = 0.47, M4a = 1.37, M8 = 0.07, M9a = 0.99, and it is what Supplementary Figure S2 plots. For M1 the two fall on opposite sides of the calibrated band floor, which is why both are shown in that figure. This instability is the reason Δβ, not the ratio, is the reported estimand.
+**Two AUR estimators exist in this repository and they are not interchangeable.** The *single-draw* estimator divides the canonical real-trial β by the config-4 pseudo β from `pseudotrial_sensitivity.csv`; it gives M1 = 0.30 and M4a = 1.02, and it is the estimator behind Table 5 and the corresponding Discussion text. The *matched-contrast* estimator uses `phase013_dbeta_config4.csv` (β_pseudo_mean / β_real over ≥ 1,000 placements); it gives M1 = 0.47, M4a = 1.37, M8 = 0.07, M9a = 0.99, and it is what Table 6 and Supplementary Figure S2 report. Against the matched-contrast band ([0.61, 2.63] at R² ≈ 0.01, N = 28) both M8 and M1 fall below the floor; for M1 this is a sign artifact, since both of its coefficients are negative and its Δβ interval includes zero. This instability is the reason Δβ, not the ratio, is the reported estimand.
 
 ---
 
@@ -285,7 +289,7 @@ Contains M1–M12 including the a/b competitive and m mean-variant models (17 ro
 
 ### Matched-contrast (Δβ) outputs
 
-**`phase013_dbeta_config4.csv`** — the primary inferential file. Columns: `dataset`, `config`, `model`, `n_subjects_processed`, `n_used`, `n_dropped`, `draws_min`, `draws_median`, `beta_real`, `beta_pseudo_mean`, `beta_pseudo_sd`, `dbeta`, `bca_lo`, `bca_hi`, `surrogate_p`. Four models × two datasets.
+**`phase013_dbeta_config4_K1000.csv`** — the primary inferential file (nine models × two datasets). `phase013_dbeta_config4.csv` is the earlier four-model run at the same configuration. Columns: `dataset`, `config`, `model`, `n_subjects_processed`, `n_used`, `n_dropped`, `draws_min`, `draws_median`, `beta_real`, `beta_pseudo_mean`, `beta_pseudo_sd`, `dbeta`, `bca_lo`, `bca_hi`, `surrogate_p`. Four models × two datasets.
 
 **`phase013_interaction_*.csv`** — Columns: `config`, `model`, `datasets`, `interaction_beta`, `interaction_p`, `n_trials`.
 
@@ -304,11 +308,13 @@ Contains M1–M12 including the a/b competitive and m mean-variant models (17 ro
 
 ### Topography
 
-**`interelectrode_val1/2/3_*.csv`** and **`interelectrode_all.csv`** — coupling at each of 33 electrodes (30 scalp + 3 EOG), real and pseudo. Columns: `beta`, `SE`, `z`, `p`, `R2_marginal`, `n_trials`, `n_subjects`, `electrode`, `kind`, `measure`.
+**`interelectrode_val1/2/3_*.csv`** and **`interelectrode_all.csv`** — coupling at each of 33 electrodes (30 scalp + 3 EOG), real and pseudo. Script 09 sets `CFG_THRESH = 150e-6`, so these files and the topographic figures built from them use the ±150 µV (config-4) trial set: N = 33 / 1,625 real, 26 / 943 pseudo. Columns: `beta`, `SE`, `z`, `p`, `R2_marginal`, `n_trials`, `n_subjects`, `electrode`, `kind`, `measure`.
 
 ### Trial-level and cross-validation dataset
 
-**`heterogeneity_primary_trials.csv`** / **`heterogeneity_ds006018_checkpoint.csv`** — trial-level complexity features and P300 amplitude for per-subject slope estimation. Columns: `subject`, `pe`, `se`, `lz`, `hjorth_mob`, `hjorth_cplx`, `p300` (the primary file additionally carries a condition column).
+**`heterogeneity_primary_trials.csv`** / **`heterogeneity_ds006018_checkpoint.csv`** — trial-level complexity features and P300 amplitude for per-subject slope estimation. Columns: `subject`, `pe`, `se`, `lz`, `hjorth_mob`, `hjorth_cplx`, `p300` (the primary file additionally carries a `dataset` column). The primary file is built at ±100 µV (27 subjects, 1,084 trials) and the cross-validation file at ±150 µV (90 subjects, 3,130 trials), following `extract_primary()` and `extract_ds006018()` in script 11, so the two are not matched on rejection threshold.
+
+Note on the standardization in `16_slope_reliability.py`: `robust_z` divides by 1.4826 × MAD, and falls back to a plain median subtraction when the MAD is exactly zero. Two of the 90 cross-validation participants have zero Lempel–Ziv MAD within the early window, so their series enter unscaled. This is why the Lempel–Ziv slope range for that dataset reaches +0.864 rather than the +0.626 obtained if those two are scaled by their standard deviation; the mean (−0.000) and the positive/negative split (45/90) are unaffected. No primary-dataset participant is affected.
 
 **`crossval_ds006018_results.csv`** — Columns: `beta`, `SE`, `z`, `p`, `R2_marginal`, `n_trials`, `n_subjects`, `model`, `kind`, `config`.
 
@@ -320,7 +326,7 @@ Contains M1–M12 including the a/b competitive and m mean-variant models (17 ro
 
 ### Reliability and concordance
 
-**`slope_reliability.csv`** — split-half reliability behind Table 8's reliability column. Columns: `dataset`, `measure`, `n_subjects`, `slope_mean`, `slope_sd`, `odd_even_r`, `spearman_brown`, `reportable`, `sb_defined`. The Spearman–Brown correction is undefined for negative odd–even correlations (it returns values outside [−1, 1]); such cases are flagged `sb_defined = False` and reported as ≤ 0.
+**`slope_reliability.csv`** — split-half reliability behind the reliability column of Supplementary Table S4. Columns: `dataset`, `measure`, `n_subjects`, `slope_mean`, `slope_sd`, `odd_even_r`, `spearman_brown`, `reportable`, `sb_defined`. The Spearman–Brown correction is undefined for negative odd–even correlations (it returns values outside [−1, 1]); such cases are flagged `sb_defined = False` and reported as ≤ 0.
 
 **`cross_measure_concordance.csv`** — Columns: `dataset`, `measure_a`, `measure_b`, `r_same_trials`, `r_disjoint_a_odd`, `r_disjoint_b_odd`, `r_disjoint_mean`. Both split directions are given because the assignment of which measure takes the odd half is arbitrary.
 
@@ -331,7 +337,9 @@ Contains M1–M12 including the a/b competitive and m mean-variant models (17 ro
 
 All stochastic operations use fixed seeds (`RANDOM_SEED = 42`, `PSEUDOTRIAL_SEED = 12345`; the matched-contrast bootstrap and surrogate draws are separately seeded in `phase013_engine.py`). Filter settings, epoch windows, artifact thresholds, pseudotrial parameters and trial-count criteria are version-controlled and applied with the same values to both datasets, though they are distributed across `config.py`, `config_ds006018.py` and `run_phase013.py` rather than held in one file (see Configuration).
 
-Each numerical result in the paper is traceable to a specific output CSV through the running order above.
+Each numerical result in the paper is traceable to a specific output CSV through the running order and the result-file reference above.
+
+One sampling asymmetry is worth stating plainly: Figures 2 and 3 are built from the ±100 µV grand averages written by script 01 (`REJECT_THRESHOLD = 100e-6`, N = 27), whereas the topographic figures and Supplementary Tables S1, S5 and S6 come from script 09 at ±150 µV (N = 33). Both are labelled in the manuscript captions.
 
 ---
 
