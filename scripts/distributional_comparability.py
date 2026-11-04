@@ -1,3 +1,4 @@
+import os
 import os, glob, argparse
 import numpy as np, pandas as pd
 from phase013_engine import generate_pseudotrial_samples
@@ -39,7 +40,10 @@ def analyse_subject(events_path, min_gap=0.5, K=200, seed=12345):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--data-root', default=r'C:\Users\erkan\Documents\dof_validation\data\erp_core_P3')
+    ap.add_argument('--data-root',
+                    default=os.environ.get('ERP_CORE_P3_DATA',
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                     os.pardir, 'data', 'erp_core_P3')))
     ap.add_argument('--min-gap', type=float, default=0.5)
     ap.add_argument('--out', default='.')
     a = ap.parse_args()

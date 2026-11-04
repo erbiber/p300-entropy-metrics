@@ -1,3 +1,4 @@
+import os
 import os, glob, argparse
 import numpy as np, pandas as pd
 
@@ -36,7 +37,10 @@ def analyse_subject(events_path, max_rt=2.0):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--data-root', default=r'C:\Users\erkan\Documents\dof_validation\data\erp_core_P3')
+    ap.add_argument('--data-root',
+                    default=os.environ.get('ERP_CORE_P3_DATA',
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                     os.pardir, 'data', 'erp_core_P3')))
     ap.add_argument('--out', default='.')
     a = ap.parse_args()
     paths = sorted(glob.glob(os.path.join(a.data_root, 'sub-*', 'ses-P3', 'eeg',

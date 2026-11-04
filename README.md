@@ -119,7 +119,7 @@ The autocorrelation ratio (AUR = |β_pseudo/β_real|) is retained only as a desc
     │
     │   -- matched-contrast (Delta-beta) outputs --
     ├── phase013_dbeta_config4_K1000.csv             (  18 rows) PRIMARY. 9 models, both datasets
-    ├── phase013_dbeta_config4.csv                   (   8 rows) Amplitude/energy models, single-draw K
+    ├── legacy/phase013_dbeta_config4.csv            (   8 rows) SUPERSEDED by the K1000 file; see results/legacy/README.md
     ├── phase013_dbeta_config2.csv                   (   8 rows) +/-100 uV robustness
     ├── phase013_dbeta_config4_K1000_clean.csv       (   9 rows) Evoked-clean, 9 models, erp_core
     ├── phase013_marginal_r2_config4_K1000_clean.csv (   9 rows) Marginal R2 under evoked-clean
@@ -245,7 +245,7 @@ Useful `run_phase013.py` flags: `--config {config1..config4|all}`, `--clean-pseu
 | Pseudotrial min gap | 0.5 s (Config-4 primary) | Also tested at 1.0 s (configs 1, 3) |
 | Pseudotrial threshold | ±150 µV (Config-4 primary) | Also tested at ±100 µV (config 2) |
 | Matched-contrast N | 28 primary / 84 independent | Config-4; 17 / 73 at ±100 µV |
-| Surrogate placements | ≥ 1,000 per participant | `run_phase013.py -K` |
+| Surrogate placements | 1,000 attempted per participant; median 1,000 achieved, minimum 594 (primary) and 202 (independent validation); participants retained at ≥ 200 achieved placements | `run_phase013.py --k 1000 --min-pseudo 200` |
 | Bootstrap | 4,000 replicates, subject-cluster BCa | `phase013_engine.py` |
 | Model | Random-intercept LMM, REML | `statsmodels MixedLM` |
 | Standardization | Robust z (median / 1.4826×MAD) | Within-participant |
@@ -254,7 +254,7 @@ Useful `run_phase013.py` flags: `--config {config1..config4|all}`, `--clean-pseu
 | Entropy parameters | PE: m=3, τ=1, normalized; SE: m=2, r=0.2×SD; LZ: median-threshold binarization | `antropy` |
 | ΔAIC (RI vs RIS) | 32–54 in favour of random-intercept | From `model_diagnostics.csv` |
 
-**Two AUR estimators exist in this repository and they are not interchangeable.** The *single-draw* estimator divides the canonical real-trial β by the config-4 pseudo β from `pseudotrial_sensitivity.csv`; it gives M1 = 0.30 and M4a = 1.02, and it is the estimator behind Table 5 and the corresponding Discussion text. The *matched-contrast* estimator uses `phase013_dbeta_config4.csv` (β_pseudo_mean / β_real over ≥ 1,000 placements); it gives M1 = 0.47, M4a = 1.37, M8 = 0.07, M9a = 0.99, and it is what Table 6 and Supplementary Figure S2 report. Against the matched-contrast band ([0.61, 2.63] at R² ≈ 0.01, N = 28) both M8 and M1 fall below the floor; for M1 this is a sign artifact, since both of its coefficients are negative and its Δβ interval includes zero. This instability is the reason Δβ, not the ratio, is the reported estimand.
+**Two AUR estimators exist in this repository and they are not interchangeable.** The *single-draw* estimator divides the canonical real-trial β by the config-4 pseudo β from `pseudotrial_sensitivity.csv`; it gives M1 = 0.30 and M4a = 1.02, and it is the estimator behind Table 5 and the corresponding Discussion text. The *matched-contrast* estimator uses `phase013_dbeta_config4_K1000.csv` (β_pseudo_mean / β_real over up to 1,000 placements per participant, median 1,000, minimum 202); it gives M1 = 0.47, M4a = 1.37, M8 = 0.07, M9a = 0.99, and it is what Table 6 and Supplementary Figure S2 report. Against the matched-contrast band ([0.61, 2.63] at R² ≈ 0.01, N = 28) both M8 and M1 fall below the floor; for M1 this is a sign artifact, since both of its coefficients are negative and its Δβ interval includes zero. This instability is the reason Δβ, not the ratio, is the reported estimand.
 
 ---
 
@@ -289,7 +289,7 @@ Contains M1–M12 including the a/b competitive and m mean-variant models (17 ro
 
 ### Matched-contrast (Δβ) outputs
 
-**`phase013_dbeta_config4_K1000.csv`** — the primary inferential file (nine models × two datasets). `phase013_dbeta_config4.csv` is the earlier four-model run at the same configuration. Columns: `dataset`, `config`, `model`, `n_subjects_processed`, `n_used`, `n_dropped`, `draws_min`, `draws_median`, `beta_real`, `beta_pseudo_mean`, `beta_pseudo_sd`, `dbeta`, `bca_lo`, `bca_hi`, `surrogate_p`. Four models × two datasets.
+**`phase013_dbeta_config4_K1000.csv`** — the primary inferential file. Columns: `dataset`, `config`, `model`, `n_subjects_processed`, `n_used`, `n_dropped`, `draws_min`, `draws_median`, `beta_real`, `beta_pseudo_mean`, `beta_pseudo_sd`, `dbeta`, `bca_lo`, `bca_hi`, `surrogate_p`. Nine models × two datasets (18 rows). The earlier four-model run at the same configuration is retained as `results/legacy/phase013_dbeta_config4.csv`; its eight rows are identical to the corresponding rows here.
 
 **`phase013_interaction_*.csv`** — Columns: `config`, `model`, `datasets`, `interaction_beta`, `interaction_p`, `n_trials`.
 

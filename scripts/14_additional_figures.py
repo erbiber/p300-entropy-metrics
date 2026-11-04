@@ -6,7 +6,9 @@ Rewritten from 14_additinal_figures.py (filename typo corrected).
 Change from the previous version: the forest plot defaulted to
 phase013_dbeta_config4.csv, which holds only the four amplitude/energy models,
 while the Figure 8 caption describes "all nine models". The default is now
-phase013_dbeta_config4_K1000.csv.
+phase013_dbeta_config4_K1000.csv, which holds all nine. The config4 file without the
+_K1000 component is no longer produced by run_phase013.py and has been moved to
+results/legacy/; its eight rows are identical to the corresponding K1000 rows.
 
 Figure 8 conventions taken from the caption:
   * models grouped by family - cross-channel (M1, M4a), same-channel (M8, M9a),

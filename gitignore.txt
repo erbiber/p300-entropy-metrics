@@ -20,5 +20,8 @@ Thumbs.db
 
 # Intermediate outputs (regenerate with pipeline)
 results/figures/
-results/*.npz
 *.log
+
+# NOTE: results/*.npz is deliberately NOT ignored. figure1_grand_average.npz is a
+# deposited artefact referenced by the manuscript, and an earlier blanket *.npz rule
+# silently kept it out of the repository.

@@ -1,3 +1,43 @@
+"""
+17_overlap_audit.py — pseudotrial/evoked overlap diagnostics.
+
+!! THIS SCRIPT DOES NOT RUN IN ITS CURRENT FORM. Verified 2026-11-04. !!
+
+Three independent faults, each sufficient to stop it:
+
+  1. `from phase013_cache import build_or_load_cache` — no such function exists.
+     phase013_cache.py exports only cache_path(), load() and save().
+  2. The call `generate_pseudotrial_samples(rec, n_needed=..., min_gap_s=..., fs=...)`
+     matches no signature in phase013_engine.py, where the function is
+     generate_pseudotrial_samples(n_pseudo, sfreq, n_continuous_samples,
+     real_event_samples, min_gap_seconds, tmin, tmax, rng, ...).
+  3. It expects per-subject records carrying 'sfreq', 'stim_onsets' and 'n_real'.
+     The deposited cache pickles hold 'real_slope', 'pseudo_slopes', 'real_feats'
+     and 'n_draws' only, so the required fields are not available without
+     re-reading the raw recordings.
+
+Consequently the deposited file results/overlap_audit_erp_core_config4.csv was NOT
+produced by this script: its columns are subject, dataset, config, n_draws,
+n_pseudo_total, pct_epoch_overlap, pct_window_inside_evoked, pct_retained_clean,
+mean_clean_surrogates_per_draw, excluded_cached, whereas this script would write
+n_pseudo, n_epoch_overlap, n_window_inside_evoked, n_retained_clean and three pct_
+columns. The deposited result therefore has no runnable provenance in this repository.
+
+The hard-coded comparison values printed at the end ("manuscript: 27.5%", "19.8%") are
+also stale: the manuscript reports 46.9% of pseudotrials overlapping a neighbouring
+evoked epoch and 7.8% with the measurement window inside a real evoked interval.
+
+TO FIX, one of the following is required before submission:
+  (a) write the missing cache builder that extracts sfreq, stimulus onsets and the
+      retained real-trial count per participant from the raw recordings, correct the
+      call signature, and align the output schema with the deposited CSV; or
+  (b) deposit the code that actually produced the CSV; or
+  (c) withdraw the CSV and the overlap figures that rest on it.
+
+Until then this file is kept for provenance only and must not be presented as the
+generator of the deposited audit.
+"""
+
 import os
 import argparse
 import numpy as np

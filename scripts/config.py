@@ -1,16 +1,20 @@
 import os
 
+# Paths are resolved relative to the repository root so that a fresh clone works
+# without editing this file. Each can still be overridden by its environment
+# variable. The ERP CORE P3 data is not redistributed here; see the README for the
+# download step, and place or symlink it at <repo>/data/erp_core_P3.
+_HERE = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.abspath(os.path.join(_HERE, os.pardir))
+
 DATA_ROOT = os.environ.get(
     "ERP_CORE_P3_DATA",
-    r"C:\Users\erkan\Documents\dof_validation\data\erp_core_P3",
+    os.path.join(REPO_ROOT, "data", "erp_core_P3"),
 )
-SCRIPT_DIR = os.environ.get(
-    "DOF_SCRIPT_DIR",
-    r"C:\Users\erkan\Documents\dof_validation\scripts\Brain\Final\Update",
-)
+SCRIPT_DIR = os.environ.get("DOF_SCRIPT_DIR", _HERE)
 RESULTS_DIR = os.environ.get(
     "DOF_RESULTS_DIR",
-    r"C:\Users\erkan\Documents\dof_validation\results_update",
+    os.path.join(REPO_ROOT, "results"),
 )
 FIG_DIR = os.path.join(RESULTS_DIR, "figures")
 LOG_DIR = os.path.join(RESULTS_DIR, "logs")

@@ -12,7 +12,7 @@ Inputs (all deposited):
   lmm_summary_canonical.csv             - real-trial betas for the single-draw ratio
   pseudotrial_sensitivity.csv           - config-4 pseudo betas for the single-draw ratio
   extended_endpoint_pseudotrial_results.csv - real/pseudo betas for M8
-  phase013_dbeta_config4.csv            - matched-contrast betas
+  phase013_dbeta_config4_K1000.csv            - matched-contrast betas
   phase013_marginal_r2_config4_K1000.csv- real-trial marginal R2
   overlap_audit_erp_core_config4.csv    - overlap diagnostics
   distributional_comparability.csv      - real ITI vs pseudotrial gap
@@ -62,7 +62,7 @@ def _band(bands, estimator, op, n_sub, rate='1024Hz'):
 
 def figure_s2_calibration():
     need = ['calibration_bands.csv', 'lmm_summary_canonical.csv', 'pseudotrial_sensitivity.csv',
-            'extended_endpoint_pseudotrial_results.csv', 'phase013_dbeta_config4.csv',
+            'extended_endpoint_pseudotrial_results.csv', 'phase013_dbeta_config4_K1000.csv',
             'phase013_marginal_r2_config4_K1000.csv']
     for f in need:
         if not os.path.exists(_res(f)):
@@ -77,7 +77,7 @@ def figure_s2_calibration():
     ps = pd.read_csv(_res('pseudotrial_sensitivity.csv'))
     ps4 = ps[ps.config == 'config4'].set_index('model')
     ee = pd.read_csv(_res('extended_endpoint_pseudotrial_results.csv'))
-    db = pd.read_csv(_res('phase013_dbeta_config4.csv'))
+    db = pd.read_csv(_res('phase013_dbeta_config4_K1000.csv'))
     db = db[db.dataset == 'erp_core'].set_index('model')
     r2 = pd.read_csv(_res('phase013_marginal_r2_config4_K1000.csv'))
     r2 = r2[r2.dataset == 'erp_core'].set_index('model')
