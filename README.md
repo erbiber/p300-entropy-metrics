@@ -120,6 +120,8 @@ The autocorrelation ratio (AUR = |β_pseudo/β_real|) is retained only as a desc
     │   -- matched-contrast (Delta-beta) outputs --
     ├── phase013_dbeta_config4_K1000.csv             (  18 rows) PRIMARY. 9 models, both datasets
     ├── legacy/phase013_dbeta_config4.csv            (   8 rows) SUPERSEDED by the K1000 file; see results/legacy/README.md
+    ├── phase013_dbeta_config2.csv                   (   8 rows) FIXED DEPOSIT: source for Supplementary Table S3; not regenerable
+    ├── phase013_interaction_config2.csv             (   4 rows) FIXED DEPOSIT: source for Supplementary Table S7; not regenerable
     ├── phase013_dbeta_config2.csv                   (   8 rows) +/-100 uV robustness
     ├── phase013_dbeta_config4_K1000_clean.csv       (   9 rows) Evoked-clean, 9 models, erp_core
     ├── phase013_marginal_r2_config4_K1000_clean.csv (   9 rows) Marginal R2 under evoked-clean

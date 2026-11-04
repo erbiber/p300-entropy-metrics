@@ -13,12 +13,14 @@ interelectrode_val1_cross_to_Pz.csv,66,,scripts/09_interelectrode_validation.py,
 interelectrode_val2_same_channel.csv,66,,scripts/09_interelectrode_validation.py,python scripts/09_interelectrode_validation.py,regenerable
 interelectrode_val3_shape_to_Pz.csv,132,,scripts/09_interelectrode_validation.py,python scripts/09_interelectrode_validation.py,regenerable
 lmm_summary_canonical.csv,17,,scripts/06_pseudotrial_extended.py,python scripts/06_pseudotrial_extended.py,regenerable
-model_diagnostics.csv,18,,scripts/12_model_diagnostics.py,python scripts/12_model_diagnostics.py,"regenerable (filename supplied via config.FILES, not literal in the script)"
+model_diagnostics.csv,18,,scripts/12_model_diagnostics.py,python scripts/12_model_diagnostics.py,regenerable (filename supplied via config.FILES)
 overlap_audit_erp_core_config4.csv,33,pseudotrial/evoked overlap diagnostics,scripts/17_overlap_audit.py (DOES NOT RUN),-,NO RUNNABLE PROVENANCE - see the script header
-per_electrode_canonical.csv,30,,scripts/03_per_electrode_lmm.py,python scripts/03_per_electrode_lmm.py,"regenerable (filename supplied via config.FILES, not literal in the script)"
+per_electrode_canonical.csv,30,,scripts/03_per_electrode_lmm.py,python scripts/03_per_electrode_lmm.py,regenerable (filename supplied via config.FILES)
+phase013_dbeta_config2.csv,8,source for Supplementary Table S3,superseded version of run_phase013.py,-,"FIXED DEPOSIT: cited by the manuscript, NOT regenerable by the current pipeline"
 phase013_dbeta_config4_K1000.csv,18,"Delta beta, BCa interval and surrogate p per model",scripts/run_phase013.py,python scripts/run_phase013.py --config config4 --k 1000 --out results,regenerable
 phase013_dbeta_config4_K1000_clean.csv,9,"Delta beta, BCa interval and surrogate p per model",scripts/run_phase013.py,python scripts/run_phase013.py --config config4 --k 1000 --clean-pseudo --out results,regenerable
 phase013_dbeta_config4_K1000_rs500.csv,18,"Delta beta, BCa interval and surrogate p per model",scripts/run_phase013.py,python scripts/run_phase013.py --config config4 --k 1000 --resample 500 --out results,regenerable
+phase013_interaction_config2.csv,4,source for Supplementary Table S7,superseded version of run_phase013.py,-,"FIXED DEPOSIT: cited by the manuscript, NOT regenerable by the current pipeline"
 phase013_interaction_config4_K1000.csv,9,dataset x feature interaction coefficient,scripts/run_phase013.py,python scripts/run_phase013.py --config config4 --k 1000 --out results,regenerable
 phase013_interaction_config4_K1000_rs500.csv,9,dataset x feature interaction coefficient,scripts/run_phase013.py,python scripts/run_phase013.py --config config4 --k 1000 --resample 500 --out results,regenerable
 phase013_interaction_config4_K1000_targets.csv,4,dataset x feature interaction coefficient,scripts/run_phase013.py,python scripts/run_phase013.py --config config4 --k 1000 --targets-only --out results,regenerable
@@ -30,7 +32,9 @@ phase013_persubject_config2_K1000.csv,444,per-participant real and pseudo slopes
 phase013_persubject_config4_K1000.csv,1107,per-participant real and pseudo slopes,scripts/run_phase013.py,python scripts/run_phase013.py --config config4 --k 1000 --out results,regenerable
 phase013_persubject_config4_K1000_clean.csv,297,per-participant real and pseudo slopes,scripts/run_phase013.py,python scripts/run_phase013.py --config config4 --k 1000 --clean-pseudo --out results,regenerable
 phase013_persubject_config4_K1000_rs500.csv,1107,per-participant real and pseudo slopes,scripts/run_phase013.py,python scripts/run_phase013.py --config config4 --k 1000 --resample 500 --out results,regenerable
-pseudotrial_lmm_summary.csv,4,,scripts/04_pseudotrial_correction.py,python scripts/04_pseudotrial_correction.py,"regenerable (filename supplied via config.FILES, not literal in the script)"
+pseudotrial_lmm_summary.csv,4,,scripts/04_pseudotrial_correction.py,python scripts/04_pseudotrial_correction.py,regenerable (filename supplied via config.FILES)
 pseudotrial_sensitivity.csv,16,,scripts/05_pseudotrial_diagnostic.py,python scripts/05_pseudotrial_diagnostic.py,regenerable
 slope_reliability.csv,10,,scripts/16_slope_reliability.py,python scripts/16_slope_reliability.py,regenerable
 target_standard_validity.csv,40,,scripts/target_standard_validity.py,python scripts/target_standard_validity.py,regenerable
+legacy/phase013_dbeta_config4.csv,8,earlier partial run,superseded version of run_phase013.py,-,"legacy: superseded, not cited by the manuscript, not regenerable"
+legacy/phase013_interaction_config4.csv,4,earlier partial run,superseded version of run_phase013.py,-,"legacy: superseded, not cited by the manuscript, not regenerable"
