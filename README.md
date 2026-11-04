@@ -73,7 +73,7 @@ The autocorrelation ratio (AUR = |β_pseudo/β_real|) is retained only as a desc
 │   ├── 11_entropy_heterogeneity.py          # Per-subject complexity slope analysis
 │   ├── 12_model_diagnostics.py              # Residual diagnostics + AIC comparison
 │   ├── 13_make_figures.py                   # Main figures 2-7
-│   ├── 14_additinal_figures.py              # Delta-beta forest plot and per-subject figure
+│   ├── 14_additional_figures.py              # Delta-beta forest plot and per-subject figure
 │   │                                        #   (filename typo retained as deposited)
 │   │
 │   │   -- matched-contrast (Delta-beta) subsystem --
@@ -229,7 +229,7 @@ The numbered scripts run in order; each reads the outputs of the steps before it
 | 15 | `16_slope_reliability.py` | heterogeneity files | `slope_reliability.csv`, `cross_measure_concordance.csv` |
 | 16 | `17_overlap_audit.py` | raw EEG | `overlap_audit_erp_core_config4.csv` (33 subjects x 1,000 placements) |
 | 17 | `12_model_diagnostics.py` | LMM fits | `model_diagnostics.csv` + Supplementary Figure S1 |
-| 18 | `13_make_figures.py`, `14_additinal_figures.py` | all results | Figures 1–8, Supplementary Figures S2–S3 |
+| 18 | `13_make_figures.py`, `14_additional_figures.py` | all results | Figures 1–8, Supplementary Figures S2–S3 |
 
 
 `15_calibration_simulation.py` is self-contained and can be run at any point; it needs no EEG data. It writes `calibration_bands.csv` and `calibration_power.csv`, and calibrates the AUR under **both** estimators — `K_SINGLE_DRAW = 1` for the single-draw ratio and `K_MATCHED = 1000` for the matched-contrast ratio — because the two have different null distributions. Both output files carry an `estimator` column; reading one ratio against the other's band will misclassify it.
