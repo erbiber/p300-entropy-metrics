@@ -1,0 +1,219 @@
+BCa recomputation vs step-3 files: max abs difference 2.19e-16 over 198 model rows (identical)
+
+cross-dataset agreement (descriptive; models are correlated)
+  battery  average      sign agree 17/21 (binomial p 0.0072); concordant exclusions: M1-D;M6-D;M7-D
+  battery  distributed  sign agree 7/21 (binomial p 0.1892); concordant exclusions: none
+  battery  mastoid      sign agree 13/21 (binomial p 0.3833); concordant exclusions: M4a-D;M9a-D;M18-D;M21-D
+  parity   average      sign agree 12/18 (binomial p 0.2379); concordant exclusions: Z1-D;Z2-D;Z4-D
+  parity   mastoid      sign agree 13/18 (binomial p 0.0963); concordant exclusions: P2-D;P4-D;B1-D;B2-D;B4-D;Z1-D;Z2-D;Z4-D
+
+reference effect on cross-dataset agreement (subject bootstrap, 2000 resamples, 21 matched models)
+  distributed              r(dbeta ERP CORE, dbeta ds006018)    -0.791 [-0.847,-0.212] P(<=0) 0.9950
+  distributed              sign agreement count                 +7.000 [+2.000,+11.000]
+  mastoid                  r(dbeta ERP CORE, dbeta ds006018)    +0.678 [+0.151,+0.844] P(<=0) 0.0070
+  mastoid                  sign agreement count                 +13.000 [+8.000,+18.000]
+  average                  r(dbeta ERP CORE, dbeta ds006018)    +0.605 [+0.022,+0.788] P(<=0) 0.0205
+  average                  sign agreement count                 +17.000 [+10.000,+19.000]
+  mastoid minus distributed difference in r                      +1.469 [+0.598,+1.575] P(<=0) 0.0000
+  average minus distributed difference in r                      +1.397 [+0.513,+1.502] P(<=0) 0.0000
+
+complexity equivalence (90% BCa inside +/-0.05; bound = smallest margin at which equivalence holds)
+  average      ds006018  M13-D  dbeta -0.0112 90% [-0.0288,+0.0053] bound 0.0288 EQUIVALENT
+  average      ds006018  M14-D  dbeta -0.0070 90% [-0.0227,+0.0094] bound 0.0227 EQUIVALENT
+  average      ds006018  M15-D  dbeta -0.0020 90% [-0.0466,+0.0531] bound 0.0531 not shown
+  average      ds006018  M22-D  dbeta -0.0020 90% [-0.0176,+0.0138] bound 0.0176 EQUIVALENT
+  average      ds006018  M23-D  dbeta -0.0052 90% [-0.0161,+0.0047] bound 0.0161 EQUIVALENT
+  average      erpcore   M13-D  dbeta -0.0103 90% [-0.0391,+0.0195] bound 0.0391 EQUIVALENT
+  average      erpcore   M14-D  dbeta -0.0290 90% [-0.0547,-0.0022] bound 0.0547 not shown
+  average      erpcore   M15-D  dbeta -0.0131 90% [-0.0442,+0.0212] bound 0.0442 EQUIVALENT
+  average      erpcore   M22-D  dbeta -0.0243 90% [-0.0522,+0.0029] bound 0.0522 not shown
+  average      erpcore   M23-D  dbeta +0.0142 90% [-0.0036,+0.0332] bound 0.0332 EQUIVALENT
+  distributed  ds006018  M13-D  dbeta -0.0062 90% [-0.0211,+0.0097] bound 0.0211 EQUIVALENT
+  distributed  ds006018  M14-D  dbeta +0.0054 90% [-0.0087,+0.0195] bound 0.0195 EQUIVALENT
+  distributed  ds006018  M15-D  dbeta -0.0014 90% [-0.0288,+0.0357] bound 0.0357 EQUIVALENT
+  distributed  ds006018  M22-D  dbeta +0.0014 90% [-0.0139,+0.0167] bound 0.0167 EQUIVALENT
+  distributed  ds006018  M23-D  dbeta -0.0070 90% [-0.0184,+0.0046] bound 0.0184 EQUIVALENT
+  distributed  erpcore   M13-D  dbeta +0.0086 90% [-0.0166,+0.0340] bound 0.0340 EQUIVALENT
+  distributed  erpcore   M14-D  dbeta +0.0050 90% [-0.0258,+0.0344] bound 0.0344 EQUIVALENT
+  distributed  erpcore   M15-D  dbeta -0.0147 90% [-0.0499,+0.0206] bound 0.0499 EQUIVALENT
+  distributed  erpcore   M22-D  dbeta +0.0068 90% [-0.0230,+0.0366] bound 0.0366 EQUIVALENT
+  distributed  erpcore   M23-D  dbeta -0.0053 90% [-0.0291,+0.0163] bound 0.0291 EQUIVALENT
+  mastoid      ds006018  M13-D  dbeta -0.0283 90% [-0.0433,-0.0136] bound 0.0433 EQUIVALENT
+  mastoid      ds006018  M14-D  dbeta -0.0128 90% [-0.0262,+0.0011] bound 0.0262 EQUIVALENT
+  mastoid      ds006018  M15-D  dbeta -0.0040 90% [-0.0171,+0.0094] bound 0.0171 EQUIVALENT
+  mastoid      ds006018  M22-D  dbeta -0.0219 90% [-0.0385,-0.0055] bound 0.0385 EQUIVALENT
+  mastoid      ds006018  M23-D  dbeta +0.0048 90% [-0.0106,+0.0186] bound 0.0186 EQUIVALENT
+  mastoid      erpcore   M13-D  dbeta +0.0094 90% [-0.0131,+0.0373] bound 0.0373 EQUIVALENT
+  mastoid      erpcore   M14-D  dbeta -0.0134 90% [-0.0385,+0.0148] bound 0.0385 EQUIVALENT
+  mastoid      erpcore   M15-D  dbeta -0.0009 90% [-0.0294,+0.0286] bound 0.0294 EQUIVALENT
+  mastoid      erpcore   M22-D  dbeta -0.0087 90% [-0.0363,+0.0177] bound 0.0363 EQUIVALENT
+  mastoid      erpcore   M23-D  dbeta +0.0070 90% [-0.0137,+0.0255] bound 0.0255 EQUIVALENT
+  equivalent at +/-0.05: 27 of 30 cells; largest bound 0.0547
+
+models surviving Holm correction within each dataset x reference x family: 32
+  battery  distributed  ds006018  M4a-D  dbeta +0.0389 p_holm 0.0143
+  battery  distributed  ds006018  M8-D   dbeta +0.1206 p_holm 0.0053
+  battery  distributed  ds006018  M18-D  dbeta +0.0374 p_holm 0.0225
+  battery  distributed  ds006018  M24-D  dbeta +0.0828 p_holm 0.0053
+  battery  mastoid      erpcore   M4a-D  dbeta -0.0728 p_holm 0.0053
+  battery  mastoid      erpcore   M9a-D  dbeta -0.0631 p_holm 0.0053
+  battery  mastoid      erpcore   M18-D  dbeta -0.0649 p_holm 0.0053
+  battery  mastoid      ds006018  M4a-D  dbeta -0.0612 p_holm 0.0053
+  battery  mastoid      ds006018  M9a-D  dbeta -0.0497 p_holm 0.0053
+  battery  mastoid      ds006018  M18-D  dbeta -0.0614 p_holm 0.0053
+  battery  mastoid      ds006018  M21-D  dbeta -0.0641 p_holm 0.0053
+  battery  average      ds006018  M8-D   dbeta +0.0920 p_holm 0.0053
+  battery  average      ds006018  M9a-D  dbeta -0.0377 p_holm 0.0053
+  battery  average      ds006018  M10-D  dbeta +0.0360 p_holm 0.0495
+  battery  average      ds006018  M24-D  dbeta +0.0540 p_holm 0.0053
+  parity   mastoid      erpcore   B1-D   dbeta -0.0576 p_holm 0.0440
+  parity   mastoid      erpcore   B4-D   dbeta -0.0551 p_holm 0.0045
+  parity   mastoid      erpcore   Z4-D   dbeta -0.0604 p_holm 0.0045
+  parity   mastoid      ds006018  P2-D   dbeta -0.0426 p_holm 0.0045
+  parity   mastoid      ds006018  P4-D   dbeta -0.0628 p_holm 0.0045
+  parity   mastoid      ds006018  B1-D   dbeta -0.0306 p_holm 0.0045
+  parity   mastoid      ds006018  B2-D   dbeta -0.0313 p_holm 0.0083
+  parity   mastoid      ds006018  B4-D   dbeta -0.0421 p_holm 0.0045
+  parity   mastoid      ds006018  Z1-D   dbeta -0.0244 p_holm 0.0427
+  parity   mastoid      ds006018  Z2-D   dbeta -0.0437 p_holm 0.0045
+  parity   mastoid      ds006018  Z4-D   dbeta -0.0757 p_holm 0.0045
+  parity   mastoid      ds006018  R2-D   dbeta -0.0437 p_holm 0.0045
+  parity   mastoid      ds006018  R3-D   dbeta +0.0070 p_holm 0.0275
+  parity   average      erpcore   Z2-D   dbeta -0.0628 p_holm 0.0045
+  parity   average      erpcore   Z4-D   dbeta -0.0571 p_holm 0.0383
+  parity   average      ds006018  Z2-D   dbeta -0.0498 p_holm 0.0045
+  parity   average      ds006018  Z4-D   dbeta -0.0442 p_holm 0.0045
+
+parity decision
+  pre-stated rule: odd early-window Fz (P1-P4) must exclude zero with the same sign in both datasets on both valid references; odd baseline (B1-B4) and even partners (E1-E3) must include zero
+  mastoid: concordant odd early hits ['P2-D', 'P4-D']; baseline controls excluding zero ['B1-D', 'B2-D', 'B4-D']; even partners excluding zero none
+      P1-D  time asymmetry Fz 0-150 (residual)         ERP CORE -0.0094 [-0.0369,+0.0162]  ds006018 -0.0159 [-0.0322,+0.0011]
+      P2-D  up-down asymmetry Fz 0-150 (residual)      ERP CORE -0.0300 [-0.0588,-0.0031]  ds006018 -0.0426 [-0.0621,-0.0224]
+      P3-D  directed-KL asymmetry Fz 0-150 (residual)  ERP CORE -0.0035 [-0.0072,-0.0000]  ds006018 +0.0028 [-0.0011,+0.0068]
+      P4-D  slope Fz 0-150 (residual)                  ERP CORE -0.0365 [-0.0650,-0.0115]  ds006018 -0.0628 [-0.0824,-0.0429]
+      E1-D  difference kurtosis Fz 0-150 (residual)    ERP CORE +0.0209 [-0.0001,+0.0425]  ds006018 -0.0143 [-0.0302,+0.0017]
+      E2-D  monotone-pattern share Fz 0-150 (residual) ERP CORE +0.0003 [-0.0366,+0.0365]  ds006018 -0.0078 [-0.0271,+0.0110]
+      E3-D  symmetric KL Fz 0-150 (residual)           ERP CORE +0.0009 [-0.0091,+0.0112]  ds006018 +0.0023 [-0.0072,+0.0108]
+      B1-D  time asymmetry Fz baseline (residual)      ERP CORE -0.0576 [-0.0925,-0.0197]  ds006018 -0.0306 [-0.0470,-0.0141]
+      B2-D  up-down asymmetry Fz baseline (residual)   ERP CORE -0.0424 [-0.0740,-0.0117]  ds006018 -0.0313 [-0.0497,-0.0119]
+      B3-D  directed-KL asymmetry Fz baseline (residua ERP CORE +0.0036 [-0.0008,+0.0092]  ds006018 +0.0011 [-0.0028,+0.0044]
+      B4-D  slope Fz baseline (residual)               ERP CORE -0.0551 [-0.0846,-0.0246]  ds006018 -0.0421 [-0.0598,-0.0243]
+  average: concordant odd early hits none; baseline controls excluding zero none; even partners excluding zero none
+      P1-D  time asymmetry Fz 0-150 (residual)         ERP CORE +0.0313 [+0.0038,+0.0607]  ds006018 +0.0108 [-0.0044,+0.0278]
+      P2-D  up-down asymmetry Fz 0-150 (residual)      ERP CORE -0.0074 [-0.0387,+0.0252]  ds006018 +0.0138 [-0.0013,+0.0291]
+      P3-D  directed-KL asymmetry Fz 0-150 (residual)  ERP CORE -0.0011 [-0.0055,+0.0049]  ds006018 +0.0006 [-0.0018,+0.0031]
+      P4-D  slope Fz 0-150 (residual)                  ERP CORE +0.0069 [-0.0212,+0.0334]  ds006018 +0.0068 [-0.0092,+0.0243]
+      E1-D  difference kurtosis Fz 0-150 (residual)    ERP CORE +0.0061 [-0.0228,+0.0346]  ds006018 -0.0065 [-0.0198,+0.0079]
+      E2-D  monotone-pattern share Fz 0-150 (residual) ERP CORE +0.0159 [-0.0203,+0.0514]  ds006018 +0.0201 [-0.0008,+0.0443]
+      E3-D  symmetric KL Fz 0-150 (residual)           ERP CORE -0.0005 [-0.0117,+0.0124]  ds006018 -0.0039 [-0.0093,+0.0014]
+      B1-D  time asymmetry Fz baseline (residual)      ERP CORE -0.0205 [-0.0558,+0.0104]  ds006018 -0.0072 [-0.0263,+0.0099]
+      B2-D  up-down asymmetry Fz baseline (residual)   ERP CORE -0.0182 [-0.0512,+0.0112]  ds006018 +0.0080 [-0.0113,+0.0265]
+      B3-D  directed-KL asymmetry Fz baseline (residua ERP CORE +0.0013 [-0.0024,+0.0053]  ds006018 -0.0020 [-0.0044,+0.0001]
+      B4-D  slope Fz baseline (residual)               ERP CORE -0.0194 [-0.0591,+0.0168]  ds006018 -0.0037 [-0.0216,+0.0128]
+  VERDICT: prediction P2 NOT supported (a clean negative result under the stated rule)
+
+fast-timescale bound at the measured SOA
+  mastoid  erpcore   r +0.3002 tau 0.125s median SOA 1.516s (min 1.399s) bound 5.25e-06
+  mastoid  ds006018  r +0.2721 tau 0.115s median SOA 1.550s (min 1.432s) bound 1.44e-06
+  average  erpcore   r +0.3406 tau 0.139s median SOA 1.504s (min 1.399s) bound 2.04e-05
+  average  ds006018  r +0.2710 tau 0.115s median SOA 1.550s (min 1.432s) bound 1.38e-06
+
+across-trial correlation by separation in seconds (mean over subjects)
+  average  ds006018  lz_early_fz    0.5-  1.5s r +0.0080 (se 0.0150) 52/97 positive, sign p 0.543
+  average  ds006018  lz_early_fz    1.5-  3.0s r +0.0092 (se 0.0080) 51/97 positive, sign p 0.685
+  average  ds006018  lz_early_fz    3.0-  6.0s r +0.0023 (se 0.0054) 50/97 positive, sign p 0.839
+  average  ds006018  lz_early_fz    6.0- 12.0s r -0.0042 (se 0.0044) 49/97 positive, sign p 1
+  average  ds006018  lz_early_fz   12.0- 30.0s r +0.0021 (se 0.0026) 56/97 positive, sign p 0.155
+  average  ds006018  lz_early_fz   30.0- 90.0s r -0.0043 (se 0.0014) 30/97 positive, sign p 0.000219
+  average  ds006018  pe_early_fz    0.5-  1.5s r +0.0063 (se 0.0166) 53/97 positive, sign p 0.417
+  average  ds006018  pe_early_fz    1.5-  3.0s r +0.0230 (se 0.0077) 60/97 positive, sign p 0.025
+  average  ds006018  pe_early_fz    3.0-  6.0s r -0.0064 (se 0.0060) 46/97 positive, sign p 0.685
+  average  ds006018  pe_early_fz    6.0- 12.0s r +0.0023 (se 0.0045) 53/97 positive, sign p 0.417
+  average  ds006018  pe_early_fz   12.0- 30.0s r +0.0002 (se 0.0024) 51/97 positive, sign p 0.685
+  average  ds006018  pe_early_fz   30.0- 90.0s r -0.0023 (se 0.0013) 39/97 positive, sign p 0.0671
+  average  ds006018  rms_base_fz    0.5-  1.5s r +0.0440 (se 0.0167) 56/97 positive, sign p 0.155
+  average  ds006018  rms_base_fz    1.5-  3.0s r +0.0399 (se 0.0088) 66/97 positive, sign p 0.00049
+  average  ds006018  rms_base_fz    3.0-  6.0s r +0.0179 (se 0.0060) 65/97 positive, sign p 0.00105
+  average  ds006018  rms_base_fz    6.0- 12.0s r +0.0186 (se 0.0051) 63/97 positive, sign p 0.00423
+  average  ds006018  rms_base_fz   12.0- 30.0s r +0.0061 (se 0.0030) 50/97 positive, sign p 0.839
+  average  ds006018  rms_base_fz   30.0- 90.0s r +0.0024 (se 0.0017) 48/97 positive, sign p 1
+  average  ds006018  sd_early_fz    0.5-  1.5s r +0.0533 (se 0.0147) 64/97 positive, sign p 0.00215
+  average  ds006018  sd_early_fz    1.5-  3.0s r +0.0149 (se 0.0083) 48/97 positive, sign p 1
+  average  ds006018  sd_early_fz    3.0-  6.0s r +0.0121 (se 0.0067) 54/97 positive, sign p 0.31
+  average  ds006018  sd_early_fz    6.0- 12.0s r +0.0133 (se 0.0050) 51/97 positive, sign p 0.685
+  average  ds006018  sd_early_fz   12.0- 30.0s r +0.0058 (se 0.0025) 56/97 positive, sign p 0.155
+  average  ds006018  sd_early_fz   30.0- 90.0s r -0.0001 (se 0.0017) 42/97 positive, sign p 0.223
+  average  erpcore   lz_early_fz    0.5-  1.5s r +0.0361 (se 0.0161) 22/39 positive, sign p 0.522
+  average  erpcore   lz_early_fz    1.5-  3.0s r -0.0117 (se 0.0111) 17/40 positive, sign p 0.43
+  average  erpcore   lz_early_fz    3.0-  6.0s r +0.0070 (se 0.0097) 21/40 positive, sign p 0.875
+  average  erpcore   lz_early_fz    6.0- 12.0s r +0.0001 (se 0.0089) 20/40 positive, sign p 1
+  average  erpcore   lz_early_fz   12.0- 30.0s r +0.0027 (se 0.0043) 23/40 positive, sign p 0.43
+  average  erpcore   lz_early_fz   30.0- 90.0s r -0.0084 (se 0.0030) 13/40 positive, sign p 0.0385
+  average  erpcore   pe_early_fz    0.5-  1.5s r +0.0343 (se 0.0146) 26/39 positive, sign p 0.0533
+  average  erpcore   pe_early_fz    1.5-  3.0s r +0.0158 (se 0.0156) 23/40 positive, sign p 0.43
+  average  erpcore   pe_early_fz    3.0-  6.0s r +0.0022 (se 0.0118) 18/40 positive, sign p 0.636
+  average  erpcore   pe_early_fz    6.0- 12.0s r -0.0182 (se 0.0079) 15/40 positive, sign p 0.154
+  average  erpcore   pe_early_fz   12.0- 30.0s r -0.0102 (se 0.0046) 11/40 positive, sign p 0.00643
+  average  erpcore   pe_early_fz   30.0- 90.0s r -0.0025 (se 0.0028) 15/40 positive, sign p 0.154
+  average  erpcore   rms_base_fz    0.5-  1.5s r +0.0826 (se 0.0222) 27/39 positive, sign p 0.0237
+  average  erpcore   rms_base_fz    1.5-  3.0s r +0.0294 (se 0.0178) 22/40 positive, sign p 0.636
+  average  erpcore   rms_base_fz    3.0-  6.0s r +0.0132 (se 0.0143) 23/40 positive, sign p 0.43
+  average  erpcore   rms_base_fz    6.0- 12.0s r +0.0267 (se 0.0092) 27/40 positive, sign p 0.0385
+  average  erpcore   rms_base_fz   12.0- 30.0s r +0.0094 (se 0.0053) 24/40 positive, sign p 0.268
+  average  erpcore   rms_base_fz   30.0- 90.0s r -0.0068 (se 0.0023) 11/40 positive, sign p 0.00643
+  average  erpcore   sd_early_fz    0.5-  1.5s r +0.0535 (se 0.0225) 27/39 positive, sign p 0.0237
+  average  erpcore   sd_early_fz    1.5-  3.0s r +0.0494 (se 0.0175) 28/40 positive, sign p 0.0166
+  average  erpcore   sd_early_fz    3.0-  6.0s r +0.0249 (se 0.0090) 27/40 positive, sign p 0.0385
+  average  erpcore   sd_early_fz    6.0- 12.0s r +0.0048 (se 0.0103) 20/40 positive, sign p 1
+  average  erpcore   sd_early_fz   12.0- 30.0s r +0.0024 (se 0.0057) 23/40 positive, sign p 0.43
+  average  erpcore   sd_early_fz   30.0- 90.0s r -0.0043 (se 0.0030) 16/40 positive, sign p 0.268
+  mastoid  ds006018  lz_early_fz    0.5-  1.5s r +0.0406 (se 0.0145) 58/96 positive, sign p 0.0519
+  mastoid  ds006018  lz_early_fz    1.5-  3.0s r +0.0244 (se 0.0089) 51/97 positive, sign p 0.685
+  mastoid  ds006018  lz_early_fz    3.0-  6.0s r +0.0278 (se 0.0065) 64/97 positive, sign p 0.00215
+  mastoid  ds006018  lz_early_fz    6.0- 12.0s r +0.0176 (se 0.0052) 68/97 positive, sign p 9.34e-05
+  mastoid  ds006018  lz_early_fz   12.0- 30.0s r +0.0056 (se 0.0034) 57/97 positive, sign p 0.104
+  mastoid  ds006018  lz_early_fz   30.0- 90.0s r +0.0004 (se 0.0016) 48/97 positive, sign p 1
+  mastoid  ds006018  pe_early_fz    0.5-  1.5s r +0.0992 (se 0.0207) 67/96 positive, sign p 0.000132
+  mastoid  ds006018  pe_early_fz    1.5-  3.0s r +0.1063 (se 0.0150) 77/97 positive, sign p 4.59e-09
+  mastoid  ds006018  pe_early_fz    3.0-  6.0s r +0.0849 (se 0.0137) 75/97 positive, sign p 6.07e-08
+  mastoid  ds006018  pe_early_fz    6.0- 12.0s r +0.0760 (se 0.0125) 77/97 positive, sign p 4.59e-09
+  mastoid  ds006018  pe_early_fz   12.0- 30.0s r +0.0518 (se 0.0109) 74/97 positive, sign p 2.03e-07
+  mastoid  ds006018  pe_early_fz   30.0- 90.0s r +0.0117 (se 0.0050) 51/97 positive, sign p 0.685
+  mastoid  ds006018  rms_base_fz    0.5-  1.5s r +0.0393 (se 0.0173) 48/96 positive, sign p 1
+  mastoid  ds006018  rms_base_fz    1.5-  3.0s r +0.0516 (se 0.0130) 64/97 positive, sign p 0.00215
+  mastoid  ds006018  rms_base_fz    3.0-  6.0s r +0.0503 (se 0.0104) 69/97 positive, sign p 3.8e-05
+  mastoid  ds006018  rms_base_fz    6.0- 12.0s r +0.0498 (se 0.0097) 68/97 positive, sign p 9.34e-05
+  mastoid  ds006018  rms_base_fz   12.0- 30.0s r +0.0266 (se 0.0078) 61/97 positive, sign p 0.0144
+  mastoid  ds006018  rms_base_fz   30.0- 90.0s r +0.0095 (se 0.0054) 43/97 positive, sign p 0.31
+  mastoid  ds006018  sd_early_fz    0.5-  1.5s r +0.0860 (se 0.0185) 66/96 positive, sign p 0.000306
+  mastoid  ds006018  sd_early_fz    1.5-  3.0s r +0.0463 (se 0.0116) 63/97 positive, sign p 0.00423
+  mastoid  ds006018  sd_early_fz    3.0-  6.0s r +0.0497 (se 0.0105) 64/97 positive, sign p 0.00215
+  mastoid  ds006018  sd_early_fz    6.0- 12.0s r +0.0364 (se 0.0094) 60/97 positive, sign p 0.025
+  mastoid  ds006018  sd_early_fz   12.0- 30.0s r +0.0264 (se 0.0075) 60/97 positive, sign p 0.025
+  mastoid  ds006018  sd_early_fz   30.0- 90.0s r +0.0095 (se 0.0049) 46/97 positive, sign p 0.685
+  mastoid  erpcore   lz_early_fz    0.5-  1.5s r +0.0073 (se 0.0171) 19/39 positive, sign p 1
+  mastoid  erpcore   lz_early_fz    1.5-  3.0s r +0.0024 (se 0.0108) 18/40 positive, sign p 0.636
+  mastoid  erpcore   lz_early_fz    3.0-  6.0s r -0.0095 (se 0.0107) 21/40 positive, sign p 0.875
+  mastoid  erpcore   lz_early_fz    6.0- 12.0s r +0.0022 (se 0.0091) 21/40 positive, sign p 0.875
+  mastoid  erpcore   lz_early_fz   12.0- 30.0s r -0.0017 (se 0.0048) 20/40 positive, sign p 1
+  mastoid  erpcore   lz_early_fz   30.0- 90.0s r -0.0038 (se 0.0022) 18/40 positive, sign p 0.636
+  mastoid  erpcore   pe_early_fz    0.5-  1.5s r +0.0385 (se 0.0155) 23/39 positive, sign p 0.337
+  mastoid  erpcore   pe_early_fz    1.5-  3.0s r +0.0200 (se 0.0132) 24/40 positive, sign p 0.268
+  mastoid  erpcore   pe_early_fz    3.0-  6.0s r +0.0067 (se 0.0087) 21/40 positive, sign p 0.875
+  mastoid  erpcore   pe_early_fz    6.0- 12.0s r +0.0047 (se 0.0055) 24/40 positive, sign p 0.268
+  mastoid  erpcore   pe_early_fz   12.0- 30.0s r +0.0022 (se 0.0045) 19/40 positive, sign p 0.875
+  mastoid  erpcore   pe_early_fz   30.0- 90.0s r -0.0002 (se 0.0039) 23/40 positive, sign p 0.43
+  mastoid  erpcore   rms_base_fz    0.5-  1.5s r +0.0896 (se 0.0192) 31/39 positive, sign p 0.000294
+  mastoid  erpcore   rms_base_fz    1.5-  3.0s r +0.0366 (se 0.0160) 22/40 positive, sign p 0.636
+  mastoid  erpcore   rms_base_fz    3.0-  6.0s r +0.0372 (se 0.0124) 23/40 positive, sign p 0.43
+  mastoid  erpcore   rms_base_fz    6.0- 12.0s r +0.0250 (se 0.0066) 28/40 positive, sign p 0.0166
+  mastoid  erpcore   rms_base_fz   12.0- 30.0s r +0.0099 (se 0.0059) 23/40 positive, sign p 0.43
+  mastoid  erpcore   rms_base_fz   30.0- 90.0s r -0.0084 (se 0.0025) 16/40 positive, sign p 0.268
+  mastoid  erpcore   sd_early_fz    0.5-  1.5s r +0.0499 (se 0.0245) 23/39 positive, sign p 0.337
+  mastoid  erpcore   sd_early_fz    1.5-  3.0s r +0.0376 (se 0.0180) 25/40 positive, sign p 0.154
+  mastoid  erpcore   sd_early_fz    3.0-  6.0s r +0.0346 (se 0.0088) 31/40 positive, sign p 0.00068
+  mastoid  erpcore   sd_early_fz    6.0- 12.0s r +0.0060 (se 0.0088) 20/40 positive, sign p 1
+  mastoid  erpcore   sd_early_fz   12.0- 30.0s r +0.0011 (se 0.0056) 21/40 positive, sign p 0.875
+  mastoid  erpcore   sd_early_fz   30.0- 90.0s r -0.0016 (se 0.0026) 19/40 positive, sign p 0.875
+
+sampling rate on mastoid: max |dbeta(1024)-dbeta(500)| 0.0095 (M13-D), excluding M15 0.0095, sign changes 1, mean half-width 0.0319

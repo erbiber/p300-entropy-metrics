@@ -1,0 +1,6 @@
+family,reference,n_models,sign_agree,binom_p,both_exclude_zero,concordant
+battery,average,21,17,0.007197380065917969,M1-D;M6-D;M7-D,M1-D;M6-D;M7-D
+battery,distributed,21,7,0.18924713134765625,M8-D;M10-D;M24-D,
+battery,mastoid,21,13,0.38331031799316406,M4a-D;M9a-D;M18-D;M21-D,M4a-D;M9a-D;M18-D;M21-D
+parity,average,18,12,0.237884521484375,Z1-D;Z2-D;Z4-D,Z1-D;Z2-D;Z4-D
+parity,mastoid,18,13,0.09625244140625,P2-D;P4-D;B1-D;B2-D;B4-D;Z1-D;Z2-D;Z4-D,P2-D;P4-D;B1-D;B2-D;B4-D;Z1-D;Z2-D;Z4-D
