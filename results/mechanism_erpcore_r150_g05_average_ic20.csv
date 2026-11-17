@@ -1,0 +1,11 @@
+dataset,variant,test,quantity,value,median,n,n_positive,lo,hi,note
+erpcore,r150_g05_average_ic20,1_shared_state,Fz early vs Fz pre-stimulus,0.3406185885929019,0.32660392420764384,40,40.0,0.019548217473624153,0.8113215767354996,
+erpcore,r150_g05_average_ic20,1_shared_state,Fz early vs Pz pre-stimulus,0.2115328774572102,0.2271407326539776,40,36.0,-0.13061142565410086,0.5888047175602908,
+erpcore,r150_g05_average_ic20,2_window_position,pre-stimulus -150 to 0,0.0432138341162891,,7469,,0.0228166675322275,0.06361100070035071,midpoint_ms=-75 p=3.289e-05
+erpcore,r150_g05_average_ic20,2_window_position,early 0 to 150,0.048918536822214795,,7469,,0.028188006542051544,0.06964906710237805,midpoint_ms=75 p=3.745e-06
+erpcore,r150_g05_average_ic20,2_window_position,early 0 to 200,0.03742774819377853,,7469,,0.01714020569267714,0.05771529069487992,midpoint_ms=100 p=2.993e-04
+erpcore,r150_g05_average_ic20,2_window_position,early 0 to 250,0.054941217636185286,,7469,,0.03482802638736786,0.07505440888500271,midpoint_ms=125 p=8.606e-08
+erpcore,r150_g05_average_ic20,2_summary,pre_over_post_ratio,0.9175723253316934,,7469,,,,all_same_sign=True sign=pos monotonic=False
+erpcore,r150_g05_average_ic20,3_retention,pre-stimulus Fz,0.7254643594455785,0.7459243132303489,7469,,,,r=+0.3406 expected=0.7459 gap_pp=2.05
+erpcore,r150_g05_average_ic20,3_retention,pre-stimulus Pz,0.6327775168658313,0.8254006297367845,7469,,,,r=+0.2115 expected=0.8254 gap_pp=19.26
+erpcore,r150_g05_average_ic20,0_positive_control,oddball_cohen_d,0.5061987478859764,0.43527960047250325,40,39.0,-0.03135535737312045,1.3718923359813793,target minus standard p300_pz

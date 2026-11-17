@@ -1,0 +1,230 @@
+pipeline run 20261115_214001
+results results
+complete: 64 of 64 steps, 22050s so far
+gate: fastfeat vs features at 1024 Hz: identical
+gate: fastfeat vs features at 500 Hz: identical
+gate: parity self-test: odd features odd, even partners even, residual removes constant waveforms
+gate: time-reversal class at 1024 Hz: mean=even; sd=even; rms=even; median_amp=even; mad_amp=even; p2p_amp=even; skew_amp=even; kurt_amp=even; slope_amp=odd; hjorth_mobility=even; hjorth_complexity=even; permutation_entropy=even; sample_entropy=neither (mean |F(x)-F(rev x)| / mean |F| = 0.012); lempel_ziv=neither (mean |F(x)-F(rev x)| / mean |F| = 0.080); parity_tasym=odd; parity_updown=odd; parity_klasym=odd; parity_slope=odd; parity_dkurt=even; parity_mono=even; parity_klsym=even
+gate: time-reversal class at 500 Hz: mean=even; sd=even; rms=even; median_amp=even; mad_amp=even; p2p_amp=even; skew_amp=even; kurt_amp=even; slope_amp=odd; hjorth_mobility=even; hjorth_complexity=even; permutation_entropy=even; sample_entropy=neither (mean |F(x)-F(rev x)| / mean |F| = 0.013); lempel_ziv=neither (mean |F(x)-F(rev x)| / mean |F| = 0.207); parity_tasym=odd; parity_updown=odd; parity_klasym=odd; parity_slope=odd; parity_dkurt=even; parity_mono=even; parity_klsym=even
+gate: placement hoist self-test: ok
+========================================================================
+[ds_feat] step 1 ds006018 r150_g05_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_feat] step 1 erpcore r150_g05_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_mech] step 4 ds006018 r150_g05_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_mech] step 4 erpcore r150_g05_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_feat_rs] step 1 erpcore r150_g05_rs500_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_feat_r100] step 1 erpcore r100_g05_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_canon] step 2 ds006018 r150_g05_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_canon] step 2 erpcore r150_g05_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_canon_r100] step 2 erpcore r100_g05_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_match] step 3 ds006018 r150_g05_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_match] step 3 erpcore r150_g05_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_match_rs] step 3 erpcore r150_g05_rs500_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_match_r100] step 3 erpcore r100_g05_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_feat_mast] step 1 ds006018 r150_g05_mastoid_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_feat_mast] step 1 erpcore r150_g05_mastoid_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_mech_mast] step 4 ds006018 r150_g05_mastoid_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_mech_mast] step 4 erpcore r150_g05_mastoid_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_canon_mast] step 2 ds006018 r150_g05_mastoid_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_canon_mast] step 2 erpcore r150_g05_mastoid_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_match_mast] step 3 ds006018 r150_g05_mastoid_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_match_mast] step 3 erpcore r150_g05_mastoid_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_feat_aver] step 1 ds006018 r150_g05_average_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_feat_aver] step 1 erpcore r150_g05_average_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_mech_aver] step 4 ds006018 r150_g05_average_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_mech_aver] step 4 erpcore r150_g05_average_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_canon_aver] step 2 ds006018 r150_g05_average_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_canon_aver] step 2 erpcore r150_g05_average_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_match_aver] step 3 ds006018 r150_g05_average_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_match_aver] step 3 erpcore r150_g05_average_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_par_mast] step 5 ds006018 r150_g05_mastoid_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_par_mast] step 5 erpcore r150_g05_mastoid_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_par_aver] step 5 ds006018 r150_g05_average_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_par_aver] step 5 erpcore r150_g05_average_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_parm_mast] step 3 ds006018 r150_g05_mastoid_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_parm_mast] step 3 erpcore r150_g05_mastoid_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_parm_aver] step 3 ds006018 r150_g05_average_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_parm_aver] step 3 erpcore r150_g05_average_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_feat_rs_mast] step 1 erpcore r150_g05_rs500_mastoid_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_match_rs_mast] step 3 erpcore r150_g05_rs500_mastoid_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_par_dist] step 5 erpcore r150_g05_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_par_dist] step 5 ds006018 r150_g05_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_cache_dist] step 7 erpcore r150_g05_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_cache_mast] step 7 erpcore r150_g05_mastoid_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_cache_aver] step 7 erpcore r150_g05_average_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_cache_dist] step 7 ds006018 r150_g05_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_cache_mast] step 7 ds006018 r150_g05_mastoid_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_cache_aver] step 7 ds006018 r150_g05_average_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_nb_dist] step 3 erpcore r150_g05_nobase_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_nb_mast] step 3 erpcore r150_g05_mastoid_nobase_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_nb_aver] step 3 erpcore r150_g05_average_nobase_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_nb_dist] step 3 ds006018 r150_g05_nobase_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_nb_mast] step 3 ds006018 r150_g05_mastoid_nobase_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_nb_aver] step 3 ds006018 r150_g05_average_nobase_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_feat_cz] step 1 erpcore r150_g05_cz_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_match_cz] step 3 erpcore r150_g05_cz_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_cache_cz] step 7 erpcore r150_g05_cz_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_nb_cz] step 3 erpcore r150_g05_cz_nobase_ic20
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_common] step 8 erpcore common
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ds_common] step 8 ds006018 common
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[common_analysis] step 9 all common
+  SKIPPED, outputs already present
+------------------------------------------------------------------------
+[ec_reffree] step 10 erpcore common
+  done in 7803s
+  35 subjects used
+  38 of 40 subjects ok
+  reproduces step 8 real_slope_all_references: max |difference| 9.95e-17 over 3192 pairs
+  reproduces step 8 pseudo_mean_mastoid: max |difference| 9.80e-17 over 798 pairs
+  reffree_poscontrol_erpcore.csv: 228 rows
+------------------------------------------------------------------------
+[ds_reffree] step 10 ds006018 common
+  done in 12403s
+  97 subjects used
+  97 of 98 subjects ok
+  reproduces step 8 real_slope_all_references: max |difference| 9.97e-17 over 6111 pairs
+  reproduces step 8 pseudo_mean_mastoid: max |difference| 9.93e-17 over 2037 pairs
+  reffree_poscontrol_ds006018.csv: 485 rows
+------------------------------------------------------------------------
+[reffree_analysis] step 10 all common
+  done in 1440s
+  real-trial r distributed -0.83 [-0.91, -0.35]
+  real-trial r mastoid +0.96 [+0.86, +0.98]
+  real-trial r average +0.97 [+0.83, +0.98]
+  real-trial r csd +0.01 [-0.64, +0.65]
+  real-trial r csd18 +0.54 [-0.41, +0.75]
+  reffree_dbeta.csv: 1155 rows
+  reffree_poscontrol_summary.csv: 22 rows
+------------------------------------------------------------------------
+[followup] step 6 all all arms
+  done in 327s
+  BCa recomputation vs step-3 files: max abs difference 2.19e-16 over 198 model rows (identical)
+    battery  average      sign agree 17/21 (binomial p 0.0072); concordant exclusions: M1-D;M6-D;M7-D
+    battery  distributed  sign agree 7/21 (binomial p 0.1892); concordant exclusions: none
+    battery  mastoid      sign agree 13/21 (binomial p 0.3833); concordant exclusions: M4a-D;M9a-D;M18-D;M21-D
+    parity   average      sign agree 12/18 (binomial p 0.2379); concordant exclusions: Z1-D;Z2-D;Z4-D
+    parity   mastoid      sign agree 13/18 (binomial p 0.0963); concordant exclusions: P2-D;P4-D;B1-D;B2-D;B4-D;Z1-D;Z2-D;Z4-D
+    distributed              sign agreement count                 +7.000 [+2.000,+11.000]
+    mastoid                  sign agreement count                 +13.000 [+8.000,+18.000]
+    average                  sign agreement count                 +17.000 [+10.000,+19.000]
+    equivalent at +/-0.05: 27 of 30 cells; largest bound 0.0547
+    VERDICT: prediction P2 NOT supported (a clean negative result under the stated rule)
+------------------------------------------------------------------------

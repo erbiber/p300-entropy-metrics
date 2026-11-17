@@ -1,0 +1,11 @@
+dataset,variant,test,quantity,value,median,n,n_positive,lo,hi,note
+erpcore,r150_g05_mastoid_ic20,1_shared_state,Fz early vs Fz pre-stimulus,0.3002082608229187,0.27406927831558414,40,40.0,0.021147308745120972,0.7572832111341813,
+erpcore,r150_g05_mastoid_ic20,1_shared_state,Fz early vs Pz pre-stimulus,0.22116413904203078,0.19942789833864688,40,36.0,-0.09110074825771411,0.6993646536247464,
+erpcore,r150_g05_mastoid_ic20,2_window_position,pre-stimulus -150 to 0,-0.0013171639510340854,,7366,,-0.02101226234339487,0.0183779344413267,midpoint_ms=-75 p=8.957e-01
+erpcore,r150_g05_mastoid_ic20,2_window_position,early 0 to 150,-0.034474794884597856,,7366,,-0.05449328066597922,-0.014456309103216495,midpoint_ms=75 p=7.371e-04
+erpcore,r150_g05_mastoid_ic20,2_window_position,early 0 to 200,0.009105530883364955,,7366,,-0.01148620587964411,0.02969726764637402,midpoint_ms=100 p=3.861e-01
+erpcore,r150_g05_mastoid_ic20,2_window_position,early 0 to 250,0.007637129141670923,,7366,,-0.012666957664694117,0.02794121594803596,midpoint_ms=125 p=4.610e-01
+erpcore,r150_g05_mastoid_ic20,2_summary,pre_over_post_ratio,0.07715127313674858,,7366,,,,all_same_sign=False sign=neg monotonic=False
+erpcore,r150_g05_mastoid_ic20,3_retention,pre-stimulus Fz,1.2099687163668398,0.7691075577131675,7366,,,,r=+0.3002 expected=0.7691 gap_pp=44.09
+erpcore,r150_g05_mastoid_ic20,3_retention,pre-stimulus Pz,0.3999384076441334,0.8188907355111755,7366,,,,r=+0.2212 expected=0.8189 gap_pp=41.90
+erpcore,r150_g05_mastoid_ic20,0_positive_control,oddball_cohen_d,0.5991234044691345,0.5937106064762989,40,38.0,-0.019180860749847678,1.5970598120967567,target minus standard p300_pz
