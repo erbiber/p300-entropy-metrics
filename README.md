@@ -1,357 +1,74 @@
-## Overview
+# Same pipeline, opposite answers: cross-channel single-trial P300 coupling follows the EEG reference
 
-This repository contains the complete analysis pipeline for a study examining whether conventional early-window endpoint-summary measures (mean amplitude, RMS, entropy, Hjorth parameters, etc.) capture genuine stimulus-locked information about P300 amplitude in the active visual oddball paradigm. Every coupling estimate is accompanied by a matched pseudotrial control estimate; the inferential quantity is the difference in standardized coupling between real and pseudotrials (Δβ), reported with a subject-cluster bootstrap confidence interval and a surrogate p-value.
+Analysis code, result files and figure scripts for the study *Same pipeline, opposite answers: cross-channel single-trial P300 coupling follows the EEG reference and disappears without one* (Erkan Biber, Boğaziçi University).
 
-Three families of measures are examined:
+Seventeen summaries of early (0–150 ms) and pre-stimulus activity at Fz are related to single-trial P300 amplitude at Pz in two public visual-oddball datasets, in real trials and in event-free pseudotrials, under the recording reference as distributed, linked mastoids, the common average, Cz and a reference-free surface Laplacian, on identical trials. Agreement between datasets is the correlation, and the absolute difference, between the two datasets' coefficient profiles.
 
-- **Amplitude/energy** (M1–M12): cross-channel and same-channel models
-- **Signal complexity** (M13–M15, M22–M23): permutation entropy, sample entropy, Lempel–Ziv, Hjorth mobility and complexity
-- **Shape/robust/Hjorth** (M16–M23): distributional statistics, slope, Hjorth parameters
+- As distributed, the datasets disagree (r = −0.83 [−0.91, −0.35]); with either common reference they agree (+0.96 and +0.97), and within each dataset the mastoid and average profiles are mirror images.
+- Event-free pseudotrials reverse in the same way, so background signal shared by both electrodes is sufficient to produce the change.
+- Without a reference the P300 remains, but all 17 cross-channel coefficients are equivalent to zero within ±0.05 and their mean |β| is close to the sampling-noise floor.
 
-Three findings emerge, each supported by the matched pseudotrial contrast and tested in a cross-validation dataset:
+The 2025 version of this repository (endpoint-summary pseudotrial analysis) is available under the tag `v2025`.
 
-1. **Cross-channel amplitude and energy couplings are near-zero and dataset-specific.** Their matched contrast does not indicate a stimulus-locked contribution, and a formal dataset-by-feature interaction shows they differ between datasets — consistent with dependence on the background structure of the signal rather than a stable population effect.
-2. **Same-channel coupling is general within-trial temporal continuity.** It is large (R² = 0.299 primary, 0.243 cross-validation) but statistically unchanged under pseudotrial substitution (Δβ ≈ 0), present at every electrode including the eye channels, and quantitatively equivalent across datasets once trial composition is matched — not a P300-specific process.
-3. **No complexity measure shows a matched contrast distinguishable from its pseudotrial counterpart.** All five (permutation entropy, sample entropy, Lempel–Ziv, Hjorth mobility, Hjorth complexity) have Δβ confidence intervals that include zero in both datasets. Nor is there reliable individual-level structure: per-participant slopes have no demonstrable split-half reliability at the available trial counts, and their cross-measure agreement does not survive correction for shared estimation noise. One caveat is specific to permutation entropy — decimating the primary dataset to 500 Hz moves its contrast from Δβ = +0.057 [−0.023, +0.116] to +0.098 [+0.034, +0.141], because the ordinal-pattern embedding (order 3, delay 1) spans 2.0 ms at 1024 Hz and 4.0 ms at 500 Hz. The other four measures are unchanged under the same decimation.
-
-The autocorrelation ratio (AUR = |β_pseudo/β_real|) is retained only as a descriptive summary read against a calibrated background band, because a ratio's confidence interval becomes unbounded as its denominator approaches zero and is uninformative at the small effect sizes of the cross-channel and complexity measures.
-
----
-
-## Datasets
-
-### Primary: ERP CORE Visual P3 (Kappenman et al., 2021)
-
-- Source: https://github.com/lucklab/ERP_CORE/tree/master/P3
-- Primary analysis (±150 µV): *N* = 33 retained (of 40); 1,625 epochs; *N* = 28 contribute to the matched contrast
-- Robustness check (±100 µV): *N* = 27; 1,084 epochs (213 target + 871 standard); *N* = 17 contribute to the matched contrast
-- Both conditions retained, condition as covariate
-- BioSemi ActiveTwo, 1024 Hz, 30 scalp + 3 EOG channels
-- Event coding: two-digit XY where X = block target letter (1–5), Y = shown letter; diagonal {11,22,33,44,55} = target, off-diagonal = standard
-
-### Cross-validation dataset: OpenNeuro ds006018 (Isbell et al., 2025)
-
-- Source: https://openneuro.org/datasets/ds006018
-- Primary analysis (±150 µV): *N* = 90 retained (of 127); 3,130 target trials; *N* = 84 contribute to the matched contrast
-- Robustness check (±100 µV): *N* = 84; 2,782 trials; *N* = 73 contribute to the matched contrast
-- Brain Products actiCHamp Plus, 500 Hz, 26 scalp channels, ±150 µV rejection
-- Access via EEGDash: `pip install eegdash`
-- Same active visual oddball (letters A–E) as ERP CORE
-
-**Data are not included in this repository.** Download from the sources above and set the environment variables (see Configuration).
-
----
-
-## Repository structure
+## Repository layout
 
 ```
 .
-├── LICENSE
 ├── README.md
-├── requirements.txt
-├── scripts/
-│   │
-│   │   -- configuration --
-│   ├── config.py                            # Primary-dataset parameters (paths, filters,
-│   │                                        #   windows, REJECT_THRESHOLD = 100e-6,
-│   │                                        #   PSEUDOTRIAL_MIN_GAP_FROM_REAL = 1.0)
-│   ├── config_ds006018.py                   # Cross-validation-dataset parameters; also carries
-│   │                                        #   PSEUDOTRIAL_CONFIGS (all four) and both
-│   │                                        #   rejection thresholds
-│   │
-│   │   -- main numbered pipeline --
-│   ├── 01_extract_features.py               # Preprocessing + feature extraction (ERP CORE)
-│   ├── 02_run_lmms.py                       # Canonical LMMs (real trials)
-│   ├── 03_per_electrode_lmm.py              # Per-electrode LMMs for topographic validation
-│   ├── 04_pseudotrial_correction.py         # Config-1 pseudotrial run (M1, M4a, M9a, M12)
-│   ├── 05_pseudotrial_diagnostic.py         # 4-config sensitivity sweep (Table 3)
-│   ├── 06_pseudotrial_extended.py           # Config-4 pseudotrial run (amplitude models)
-│   ├── 07_entropy_pseudotrial.py            # Config-4 pseudotrial, entropy/Hjorth
-│   ├── 08_extended_endpoint_pseudotrial.py  # Config-4 pseudotrial, shape/robust/trend
-│   ├── 09_interelectrode_validation.py      # Full-montage topographic analysis
-│   ├── 10_crossval_ds006018.py              # Independent-dataset run
-│   ├── 11_entropy_heterogeneity.py          # Per-subject complexity slope analysis
-│   ├── 12_model_diagnostics.py              # Residual diagnostics + AIC comparison
-│   ├── 13_make_figures.py                   # Main figures 2-7
-│   ├── 14_additional_figures.py              # Delta-beta forest plot and per-subject figure
-│   │                                        #   (filename typo retained as deposited)
-│   │
-│   │   -- matched-contrast (Delta-beta) subsystem --
-│   ├── run_phase013.py                      # Driver. Defines all four placement configs and
-│   │                                        #   the +/-150 uV matched threshold; --config,
-│   │                                        #   --clean-pseudo, --targets-only, --resample
-│   ├── phase013_engine.py                   # Core estimator: per-subject slopes, Delta-beta,
-│   │                                        #   BCa bootstrap, surrogate p, clean_pseudo_mask()
-│   ├── phase013_erpcore.py                  # Primary-dataset driver
-│   ├── phase013_ds006018.py                 # Independent-dataset driver
-│   ├── phase013_cache.py                    # Epoch/feature caching
-│   ├── phase013_smoketest.py                # Integration test for the engine
-│   │
-│   │   -- standalone validity checks --
-│   ├── target_standard_validity.py          # Behavioural validity (accuracy, RT)
-│   ├── distributional_comparability.py      # Real vs pseudotrial ITI / position / coverage
-│   │
-│   │   -- calibration, reliability and audit --
-│   ├── 15_calibration_simulation.py         # AUR null bands + power analysis
-│   ├── 16_slope_reliability.py              # Split-half / Spearman-Brown; cross-measure
-│   ├── 17_overlap_audit.py                  # Pseudotrial overlap diagnostics
-│   ├── phase013_complexity_patch.py         # Registers M13-M15, M22, M23 and computes
-│   │                                        #   their per-epoch features. Import in
-│   │                                        #   run_phase013.py to extend MODELS to nine.
-│   ├── phase013_nan_safe_zscore.py          # NaN-safe robust-z and slope: a subject with
-│   │                                        #   a few non-finite trials keeps its clean
-│   │                                        #   trials instead of being dropped entirely.
-│   └── (all supplementary figures are reproducible from this deposit:
-│       S1 from script 12, S2 from 15_calibration_simulation.py,
-│       S3 from 17_overlap_audit.py + distributional_comparability.py)
-│
-└── results/
-    │   -- canonical real-trial fits --
-    ├── lmm_summary_canonical.csv                    (  17 rows) Canonical LMMs, N=27/1,084
-    ├── per_electrode_canonical.csv                  (  30 rows) Per-electrode coefficients
-    ├── model_diagnostics.csv                        (  18 rows) Log-lik, AIC, BIC by structure
-    │
-    │   -- single-draw pseudotrial runs --
-    ├── pseudotrial_lmm_summary.csv                  (   4 rows) Script 04; M1, M4a, M9a, M12
-    ├── pseudotrial_sensitivity.csv                  (  16 rows) Script 05; 4 configs x 4 models
-    ├── entropy_pseudotrial_results.csv              (  10 rows) Script 07; real + pseudo
-    ├── extended_endpoint_pseudotrial_results.csv    (  42 rows) Script 08; real + pseudo
-    │
-    │   -- matched-contrast (Delta-beta) outputs --
-    ├── phase013_dbeta_config4_K1000.csv             (  18 rows) PRIMARY. 9 models, both datasets
-    ├── legacy/phase013_dbeta_config4.csv            (   8 rows) SUPERSEDED by the K1000 file; see results/legacy/README.md
-    ├── phase013_dbeta_config2.csv                   (   8 rows) FIXED DEPOSIT: source for Supplementary Table S3; not regenerable
-    ├── phase013_interaction_config2.csv             (   4 rows) FIXED DEPOSIT: source for Supplementary Table S7; not regenerable
-    ├── phase013_dbeta_config2.csv                   (   8 rows) +/-100 uV robustness
-    ├── phase013_dbeta_config4_K1000_clean.csv       (   9 rows) Evoked-clean, 9 models, erp_core
-    ├── phase013_marginal_r2_config4_K1000_clean.csv (   9 rows) Marginal R2 under evoked-clean
-    ├── phase013_persubject_config4_K1000_clean.csv  ( 297 rows) Per-subject slopes, evoked-clean
-    ├── phase013_dbeta_config4_K1000_rs500.csv       (  18 rows) 500 Hz decimation, 9 models
-    ├── phase013_interaction_config4_K1000.csv       (   9 rows) Dataset x feature interaction, 9 models
-    ├── phase013_interaction_config4.csv             (   4 rows) Amplitude/energy models
-    ├── phase013_interaction_config2.csv             (   4 rows)
-    ├── phase013_interaction_config4_K1000_targets.csv (  4 rows) Condition-matched
-    ├── phase013_interaction_config4_K1000_rs500.csv (   9 rows) 500 Hz, 9 models
-    ├── phase013_marginal_r2_config4_K1000.csv       (  18 rows) Marginal R2, 9 models
-    ├── phase013_marginal_r2_config4_K1000_rs500.csv (  18 rows) Marginal R2 at 500 Hz
-    ├── phase013_marginal_r2_config2_K1000.csv       (   8 rows)
-    ├── phase013_persubject_config4_K1000.csv        (1107 rows) Per-subject real/pseudo slopes, 9 models
-    ├── phase013_persubject_config4_K1000_rs500.csv  (1107 rows) Same at 500 Hz
-    ├── phase013_persubject_config2_K1000.csv        ( 444 rows)
-    │
-    │   -- topography --
-    ├── interelectrode_val1_cross_to_Pz.csv          (  66 rows) Cross-channel
-    ├── interelectrode_val2_same_channel.csv         (  66 rows) Same-channel
-    ├── interelectrode_val3_shape_to_Pz.csv          ( 132 rows) Complexity
-    ├── interelectrode_all.csv                       ( 264 rows) All three combined
-    │
-    │   -- trial-level and cross-validation dataset --
-    ├── heterogeneity_primary_trials.csv             (1084 rows) Trial-level complexity + P300
-    ├── heterogeneity_ds006018_checkpoint.csv        (3130 rows) Same, cross-validation dataset
-    ├── crossval_ds006018_results.csv                (  14 rows) Independent-dataset LMMs
-    │
-    │   -- validity checks --
-    ├── overlap_audit_erp_core_config4.csv           (  33 rows) Pseudotrial overlap diagnostics:
-    │                                                           46.9% epoch overlap, 7.8% measurement-window
-    │                                                           overlap, 92.2% retained by the clean filter
-    ├── target_standard_validity.csv                 (  40 rows) Per-subject accuracy and RT
-    ├── distributional_comparability.csv             (  40 rows) ITI / position / coverage
-    │
-    │   -- calibration --
-    ├── calibration_bands.csv                        (  96 rows) Null AUR bands, both estimators
-    ├── calibration_power.csv                        (  80 rows) Detection probability by increment
-    │
-    │   -- reliability and concordance --
-    ├── slope_reliability.csv                        (  10 rows) Split-half reliability
-    ├── cross_measure_concordance.csv                (  20 rows) Same-trial vs disjoint-half
-    │
-    └── logs/                                        Duplicate copies of nine files above,
-                                                     byte-identical to the top-level versions.
-                                                     Also readable at results/logs/ by the
-                                                     scripts that write there.
+├── REPRODUCE.md            step-by-step reproduction, and a map from every table and figure to its result files
+├── requirements.txt        package versions used for the reported results
+├── LICENSE
+├── pipeline/               analysis code (Python)
+│   ├── run_all.py          runs steps 1–13 in a fixed order, skips completed steps, validates every output
+│   ├── config.py           paths, filters, windows, thresholds (all overridable by environment variables)
+│   ├── spec.py             definitions of the 21 matched models and the 17 pooled models
+│   ├── estimators.py       robust standardisation, OLS slopes, BCa intervals
+│   ├── placement.py        pseudotrial placement
+│   ├── lib/                data access, preprocessing, feature extraction, parity features
+│   └── run/                01_features.py … 13_summaries.py
+├── results/                every result file used in the paper (CSV), run summaries and paper_values.json
+└── figures/                scripts and PNG files for Figures 1–4 and S1
 ```
 
-**Two notes on the layout.** `config.py` and `config_ds006018.py` live inside `scripts/`, not at the repository root. There is no top-level `results_ds006018/` directory — `crossval_ds006018_results.csv` is in `results/`.
+## Datasets
 
----
+The EEG data are not included. Both datasets are public and de-identified.
 
-## Configuration
+| Dataset | Source | Recording | Used here |
+|---|---|---|---|
+| ERP CORE, active visual oddball (P3) (Kappenman et al. 2021) | https://doi.org/10.18115/D5JW4R | BioSemi ActiveTwo, 1024 Hz, no reference electrode (CMS at PO1, DRL at PO2) | 40 listed; 35 in the primary (event-free) analysis, 38 in the comparison-rule analysis |
+| OpenNeuro ds006018 v1.2.2, visual oddball (Isbell et al. 2025) | https://openneuro.org/datasets/ds006018/versions/1.2.2, read through EEGDash | Brain Products actiCHamp Plus, 500 Hz, online reference Cz, mastoids LM and RM | 98 listed; 97 analysed |
 
-Both config files expose paths via environment variables so the pipeline runs without editing source:
+Event codes 11, 22, 33, 44 and 55 are targets and the 20 off-diagonal codes are standards in both datasets.
 
-```bash
-# Primary dataset
-export ERP_CORE_P3_DATA=/path/to/erp_core_P3
-export DOF_SCRIPT_DIR=/path/to/this/repo/scripts
-export DOF_RESULTS_DIR=/path/to/output/results
+## Pipeline
 
-# Cross-validation dataset
-export DS006018_DATA=/path/to/ds006018
-export DS006018_RESULTS=/path/to/output/results_ds006018
-```
+| Step | Script | Purpose |
+|---|---|---|
+| 1 | `01_features.py` | preprocessing, ICA, epoching and trial features under one reference |
+| 2 | `02_canonical_lmm.py` | pooled linear mixed models on real trials |
+| 3 | `03_matched.py` | matched real-minus-pseudotrial contrast (Δβ) with BCa intervals |
+| 4 | `04_mechanism.py` | trial-level positive control and within-trial shared-state tests |
+| 5 | `05_parity_features.py` | time-reversal parity features and event onsets |
+| 6 | `06_followup.py` | equivalence, cross-dataset agreement, parity decision, lags in seconds, sampling-rate check |
+| 7 | `07_from_cache.py` | features without baseline correction, participant ERP averages, background symmetry |
+| 8 | `08_common.py` | one ICA cleaning, references derived after cleaning, identical trials, event-free pseudotrials |
+| 9 | `09_common_analysis.py` | profile agreement, absolute disagreement, location statistics, battery robustness, Δβ with Holm and equivalence |
+| 10 | `10_reference_free.py` | surface Laplacian (CSD and CSD18), delay-corrected and subsampled real trials, positive control |
+| 11 | `11_robustness.py` | equivalence and noise floor of real-trial slopes, effective number of statistics, absolute-scale interaction, BCa agreement, Holm adjustment with both bootstrap p values, distribution of participant-level slopes with trimmed means and medians, neighbouring-trial adjustment |
+| 12 | `12_simulation.py` | calibration of the estimators by simulation with known true slopes |
+| 13 | `13_summaries.py` | collects every value reported in the tables and figures into `results/paper_values.json` |
 
-If the variables are not set, the scripts fall back to the hardcoded Windows paths in `scripts/config.py` / `scripts/config_ds006018.py`; update those for your system.
+`python run_all.py` runs all steps. Before any step, a gate checks that the pseudotrial feature code reproduces the real-trial feature code at 1024 and 500 Hz. See `REPRODUCE.md` for options, run times and the table and figure map.
 
-**Where each parameter actually lives.** Preprocessing settings, analysis windows and the real-trial rejection threshold (`REJECT_THRESHOLD = 100e-6`) are in the per-dataset config files. The four pseudotrial placement configurations and the relaxed ±150 µV threshold used for the matched contrast are defined in `run_phase013.py`, not in `config.py`. Note that `config.py` sets `PSEUDOTRIAL_MIN_GAP_FROM_REAL = 1.0`, which corresponds to configs 1 and 3 — the primary 0.5 s gap is selected through `run_phase013.py --config config4`. `config_ds006018.py` additionally carries an explicit `PSEUDOTRIAL_CONFIGS` list and both thresholds, so the two config files are not symmetric.
+## Results folder
 
----
+`results/` contains the outputs of steps 1–13 from the run of 15 November 2026 (`pipeline_summary_20261115_214001.txt`, `pipeline_manifest_20261115_214001.csv`), the step 11 and 12 outputs, and `paper_values.json`. Trial-level feature files are included for the six cells used by steps 11 and 13 (`features_{erpcore,ds006018}_r150_g05[_mastoid|_average]_ic20.csv`); the remaining trial-level files of steps 1, 5 and 7 are regenerated from the raw data.
 
-## Installation
+## Requirements
 
-```bash
-pip install mne eegdash numpy scipy pandas statsmodels matplotlib antropy
-```
+Python 3 with the versions in `requirements.txt` (MNE-Python 1.12.1, NumPy 2.3.1, SciPy 1.16.0, pandas 2.2.3, statsmodels 0.14.5, scikit-learn 1.7.0, antropy 0.1.9, EEGDash 0.8.2, Matplotlib 3.11.2).
 
-Tested with Python 3.10+, MNE 1.7+, statsmodels 0.14+.
+## Licence
 
----
-
-## Running order
-
-The numbered scripts run in order; each reads the outputs of the steps before it. The `phase013` subsystem runs after step 11 and produces the matched-contrast estimates the paper reports as primary.
-
-| Step | Script | Input | Output |
-|------|--------|-------|--------|
-| 1 | `01_extract_features.py` | Raw ERP CORE BIDS | trial-level feature table (intermediate, not deposited) |
-| 2 | `02_run_lmms.py` | features | `lmm_summary_canonical.csv`, `model_diagnostics.csv` |
-| 3 | `03_per_electrode_lmm.py` | features | `per_electrode_canonical.csv` |
-| 4 | `04_pseudotrial_correction.py` | raw EEG | `pseudotrial_lmm_summary.csv` (Config-1) |
-| 5 | `05_pseudotrial_diagnostic.py` | raw EEG | `pseudotrial_sensitivity.csv` (Table 3) |
-| 6 | `06_pseudotrial_extended.py` | raw EEG | `extended_endpoint_pseudotrial_results.csv` |
-| 7 | `07_entropy_pseudotrial.py` | raw EEG | `entropy_pseudotrial_results.csv` |
-| 8 | `08_extended_endpoint_pseudotrial.py` | raw EEG | appends to `extended_endpoint_pseudotrial_results.csv` |
-| 9 | `09_interelectrode_validation.py` | raw EEG | `interelectrode_val1/2/3`, `interelectrode_all.csv` |
-| 10 | `10_crossval_ds006018.py` | ds006018 EEG | `crossval_ds006018_results.csv` |
-| 11 | `11_entropy_heterogeneity.py` | features + ds006018 | `heterogeneity_primary_trials.csv`, `heterogeneity_ds006018_checkpoint.csv` |
-| 12 | `run_phase013.py --config config4` | raw EEG (both datasets) | `phase013_dbeta_*`, `phase013_interaction_*`, `phase013_marginal_r2_*`, `phase013_persubject_*` |
-| 13 | `target_standard_validity.py` | raw ERP CORE | `target_standard_validity.csv` |
-| 14 | `distributional_comparability.py` | raw EEG | `distributional_comparability.csv` |
-| 15 | `16_slope_reliability.py` | heterogeneity files | `slope_reliability.csv`, `cross_measure_concordance.csv` |
-| 16 | `17_overlap_audit.py` | raw EEG | `overlap_audit_erp_core_config4.csv` (33 subjects x 1,000 placements) |
-| 17 | `12_model_diagnostics.py` | LMM fits | `model_diagnostics.csv` + Supplementary Figure S1 |
-| 18 | `13_make_figures.py`, `14_additional_figures.py` | all results | Figures 1–8, Supplementary Figures S2–S3 |
-
-
-`15_calibration_simulation.py` is self-contained and can be run at any point; it needs no EEG data. It writes `calibration_bands.csv` and `calibration_power.csv`, and calibrates the AUR under **both** estimators — `K_SINGLE_DRAW = 1` for the single-draw ratio and `K_MATCHED = 1000` for the matched-contrast ratio — because the two have different null distributions. Both output files carry an `estimator` column; reading one ratio against the other's band will misclassify it.
-
-Useful `run_phase013.py` flags: `--config {config1..config4|all}`, `--clean-pseudo` (drop pseudotrials whose measurement windows overlap a real evoked interval), `--targets-only` (condition-matched interaction), `--resample 500` (sampling-rate control).
-
----
-
-## Key methodological parameters
-
-| Parameter | Value | Notes |
-|-----------|-------|-------|
-| Early window | 0–150 ms | At Fz (cross-channel) or Pz (same-channel) |
-| P300 window | 300–600 ms | At Pz |
-| Pseudotrial min gap | 0.5 s (Config-4 primary) | Also tested at 1.0 s (configs 1, 3) |
-| Pseudotrial threshold | ±150 µV (Config-4 primary) | Also tested at ±100 µV (config 2) |
-| Matched-contrast N | 28 primary / 84 independent | Config-4; 17 / 73 at ±100 µV |
-| Surrogate placements | 1,000 attempted per participant; median 1,000 achieved, minimum 594 (primary) and 202 (independent validation); participants retained at ≥ 200 achieved placements | `run_phase013.py --k 1000 --min-pseudo 200` |
-| Bootstrap | 4,000 replicates, subject-cluster BCa | `phase013_engine.py` |
-| Model | Random-intercept LMM, REML | `statsmodels MixedLM` |
-| Standardization | Robust z (median / 1.4826×MAD) | Within-participant |
-| R² | Nakagawa & Schielzeth (2013) | Marginal (fixed effects only) |
-| AUR | \|β_pseudo\| / \|β_real\| | Descriptive only; see the note below |
-| Entropy parameters | PE: m=3, τ=1, normalized; SE: m=2, r=0.2×SD; LZ: median-threshold binarization | `antropy` |
-| ΔAIC (RI vs RIS) | 32–54 in favour of random-intercept | From `model_diagnostics.csv` |
-
-**Two AUR estimators exist in this repository and they are not interchangeable.** The *single-draw* estimator divides the canonical real-trial β by the config-4 pseudo β from `pseudotrial_sensitivity.csv`; it gives M1 = 0.30 and M4a = 1.02, and it is the estimator behind Table 5 and the corresponding Discussion text. The *matched-contrast* estimator uses `phase013_dbeta_config4_K1000.csv` (β_pseudo_mean / β_real over up to 1,000 placements per participant, median 1,000, minimum 202); it gives M1 = 0.47, M4a = 1.37, M8 = 0.07, M9a = 0.99, and it is what Table 6 and Supplementary Figure S2 report. Against the matched-contrast band ([0.61, 2.63] at R² ≈ 0.01, N = 28) both M8 and M1 fall below the floor; for M1 this is a sign artifact, since both of its coefficients are negative and its Δβ interval includes zero. This instability is the reason Δβ, not the ratio, is the reported estimand.
-
----
-
-## Pseudotrial configurations (Table 3)
-
-Table 3 reports the 4-config sensitivity sweep produced by **script 05** (`pseudotrial_sensitivity.csv`). The sweep uses a liberal subject-inclusion gate (a subject is retained if at least `MIN_TRIALS_REQUIRED` = 10 pseudotrials could be placed), which is what allows all 27 subjects to contribute under config 4.
-
-Scripts 06–08 use a stricter gate: a subject is included only if a full complement of pseudotrials matching their real-trial count could be placed. This produces a slightly smaller pool (943 trials, 26 participants) but more closely matched per-subject sample sizes. The two config-4 runs are therefore not interchangeable.
-
-| Config | Min gap | Threshold | Pseudotrials (% of real) | Participants | M9a *R*²_pseudo | M1 *R*²_pseudo |
-|--------|---------|-----------|--------------------------|--------------|----------------|---------------|
-| 1 | 1.0 s | ±100 µV | 157 (14%) | 11 | 0.298 | 0.004 |
-| 2 | 0.5 s | ±100 µV | 455 (42%) | 16 | 0.279 | 0.002 |
-| 3 | 1.0 s | ±150 µV | 426 (39%) | 20 | 0.303 | 0.012 |
-| **4 (primary)** | **0.5 s** | **±150 µV** | **952 (88%)** | **27** | **0.229** | **0.001** |
-
-**Deposited matched-contrast configs.** Only configs 2 and 4 were run through the `phase013` subsystem; there are no `phase013_*_config1` or `_config3` files. Configs 1 and 3 use the 1.0 s gap, which is infeasible for this paradigm's ~1.5 s stimulus-onset asynchrony, and appear only in the script-05 sweep.
-
----
-
-## Result file reference
-
-### Canonical real-trial fits
-
-**`lmm_summary_canonical.csv`** — one row per model, real trials only, N = 27 / 1,084, ±100 µV.
-Columns: `model`, `predictor`, `beta`, `SE`, `z`, `p`, `CI_low`, `CI_high`, `R2_marginal`, `R2_conditional`, `n_trials`, `n_subjects`, `fit_method`, `note`.
-Contains M1–M12 including the a/b competitive and m mean-variant models (17 rows). **M13–M23 are not in this file**; they are in `entropy_pseudotrial_results.csv` and `extended_endpoint_pseudotrial_results.csv`, which come from a separate run — coefficients for models present in both differ in the fourth decimal place.
-
-**`per_electrode_canonical.csv`** — per-electrode coefficients. Columns: `channel`, `beta`, `SE`, `z`, `p`, `R2_marginal`, `n_trials`, `n_subjects`.
-
-**`model_diagnostics.csv`** — Columns: `model`, `family`, `structure`, `ll`, `aic`, `bic`. Source of the ΔAIC range.
-
-### Matched-contrast (Δβ) outputs
-
-**`phase013_dbeta_config4_K1000.csv`** — the primary inferential file. Columns: `dataset`, `config`, `model`, `n_subjects_processed`, `n_used`, `n_dropped`, `draws_min`, `draws_median`, `beta_real`, `beta_pseudo_mean`, `beta_pseudo_sd`, `dbeta`, `bca_lo`, `bca_hi`, `surrogate_p`. Nine models × two datasets (18 rows). The earlier four-model run at the same configuration is retained as `results/legacy/phase013_dbeta_config4.csv`; its eight rows are identical to the corresponding rows here.
-
-**`phase013_interaction_*.csv`** — Columns: `config`, `model`, `datasets`, `interaction_beta`, `interaction_p`, `n_trials`.
-
-**`phase013_marginal_r2_*.csv`** — Columns: `dataset`, `config`, `model`, `marginal_r2`, `lmm_beta`, `n_subjects`, `n_trials`. The ±150 µV run retains N = 33 / 1,625 and the ±100 µV run N = 27 / 1,084, because they are different rejection cutoffs. The `_K1000` files carry all nine models and are the source for the descriptive β and marginal R² reported in the manuscript's Results. `lmm_summary_canonical.csv` covers all 23 models at ±100 µV.
-
-**`phase013_persubject_*.csv`** — Columns: `dataset`, `config`, `model`, `subject`, `real_slope`, `pseudo_mean`, `d`, `n_pseudo_draws`, `used`. The `_K1000` files contain all nine models (M1, M4a, M8, M9a, M13–M15, M22, M23); the `config2` file contains the four amplitude/energy models. Aggregating `d` over rows with `used == True` reproduces the reported Δβ exactly.
-
-### Single-draw pseudotrial runs
-
-**`pseudotrial_sensitivity.csv`** — 4-config sweep, M1/M4a/M9a/M12. Columns: `beta`, `SE`, `z`, `p`, `R2_marginal`, `n_trials`, `n_subjects`, `model`, `config`. Source of Table 3 and of the single-draw AUR values.
-
-**`entropy_pseudotrial_results.csv`** — real and pseudo rows for M13, M14, M15, M22, M23.
-**`extended_endpoint_pseudotrial_results.csv`** — real and pseudo rows for the shape/robust/trend family and several amplitude models. Both use columns `beta`, `SE`, `z`, `p`, `R2_marginal`, `n_trials`, `n_subjects`, `model`, `kind`, `config`, `formula`.
-
-**`pseudotrial_lmm_summary.csv`** — script 04, config 1. Columns include `beta_real`, `beta_pseudo`, `R2_real`, `R2_pseudo`, `beta_ratio_pseudo_over_real`. Single-draw ratio summary; the matched contrast is the estimand used throughout.
-
-### Topography
-
-**`interelectrode_val1/2/3_*.csv`** and **`interelectrode_all.csv`** — coupling at each of 33 electrodes (30 scalp + 3 EOG), real and pseudo. Script 09 sets `CFG_THRESH = 150e-6`, so these files and the topographic figures built from them use the ±150 µV (config-4) trial set: N = 33 / 1,625 real, 26 / 943 pseudo. Columns: `beta`, `SE`, `z`, `p`, `R2_marginal`, `n_trials`, `n_subjects`, `electrode`, `kind`, `measure`.
-
-### Trial-level and cross-validation dataset
-
-**`heterogeneity_primary_trials.csv`** / **`heterogeneity_ds006018_checkpoint.csv`** — trial-level complexity features and P300 amplitude for per-subject slope estimation. Columns: `subject`, `pe`, `se`, `lz`, `hjorth_mob`, `hjorth_cplx`, `p300` (the primary file additionally carries a `dataset` column). The primary file is built at ±100 µV (27 subjects, 1,084 trials) and the cross-validation file at ±150 µV (90 subjects, 3,130 trials), following `extract_primary()` and `extract_ds006018()` in script 11, so the two are not matched on rejection threshold.
-
-Note on the standardization in `16_slope_reliability.py`: `robust_z` divides by 1.4826 × MAD, and falls back to a plain median subtraction when the MAD is exactly zero. Two of the 90 cross-validation participants have zero Lempel–Ziv MAD within the early window, so their series enter unscaled. This is why the Lempel–Ziv slope range for that dataset reaches +0.864 rather than the +0.626 obtained if those two are scaled by their standard deviation; the mean (−0.000) and the positive/negative split (45/90) are unaffected. No primary-dataset participant is affected.
-
-**`crossval_ds006018_results.csv`** — Columns: `beta`, `SE`, `z`, `p`, `R2_marginal`, `n_trials`, `n_subjects`, `model`, `kind`, `config`.
-
-### Validity checks
-
-**`target_standard_validity.csv`** — 40 subjects (`sub-001`–`sub-040`), i.e. the full ERP CORE sample **before** the EEG quality-control exclusions that produce N = 27. Columns: `n_target`, `n_standard`, `target_accuracy`, `target_median_rt`, `standard_accuracy`, `standard_median_rt`, `overall_accuracy`, `overall_median_rt`, `subject`.
-
-**`distributional_comparability.csv`** — 40 subjects, same caveat. Columns: `n_real`, `fs`, `dur_s`, `real_iti_median`, `real_iti_q10`, `real_iti_q90`, `pseudo_gap_median`, `pseudo_gap_q10`, `pseudo_gap_q90`, `real_pos_mean`, `pseudo_pos_mean`, `real_pos_sd`, `pseudo_pos_sd`, `subject`.
-
-### Reliability and concordance
-
-**`slope_reliability.csv`** — split-half reliability behind the reliability column of Supplementary Table S4. Columns: `dataset`, `measure`, `n_subjects`, `slope_mean`, `slope_sd`, `odd_even_r`, `spearman_brown`, `reportable`, `sb_defined`. The Spearman–Brown correction is undefined for negative odd–even correlations (it returns values outside [−1, 1]); such cases are flagged `sb_defined = False` and reported as ≤ 0.
-
-**`cross_measure_concordance.csv`** — Columns: `dataset`, `measure_a`, `measure_b`, `r_same_trials`, `r_disjoint_a_odd`, `r_disjoint_b_odd`, `r_disjoint_mean`. Both split directions are given because the assignment of which measure takes the odd half is arbitrary.
-
----
-
-
-## Reproducibility
-
-All stochastic operations use fixed seeds (`RANDOM_SEED = 42`, `PSEUDOTRIAL_SEED = 12345`; the matched-contrast bootstrap and surrogate draws are separately seeded in `phase013_engine.py`). Filter settings, epoch windows, artifact thresholds, pseudotrial parameters and trial-count criteria are version-controlled and applied with the same values to both datasets, though they are distributed across `config.py`, `config_ds006018.py` and `run_phase013.py` rather than held in one file (see Configuration).
-
-Each numerical result in the paper is traceable to a specific output CSV through the running order and the result-file reference above.
-
-One sampling asymmetry is worth stating plainly: Figures 2 and 3 are built from the ±100 µV grand averages written by script 01 (`REJECT_THRESHOLD = 100e-6`, N = 27), whereas the topographic figures and Supplementary Tables S1, S5 and S6 come from script 09 at ±150 µV (N = 33). Both are labelled in the manuscript captions.
-
----
-
-## Citation
-
-github/erbiber/p300-entropy-metrics
-
----
-
-## License
-
-Code: MIT License. See `LICENSE` for details.  
-Data: ERP CORE — CC BY 4.0 (Kappenman et al., 2021). ds006018 — CC0 (Isbell et al., 2025).
+MIT (see `LICENSE`).

@@ -1,27 +1,14 @@
-# Data (download separately — see README)
 data/
 *.fif
 *.bdf
 *.set
 *.edf
 *.cnt
-
-# Python
 __pycache__/
 *.py[cod]
-*.pyo
 .env
 venv/
 env/
-
-# OS
 .DS_Store
 Thumbs.db
-
-# Intermediate outputs (regenerate with pipeline)
-results/figures/
 *.log
-
-# NOTE: results/*.npz is deliberately NOT ignored. figure1_grand_average.npz is a
-# deposited artefact referenced by the manuscript, and an earlier blanket *.npz rule
-# silently kept it out of the repository.

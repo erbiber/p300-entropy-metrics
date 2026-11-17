@@ -1,8 +1,9 @@
-mne>=1.7.0
-eegdash>=0.3.0
-numpy>=1.26.0
-scipy>=1.13.0
-pandas>=2.2.0
-statsmodels>=0.14.0
-matplotlib>=3.9.0
-antropy>=0.1.6
+mne==1.12.1
+numpy==2.3.1
+scipy==1.16.0
+pandas==2.2.3
+statsmodels==0.14.5
+scikit-learn==1.7.0
+antropy==0.1.9
+eegdash==0.8.2
+matplotlib==3.11.2
