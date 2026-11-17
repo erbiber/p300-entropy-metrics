@@ -1,0 +1,3 @@
+dataset,check,n_pairs,max_abs_diff
+ds006018,real_slope_all_references,6111,9.974659986866641e-17
+ds006018,pseudo_mean_mastoid,2037,9.93129189996722e-17
