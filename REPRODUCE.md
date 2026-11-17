@@ -60,12 +60,13 @@ Every value in the tables and figures is read from `results/paper_values.json`, 
 
 | Item | Content | Result files | Step |
 |---|---|---|---|
-| Table 1 | matched-contrast battery | `matched_erpcore_r150_g05_ic20.csv` | 3 |
-| Table 2 | participants and trials | `common_subjects_{dataset}.csv`, `common_persubject_{dataset}_{free,onset}.csv` | 8 |
-| Table 3 | positive control | `mechanism_*.csv`, `erp_*.csv` (Pz, 300–600 ms), `features_*_log.csv` | 4, 7, 1 |
-| Table 4 | profile agreement after common cleaning | `common_transport_free.csv`, `common_transport_onset.csv` | 9 |
-| Table 5 | neighbouring-trial adjustment | `robustness_neighbour_adjustment.csv`, `robustness_neighbour_share.csv` | 11 |
-| Table 6 | complexity measures, equivalence | `common_dbeta_free.csv` | 9 |
+| Table 1 | studies relating pre-stimulus or early activity to later evoked responses (literature) | none | – |
+| Table 2 | matched-contrast battery | `matched_erpcore_r150_g05_ic20.csv` | 3 |
+| Table 3 | participants and trials | `common_subjects_{dataset}.csv`, `common_persubject_{dataset}_{free,onset}.csv` | 8 |
+| Table 4 | positive control | `mechanism_*.csv`, `erp_*.csv` (Pz, 300–600 ms), `features_*_log.csv` | 4, 7, 1 |
+| Table 5 | profile agreement after common cleaning | `common_transport_free.csv`, `common_transport_onset.csv` | 9 |
+| Table 6 | neighbouring-trial adjustment | `robustness_neighbour_adjustment.csv`, `robustness_neighbour_share.csv` | 11 |
+| Table 7 | complexity measures, equivalence | `common_dbeta_free.csv` | 9 |
 | Table S1 | agreement of Δβ over 21 models | `common_persubject_{dataset}_free.csv` | 9, 13 |
 | Table S2 | pooled mixed models | `canonical_lmm_erpcore_r150_g05_ic20.csv` | 2 |
 | Table S3 | Δβ for all 21 measures | `common_dbeta_free.csv` | 9 |

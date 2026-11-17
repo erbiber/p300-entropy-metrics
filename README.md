@@ -1,6 +1,6 @@
-# Cross-channel Single-trial P300 Coupling Follows the EEG Reference and Disappears without One
+# Cross-channel Single-trial P300 Coupling Follows the EEG Reference and Disappears Without One
 
-Analysis code, result files and figure scripts for the study *Cross-channel Single-trial P300 Coupling Follows the EEG Reference and Disappears Without One*.
+Analysis code, result files and figure scripts for the study *Cross-channel Single-trial P300 Coupling Follows the EEG Reference and Disappears Without One* 
 
 Seventeen summaries of early (0–150 ms) and pre-stimulus activity at Fz are related to single-trial P300 amplitude at Pz in two public visual-oddball datasets, in real trials and in event-free pseudotrials, under the recording reference as distributed, linked mastoids, the common average, Cz and a reference-free surface Laplacian, on identical trials. Agreement between datasets is the correlation, and the absolute difference, between the two datasets' coefficient profiles.
 
@@ -8,7 +8,7 @@ Seventeen summaries of early (0–150 ms) and pre-stimulus activity at Fz are re
 - Event-free pseudotrials reverse in the same way, so background signal shared by both electrodes is sufficient to produce the change.
 - Without a reference the P300 remains, but all 17 cross-channel coefficients are equivalent to zero within ±0.05 and their mean |β| is close to the sampling-noise floor.
 
-The 2025 version of this repository (endpoint-summary pseudotrial analysis) is available under the tag `v2025`.
+
 
 ## Repository layout
 
